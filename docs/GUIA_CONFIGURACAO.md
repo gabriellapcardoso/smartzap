@@ -104,7 +104,7 @@ Se você quer **rodar e testar no seu computador** (sem Vercel), o fluxo é bem 
 
 4. **Crie as tabelas no Supabase**
     - Abra o **Supabase Dashboard → SQL Editor**
-    - Execute o SQL em `supabase/migrations/0001_initial_schema.sql`
+    - Execute o SQL em `lib/migrations/0001_initial_schema.sql`
 
     > Se as tabelas não existirem, o app até abre, mas rotas que dependem do banco vão falhar.
 
@@ -258,51 +258,63 @@ Entre na comunidade:
 [👉 **Entrar no Grupo de Suporte**](https://chat.whatsapp.com/K24Xek8pinPBwzOU7H4DCg?mode=hqrt1)
 
 ---
-*Versão 4.0 — "The Educational Edition"*
+*Versão 4.0 — "The Educational Edition" (12/2025)*
 
+## 📸 Apêndice: Setup com imagens (Vercel + Wizard)
 
+As imagens abaixo ficam na pasta `docs/` e ilustram o fluxo do deploy na Vercel e o setup pelo Wizard.
 
+1. **Vercel → Add New Project**
+    ![Vercel - Add New Project](./image.png)
 
-imgs
+2. **Selecione o repositório do GitHub para importar**
+    ![Vercel - selecionar repositório](./image-1.png)
 
-1. add new project
-![alt text](image.png)
-2. Seleciona o repositorio pra importar
-![alt text](image-1.png)
-3. clica em deploy
-![alt text](image-2.png)
-4. clique em Continue to Dashboard
-![alt text](image-3.png)
-5. clique na url de Domains 
-![alt text](image-4.png)
-6. copie token da vercel
-![alt text](image-5.png)
-![alt text](image-6.png)
-![alt text](image-7.png)
-7. VAI DETECTAR O PROJETO, clique em confirmar
-![alt text](image-8.png)
-8. defina uma senha segura
-![alt text](image-9.png)
-8. add dados do supaabse, clique em connect
-![alt text](image-14.png)
-![alt text](image-10.png)
-9. app framework
-![alt text](image-11.png)
-10. add secrete key
-https://supabase.com/dashboard/project/xqqfylyaziczpsbugnev/settings/api-keys
-![alt text](image-12.png)
-11. autoamcao pra rodar o sql autoamticamente, tem que clicar em connections string e depois mudar o método pra transaction pooler, nao esquecer de add a senha ai nessa URL que foi criada no inicio, se esquecer tem o link ali pra resetar 
-![alt text](image-13.png)
+3. **Clique em Deploy**
+    ![Vercel - Deploy](./image-2.png)
 
-clique em continar depois que inserie todos os dados
+4. **Clique em “Continue to Dashboard”**
+    ![Vercel - Continue to Dashboard](./image-3.png)
 
-![alt text](image-15.png)
+5. **Abra “Domains” e copie a URL do projeto**
+    ![Vercel - Domains](./image-4.png)
 
-12 qstash token
-![alt text](image-17.png)
-![alt text](image-16.png)
+6. **Crie e copie o token da Vercel (Settings → Tokens)**
+    ![Vercel - Tokens](./image-5.png)
+    ![Vercel - Create Token](./image-6.png)
+    ![Vercel - Copiar token](./image-7.png)
 
-13. add as configuracos de whatsapp ou pule essa etapa caso voce nao tenha isso agora
-![alt text](image-18.png)
-14. insira seus dados pra finalizar 
-![alt text](image-19.png)
+7. **Wizard: projeto detectado → confirmar**
+    ![Wizard - confirmar projeto](./image-8.png)
+
+8. **Wizard: defina uma senha mestra segura**
+    ![Wizard - senha](./image-9.png)
+
+9. **Wizard: Supabase — adicione os dados e clique em Connect / Verificar e Migrar**
+    ![Wizard - Supabase dados](./image-14.png)
+    ![Wizard - Supabase connect](./image-10.png)
+
+10. **Wizard: selecione o framework do app**
+     ![Wizard - App framework](./image-11.png)
+
+11. **Supabase: copie a Secret Key**
+    - Link (exemplo): https://supabase.com/dashboard/project/<PROJECT_REF>/settings/api-keys
+     ![Supabase - API keys](./image-12.png)
+
+12. **(Se solicitado) Connection string: use “Transaction pooler” e inclua a senha**
+     - Clique em **Connection string** → altere o método para **Transaction pooler**
+     - Não esqueça de colocar a **senha** na URL (se precisar, use o link de reset no painel)
+     ![Supabase - Transaction pooler](./image-13.png)
+
+13. **Clique em “Continuar” depois de inserir todos os dados**
+     ![Wizard - continuar](./image-15.png)
+
+14. **Wizard: QStash — cole o `QSTASH_TOKEN`**
+     ![QStash - token (1)](./image-17.png)
+     ![QStash - token (2)](./image-16.png)
+
+15. **Wizard: WhatsApp — configure ou pule esta etapa**
+     ![Wizard - WhatsApp](./image-20.png)
+
+16. **Wizard: preencha seus dados para finalizar**
+     ![Wizard - finalizar](./image-22.png)

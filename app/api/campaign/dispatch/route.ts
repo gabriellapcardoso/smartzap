@@ -11,6 +11,10 @@ interface DispatchContact {
   custom_fields?: Record<string, unknown>
 }
 
+// Ensure this route runs in Node.js (env access + better compatibility in dev)
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
 // Generate simple ID
 const generateId = () => Math.random().toString(36).substr(2, 9)
 
@@ -141,15 +145,6 @@ export async function POST(request: NextRequest) {
   // =========================================================================
   // LEGACY WORKFLOW DISPATCH (for template-based campaigns)
   // =========================================================================
-
-  // Check if Upstash Workflow is configured
-  if (!process.env.QSTASH_TOKEN) {
-    return NextResponse.json(
-      { error: 'Serviço de workflow não configurado. Configure QSTASH_TOKEN.' },
-      { status: 503 }
-    )
-  }
-
   try {
     // Priority: NEXT_PUBLIC_APP_URL > VERCEL_PROJECT_PRODUCTION_URL > VERCEL_URL > localhost
     // VERCEL_PROJECT_PRODUCTION_URL is auto-set by Vercel to the production domain (stable)
@@ -189,6 +184,14 @@ export async function POST(request: NextRequest) {
         throw new Error(errorData.error || `Workflow failed with status ${response.status}`)
       }
     } else {
+      // PROD: QStash is required
+      if (!process.env.QSTASH_TOKEN) {
+        return NextResponse.json(
+          { error: 'Serviço de workflow não configurado. Configure QSTASH_TOKEN.' },
+          { status: 503 }
+        )
+      }
+
       // PROD: Use QStash for reliable async execution
       const workflowClient = new Client({ token: process.env.QSTASH_TOKEN })
       await workflowClient.trigger({

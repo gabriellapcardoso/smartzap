@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS campaign_contacts (
   contact_id TEXT,
   phone TEXT NOT NULL,
   name TEXT,
+  email TEXT,
   custom_fields JSONB DEFAULT '{}'::jsonb,
   status TEXT DEFAULT 'pending',
   message_id TEXT,
@@ -81,6 +82,10 @@ CREATE TABLE IF NOT EXISTS campaign_contacts (
 ALTER TABLE campaign_contacts
 ADD COLUMN IF NOT EXISTS custom_fields JSONB DEFAULT '{}'::jsonb;
 
+ALTER TABLE campaign_contacts
+ADD COLUMN IF NOT EXISTS email TEXT;
+
+COMMENT ON COLUMN campaign_contacts.email IS 'Snapshot do email do contato no momento da criação da campanha';
 COMMENT ON COLUMN campaign_contacts.custom_fields IS 'Snapshot dos custom_fields do contato no momento da criação da campanha';
 
 CREATE INDEX IF NOT EXISTS idx_campaign_contacts_campaign ON campaign_contacts(campaign_id);

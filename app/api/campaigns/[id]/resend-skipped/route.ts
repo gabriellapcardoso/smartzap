@@ -224,6 +224,7 @@ export async function POST(_request: Request, { params }: Params) {
       if (!resolvedContactId) {
         updates.push({
           id: row.id,
+          campaign_id: campaignId,
           status: 'skipped',
           phone: precheck.normalizedPhone || effectivePhone,
           name: effectiveName || null,
@@ -240,6 +241,7 @@ export async function POST(_request: Request, { params }: Params) {
       if (!precheck.ok) {
         updates.push({
           id: row.id,
+          campaign_id: campaignId,
           contact_id: resolvedContactId,
           status: 'skipped',
           // Mantém snapshot sincronizado com o contato atual
@@ -265,6 +267,7 @@ export async function POST(_request: Request, { params }: Params) {
       // Válido: volta para pending e limpa campos de skip/erro
       updates.push({
         id: row.id,
+        campaign_id: campaignId,
         contact_id: resolvedContactId,
         phone: precheck.normalizedPhone,
         name: effectiveName || null,
@@ -340,6 +343,7 @@ export async function POST(_request: Request, { params }: Params) {
         const info = desiredByRowId.get(String(u.id))
         updates[i] = {
           id: u.id,
+          campaign_id: campaignId,
           status: 'skipped',
           phone: info?.originalPhone || u.phone,
           name: u.name ?? null,
@@ -366,10 +370,17 @@ export async function POST(_request: Request, { params }: Params) {
     }
 
     // 4) Persistir updates (bulk upsert por PK id)
-    if (updates.length) {
+    const safeUpdates = updates.filter((u) => u && typeof u.id === 'string' && u.id.length > 0)
+    if (updates.length !== safeUpdates.length) {
+      console.warn(
+        `[ResendSkipped] Ignorando ${updates.length - safeUpdates.length} update(s) sem id válido (evita inserts acidentais).`
+      )
+    }
+
+    if (safeUpdates.length) {
       const { error: upsertError } = await supabase
         .from('campaign_contacts')
-        .upsert(updates, { onConflict: 'id' })
+        .upsert(safeUpdates, { onConflict: 'id' })
 
       if (upsertError) {
         return NextResponse.json({ error: 'Falha ao atualizar status dos contatos', details: upsertError.message }, { status: 500 })

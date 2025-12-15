@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -37,6 +38,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
+import { flowsService } from '@/services/flowsService'
 
 type Spec = any
 
@@ -271,6 +273,27 @@ export function ManualTemplateBuilder({
 }) {
   const [spec, setSpec] = React.useState<Spec>(() => ensureBaseSpec(initialSpec))
   const [showDebug, setShowDebug] = React.useState(false)
+
+  const flowsQuery = useQuery({
+    queryKey: ['flows'],
+    queryFn: flowsService.list,
+    staleTime: 10_000,
+  })
+
+  const publishedFlows = React.useMemo(() => {
+    const rows = flowsQuery.data || []
+    const withMeta = rows.filter((f) => !!f?.meta_flow_id)
+
+    // Se o schema ainda não tem meta_status (migration não aplicada), não dá para filtrar com certeza.
+    // Nesse caso, mostramos todos os flows com meta_flow_id e marcamos como “DESCONHECIDO”.
+    const hasAnyMetaStatus = withMeta.some((f) => (f as any)?.meta_status != null)
+
+    const list = hasAnyMetaStatus
+      ? withMeta.filter((f) => String((f as any)?.meta_status || '') === 'PUBLISHED')
+      : withMeta
+
+    return list.sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'pt-BR'))
+  }, [flowsQuery.data])
 
   const headerTextRef = React.useRef<HTMLInputElement | null>(null)
   const bodyRef = React.useRef<HTMLTextAreaElement | null>(null)
@@ -1110,10 +1133,60 @@ export function ManualTemplateBuilder({
                           }
 
                           if (type === 'FLOW') {
+                            const currentFlowId = String(b.flow_id || '')
+                            const hasMatch = publishedFlows.some((f) => String(f.meta_flow_id || '') === currentFlowId)
+                            const selectValue = hasMatch ? currentFlowId : '__manual__'
+
                             return (
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
                                 <div className="space-y-1">
-                                  <div className="text-xs font-medium text-gray-300">flow_id</div>
+                                  <div className="text-xs font-medium text-gray-300">Escolher Flow publicado</div>
+                                  <Select
+                                    value={selectValue}
+                                    onValueChange={(v) => {
+                                      const next = [...buttons]
+                                      next[idx] = v === '__manual__' ? { ...b, flow_id: '' } : { ...b, flow_id: v }
+                                      updateButtons(next)
+                                    }}
+                                    disabled={flowsQuery.isLoading || publishedFlows.length === 0}
+                                  >
+                                    <SelectTrigger className="h-11 w-full bg-zinc-900 border-white/10 text-white">
+                                      <SelectValue
+                                        placeholder={
+                                          flowsQuery.isLoading
+                                            ? 'Carregando…'
+                                            : (publishedFlows.length === 0 ? 'Nenhum Flow publicado' : 'Selecionar')
+                                        }
+                                      />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="__manual__">Digitar / colar manualmente</SelectItem>
+                                      {publishedFlows.map((f) => (
+                                        <SelectItem key={f.id} value={String(f.meta_flow_id)}>
+                                          <div className="flex items-center justify-between gap-2 w-full">
+                                            <span className="truncate">{f.name} · {String(f.meta_flow_id)}</span>
+                                            {(() => {
+                                              const st = (f as any)?.meta_status
+                                              const status = st ? String(st) : 'DESCONHECIDO'
+                                              const cls =
+                                                status === 'PUBLISHED'
+                                                  ? 'bg-emerald-500/15 text-emerald-200 border-emerald-500/20'
+                                                  : status === 'DRAFT'
+                                                    ? 'bg-amber-500/15 text-amber-200 border-amber-500/20'
+                                                    : 'bg-white/5 text-gray-300 border-white/10'
+                                              return (
+                                                <span className={`shrink-0 rounded-md border px-2 py-0.5 text-[10px] ${cls}`}>
+                                                  {status}
+                                                </span>
+                                              )
+                                            })()}
+                                          </div>
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+
+                                  <div className="mt-3 text-xs font-medium text-gray-300">flow_id</div>
                                   <Input
                                     value={b.flow_id || ''}
                                     onChange={(e) => {
@@ -1124,6 +1197,9 @@ export function ManualTemplateBuilder({
                                     className="h-11 bg-zinc-900 border-white/10 text-white"
                                     placeholder="Usar existente"
                                   />
+                                  <div className="text-[11px] text-gray-500">
+                                    Dica: publique o Flow no Builder e selecione acima. Isso coloca o <span className="font-mono">meta_flow_id</span> aqui.
+                                  </div>
                                 </div>
                                 <div className="space-y-1">
                                   <div className="text-xs font-medium text-gray-300">flow_action</div>

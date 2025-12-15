@@ -12,6 +12,9 @@ const PatchFlowSchema = z
     status: z.string().min(1).max(40).optional(),
     metaFlowId: z.string().min(1).max(128).optional(),
     spec: z.unknown().optional(),
+    templateKey: z.string().min(1).max(80).optional(),
+    flowJson: z.unknown().optional(),
+    mapping: z.unknown().optional(),
   })
   .strict()
 
@@ -20,7 +23,7 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ id: string
   try {
     const { data, error } = await supabase
       .from('flows')
-      .select('id,name,status,meta_flow_id,spec,created_at,updated_at')
+      .select('id,name,status,meta_flow_id,template_key,flow_json,flow_version,mapping,spec,created_at,updated_at')
       .eq('id', id)
       .limit(1)
 
@@ -47,12 +50,21 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     if (patch.status !== undefined) update.status = patch.status
     if (patch.metaFlowId !== undefined) update.meta_flow_id = patch.metaFlowId
     if (patch.spec !== undefined) update.spec = patch.spec
+    if (patch.templateKey !== undefined) update.template_key = patch.templateKey
+    if (patch.flowJson !== undefined) {
+      update.flow_json = patch.flowJson
+      update.flow_version =
+        patch.flowJson && typeof patch.flowJson === 'object' && typeof (patch.flowJson as any).version === 'string'
+          ? ((patch.flowJson as any).version as string)
+          : null
+    }
+    if (patch.mapping !== undefined) update.mapping = patch.mapping
 
     const { data, error } = await supabase
       .from('flows')
       .update(update)
       .eq('id', id)
-      .select('id,name,status,meta_flow_id,spec,created_at,updated_at')
+      .select('id,name,status,meta_flow_id,template_key,flow_json,flow_version,mapping,spec,created_at,updated_at')
       .limit(1)
 
     if (error) return NextResponse.json({ error: error.message || 'Falha ao atualizar flow' }, { status: 500 })

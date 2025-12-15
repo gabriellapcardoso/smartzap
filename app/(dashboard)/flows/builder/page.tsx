@@ -17,7 +17,7 @@ export default function FlowBuilderHomePage() {
         <div className="space-y-1">
           <PageTitle>Flow Builder</PageTitle>
           <PageDescription>
-            Editor visual para desenhar a lógica do fluxo (nós e conexões). As telas do Flow continuam sendo feitas na Meta.
+            Crie flows a partir de templates e edite o Flow JSON (Meta). O canvas é opcional e ajuda a organizar a lógica.
           </PageDescription>
         </div>
         <PageActions>
@@ -37,6 +37,7 @@ export default function FlowBuilderHomePage() {
         search={controller.search}
         onSearchChange={controller.setSearch}
         onCreate={controller.createFlow}
+        onCreateFromTemplate={controller.createFlowFromTemplate}
         isCreating={controller.isCreating}
         onDelete={controller.deleteFlow}
         isDeleting={controller.isDeleting}

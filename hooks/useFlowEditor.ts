@@ -16,7 +16,8 @@ export function useFlowEditorController(flowId: string) {
   })
 
   const updateMutation = useMutation({
-    mutationFn: (patch: { name?: string; metaFlowId?: string; spec?: unknown }) => flowsService.update(flowId, patch),
+    mutationFn: (patch: { name?: string; metaFlowId?: string; spec?: unknown; templateKey?: string; flowJson?: unknown; mapping?: unknown }) =>
+      flowsService.update(flowId, patch),
     onSuccess: (row) => {
       qc.setQueryData(['flows', flowId], row)
       qc.invalidateQueries({ queryKey: ['flows'] })
@@ -40,8 +41,10 @@ export function useFlowEditorController(flowId: string) {
     isError: flowQuery.isError,
     error: flowQuery.error as Error | null,
 
-    save: (patch: { name?: string; metaFlowId?: string; spec?: unknown }) => updateMutation.mutate(patch),
-    saveAsync: (patch: { name?: string; metaFlowId?: string; spec?: unknown }) => updateMutation.mutateAsync(patch),
+    save: (patch: { name?: string; metaFlowId?: string; spec?: unknown; templateKey?: string; flowJson?: unknown; mapping?: unknown }) =>
+      updateMutation.mutate(patch),
+    saveAsync: (patch: { name?: string; metaFlowId?: string; spec?: unknown; templateKey?: string; flowJson?: unknown; mapping?: unknown }) =>
+      updateMutation.mutateAsync(patch),
     isSaving: updateMutation.isPending,
   }
 }

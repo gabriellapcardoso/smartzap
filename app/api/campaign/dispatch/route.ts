@@ -567,11 +567,13 @@ export async function POST(request: NextRequest) {
       : null
     const vercelUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL.trim()}` : null
 
-    const baseUrl = explicitAppUrl
-      || (vercelEnv === 'production' ? (productionUrl || vercelUrl || requestOrigin) : requestOrigin)
-      || vercelUrl
-      || productionUrl
-      || 'http://localhost:3000'
+    // Regra de ouro:
+    // - preview/dev: sempre preferir o origin do request para garantir que o workflow
+    //   rode no MESMO deployment que gerou a fila (evita chamar produção por engano).
+    // - produção: pode usar um domínio estável (NEXT_PUBLIC_APP_URL), caso exista.
+    const baseUrl = (vercelEnv === 'production')
+      ? (explicitAppUrl || productionUrl || vercelUrl || requestOrigin || 'http://localhost:3000')
+      : (requestOrigin || vercelUrl || explicitAppUrl || productionUrl || 'http://localhost:3000')
 
     const isLocalhost = baseUrl.includes('localhost') || baseUrl.includes('127.0.0.1')
 

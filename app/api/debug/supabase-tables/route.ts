@@ -45,10 +45,11 @@ async function probeTable(table: string) {
  */
 export async function GET() {
   const urlInfo = safeUrlHost(process.env.NEXT_PUBLIC_SUPABASE_URL)
-  const hasSecretKey = !!process.env.SUPABASE_SECRET_KEY
+  const hasSecretKey = !!process.env.SUPABASE_SECRET_KEY || !!process.env.SUPABASE_SERVICE_ROLE_KEY
   const hasPublishableKey = !!(
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   )
 
   const flows = await probeTable('flows')

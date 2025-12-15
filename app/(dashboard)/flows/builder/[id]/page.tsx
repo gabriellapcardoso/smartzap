@@ -9,6 +9,7 @@ import { Page, PageActions, PageDescription, PageHeader, PageTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { FlowBuilderCanvas } from '@/components/features/flows/builder/FlowBuilderCanvas'
+import { FlowJsonEditorPanel } from '@/components/features/flows/builder/FlowJsonEditorPanel'
 import { useFlowEditorController } from '@/hooks/useFlowEditor'
 
 export default function FlowBuilderEditorPage({
@@ -40,7 +41,7 @@ export default function FlowBuilderEditorPage({
         <div className="space-y-1">
           <PageTitle>Editor de Flow</PageTitle>
           <PageDescription>
-            Conecte nós para definir a lógica. Depois, vincule o Meta Flow ID para o envio.
+            Edite o Flow JSON (canônico) e, se quiser, use o canvas para organizar a lógica. O Meta Flow ID serve para cruzar envios/submissões.
           </PageDescription>
         </div>
         <PageActions>
@@ -87,19 +88,31 @@ export default function FlowBuilderEditorPage({
             </div>
           </div>
 
-          <FlowBuilderCanvas
-            name={name}
-            metaFlowId={metaFlowId || null}
-            initialSpec={controller.spec}
-            isSaving={controller.isSaving}
-            onSave={(patch) => {
-              controller.save({
-                ...(patch.name !== undefined ? { name: patch.name } : {}),
-                ...(patch.metaFlowId !== undefined ? { metaFlowId: patch.metaFlowId } : {}),
-                ...(patch.spec !== undefined ? { spec: patch.spec } : {}),
-              })
-            }}
-          />
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            <FlowJsonEditorPanel
+              flowId={flow.id}
+              flowName={flow.name}
+              value={(flow as any).flow_json}
+              isSaving={controller.isSaving}
+              onSave={(flowJson) => controller.save({ flowJson })}
+            />
+
+            <div className="min-h-130">
+              <FlowBuilderCanvas
+                name={name}
+                metaFlowId={metaFlowId || null}
+                initialSpec={controller.spec}
+                isSaving={controller.isSaving}
+                onSave={(patch) => {
+                  controller.save({
+                    ...(patch.name !== undefined ? { name: patch.name } : {}),
+                    ...(patch.metaFlowId !== undefined ? { metaFlowId: patch.metaFlowId } : {}),
+                    ...(patch.spec !== undefined ? { spec: patch.spec } : {}),
+                  })
+                }}
+              />
+            </div>
+          </div>
 
           {/* Barra inferior fixa */}
           <div className="fixed left-0 right-0 bottom-0 z-40 border-t border-white/10 bg-zinc-950/95 backdrop-blur supports-backdrop-filter:bg-zinc-950/70">

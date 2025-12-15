@@ -6,6 +6,7 @@ import { Plus, Trash2, ArrowRight, RefreshCw } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { CreateFlowFromTemplateDialog } from '@/components/features/flows/builder/CreateFlowFromTemplateDialog'
 import type { FlowRow } from '@/services/flowsService'
 
 function formatDateTime(value: string | null | undefined): string {
@@ -22,6 +23,7 @@ export function FlowBuilderListView(props: {
   search: string
   onSearchChange: (v: string) => void
   onCreate: (name: string) => void
+  onCreateFromTemplate: (input: { name: string; templateKey: string }) => void
   isCreating: boolean
   onDelete: (id: string) => void
   isDeleting: boolean
@@ -71,6 +73,10 @@ export function FlowBuilderListView(props: {
           </div>
 
           <div className="flex items-center gap-2">
+            <CreateFlowFromTemplateDialog
+              isCreating={props.isCreating}
+              onCreate={(input) => props.onCreateFromTemplate(input)}
+            />
             <Button
               type="button"
               variant="secondary"

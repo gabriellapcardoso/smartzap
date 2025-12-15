@@ -31,7 +31,7 @@ export default function FlowsPage() {
         <div className="space-y-1">
           <PageTitle>Flows</PageTitle>
           <PageDescription>
-            Central para monitorar submissões e testar envios. O Builder aqui é só para desenhar a lógica; as telas do Flow continuam na Meta.
+            Central para monitorar submissões e testar envios. Agora você pode criar a partir de templates e editar o Flow JSON no app.
           </PageDescription>
         </div>
         <PageActions>

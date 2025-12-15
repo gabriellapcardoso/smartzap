@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 import { supabase } from '@/lib/supabase'
+import { getFlowTemplateByKey } from '@/lib/flow-templates'
 
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) return error.message
@@ -22,6 +23,7 @@ function getErrorMessage(error: unknown): string {
 const CreateFlowSchema = z
   .object({
     name: z.string().min(1).max(140),
+    templateKey: z.string().min(1).max(80).optional(),
   })
   .strict()
 
@@ -29,7 +31,7 @@ export async function GET() {
   try {
     const { data, error } = await supabase
       .from('flows')
-      .select('id,name,status,meta_flow_id,spec,created_at,updated_at')
+      .select('id,name,status,meta_flow_id,template_key,flow_json,flow_version,mapping,spec,created_at,updated_at')
       .order('created_at', { ascending: false })
 
     if (error) throw error
@@ -76,16 +78,26 @@ export async function POST(request: Request) {
       edges: [],
     }
 
+    const tpl = input.templateKey ? getFlowTemplateByKey(input.templateKey) : null
+
     const { data, error } = await supabase
       .from('flows')
       .insert({
         name: input.name,
         status: 'DRAFT',
+        ...(tpl
+          ? {
+              template_key: tpl.key,
+              flow_json: tpl.flowJson,
+              flow_version: typeof (tpl.flowJson as any)?.version === 'string' ? ((tpl.flowJson as any).version as string) : null,
+              mapping: tpl.defaultMapping,
+            }
+          : {}),
         spec: initialSpec,
         created_at: now,
         updated_at: now,
       })
-      .select('id,name,status,meta_flow_id,spec,created_at,updated_at')
+      .select('id,name,status,meta_flow_id,template_key,flow_json,flow_version,mapping,spec,created_at,updated_at')
       .limit(1)
 
     if (error) {

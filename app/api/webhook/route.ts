@@ -18,6 +18,7 @@ import { emitWorkflowTrace, maskPhone } from '@/lib/workflow-trace'
 
 
 import { getWhatsAppCredentials } from '@/lib/whatsapp-credentials'
+import { applyFlowMappingToContact } from '@/lib/flow-mapping'
 
 // Get WhatsApp Access Token from centralized helper
 async function getWhatsAppAccessToken(): Promise<string | null> {
@@ -130,6 +131,11 @@ function safeParseJson(raw: unknown): unknown | null {
   } catch {
     return null
   }
+}
+
+function isMissingColumnError(e: unknown, columnName: string): boolean {
+  const msg = e instanceof Error ? e.message : String((e as any)?.message || e || '')
+  return msg.toLowerCase().includes('column') && msg.toLowerCase().includes(columnName.toLowerCase())
 }
 
 function tryParseWebhookTimestampSeconds(ts: unknown): string | null {
@@ -599,25 +605,94 @@ export async function POST(request: NextRequest) {
               const flowName = (nfm?.name || null) as string | null
               const flowToken = (nfm?.flow_token || nfm?.flowToken || null) as string | null
 
+              // Best-effort: mapping para campos do SmartZap
+              let flowLocalId: string | null = null
+              let mappedData: Record<string, unknown> | null = null
+              let mappedAt: string | null = null
+
+              if (flowId && responseJson && typeof responseJson === 'object') {
+                try {
+                  const { data: flowRows } = await supabase
+                    .from('flows')
+                    .select('id,mapping')
+                    .eq('meta_flow_id', flowId)
+                    .limit(1)
+
+                  const flowRow = Array.isArray(flowRows) ? flowRows[0] : (flowRows as any)
+                  if (flowRow?.id && flowRow?.mapping) {
+                    flowLocalId = String(flowRow.id)
+                    const applied = await applyFlowMappingToContact({
+                      normalizedPhone: normalizedFrom,
+                      flowId,
+                      responseJson,
+                      mapping: flowRow.mapping,
+                    })
+                    if (applied.updated) {
+                      mappedData = applied.mappedData
+                      mappedAt = new Date().toISOString()
+                    }
+                  }
+                } catch (e) {
+                  console.warn('[Webhook] Falha ao aplicar mapping do Flow (best-effort):', e)
+                }
+              }
+
               if (messageId) {
-                const { error: upsertError } = await supabase
-                  .from('flow_submissions')
-                  .upsert(
-                    {
-                      message_id: messageId,
-                      from_phone: normalizedFrom,
-                      contact_id: contactId,
-                      flow_id: flowId,
-                      flow_name: flowName,
-                      flow_token: flowToken,
-                      response_json_raw: responseRaw,
-                      response_json: responseJson,
-                      waba_id: wabaId,
-                      phone_number_id: phoneNumberId,
-                      message_timestamp: messageTimestamp,
-                    },
-                    { onConflict: 'message_id' }
-                  )
+                // Primeira tentativa: com campos novos (flow_local_id/mapped_data)
+                let upsertError: any = null
+                try {
+                  const { error } = await supabase
+                    .from('flow_submissions')
+                    .upsert(
+                      {
+                        message_id: messageId,
+                        from_phone: normalizedFrom,
+                        contact_id: contactId,
+                        flow_id: flowId,
+                        flow_name: flowName,
+                        flow_token: flowToken,
+                        response_json_raw: responseRaw,
+                        response_json: responseJson,
+                        waba_id: wabaId,
+                        phone_number_id: phoneNumberId,
+                        message_timestamp: messageTimestamp,
+                        ...(flowLocalId ? { flow_local_id: flowLocalId } : {}),
+                        ...(mappedData ? { mapped_data: mappedData } : {}),
+                        ...(mappedAt ? { mapped_at: mappedAt } : {}),
+                      },
+                      { onConflict: 'message_id' }
+                    )
+                  upsertError = error
+                } catch (e) {
+                  upsertError = e
+                }
+
+                // Fallback: bancos sem migração ainda (evita 500 e mantém captura)
+                if (upsertError && (isMissingColumnError(upsertError, 'flow_local_id') || isMissingColumnError(upsertError, 'mapped_data'))) {
+                  try {
+                    const { error } = await supabase
+                      .from('flow_submissions')
+                      .upsert(
+                        {
+                          message_id: messageId,
+                          from_phone: normalizedFrom,
+                          contact_id: contactId,
+                          flow_id: flowId,
+                          flow_name: flowName,
+                          flow_token: flowToken,
+                          response_json_raw: responseRaw,
+                          response_json: responseJson,
+                          waba_id: wabaId,
+                          phone_number_id: phoneNumberId,
+                          message_timestamp: messageTimestamp,
+                        },
+                        { onConflict: 'message_id' }
+                      )
+                    upsertError = error
+                  } catch (e) {
+                    upsertError = e
+                  }
+                }
 
                 if (upsertError) {
                   console.warn('[Webhook] Falha ao persistir flow_submissions:', upsertError)

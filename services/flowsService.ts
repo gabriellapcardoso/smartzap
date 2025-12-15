@@ -5,6 +5,10 @@ export type FlowRow = {
   name: string
   status: string
   meta_flow_id: string | null
+  template_key?: string | null
+  flow_json?: any
+  flow_version?: string | null
+  mapping?: any
   spec: any
   created_at: string
   updated_at: string | null
@@ -15,6 +19,10 @@ const FlowRowSchema = z.object({
   name: z.string(),
   status: z.string(),
   meta_flow_id: z.string().nullable().optional(),
+  template_key: z.string().nullable().optional(),
+  flow_json: z.any().optional(),
+  flow_version: z.string().nullable().optional(),
+  mapping: z.any().optional(),
   spec: z.any(),
   created_at: z.string(),
   updated_at: z.string().nullable().optional(),
@@ -67,6 +75,22 @@ export const flowsService = {
     return parsed.data as any
   },
 
+  async createFromTemplate(input: { name: string; templateKey: string }): Promise<FlowRow> {
+    const res = await fetch('/api/flows', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(input),
+    })
+    if (!res.ok) {
+      throw new Error(await readErrorMessage(res, 'Falha ao criar flow'))
+    }
+    const data = await res.json()
+    const parsed = FlowRowSchema.safeParse(data)
+    if (!parsed.success) throw new Error('Resposta inválida ao criar flow')
+    return parsed.data as any
+  },
+
   async get(id: string): Promise<FlowRow> {
     const res = await fetch(`/api/flows/${encodeURIComponent(id)}`, { method: 'GET', credentials: 'include' })
     if (!res.ok) {
@@ -78,7 +102,18 @@ export const flowsService = {
     return parsed.data as any
   },
 
-  async update(id: string, patch: { name?: string; status?: string; metaFlowId?: string; spec?: unknown }): Promise<FlowRow> {
+  async update(
+    id: string,
+    patch: {
+      name?: string
+      status?: string
+      metaFlowId?: string
+      spec?: unknown
+      templateKey?: string
+      flowJson?: unknown
+      mapping?: unknown
+    }
+  ): Promise<FlowRow> {
     const res = await fetch(`/api/flows/${encodeURIComponent(id)}`, {
       method: 'PATCH',
       credentials: 'include',

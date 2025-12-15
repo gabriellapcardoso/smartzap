@@ -22,6 +22,15 @@ export const useFlowsBuilderController = () => {
     onError: (e: Error) => toast.error(e.message || 'Erro ao criar flow'),
   })
 
+  const createFromTemplateMutation = useMutation({
+    mutationFn: flowsService.createFromTemplate,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['flows'] })
+      toast.success('Flow criado a partir do template')
+    },
+    onError: (e: Error) => toast.error(e.message || 'Erro ao criar flow'),
+  })
+
   const deleteMutation = useMutation({
     mutationFn: flowsService.remove,
     onSuccess: () => {
@@ -50,6 +59,8 @@ export const useFlowsBuilderController = () => {
 
     createFlow: (name: string) => createMutation.mutate({ name }),
     isCreating: createMutation.isPending,
+
+    createFlowFromTemplate: (input: { name: string; templateKey: string }) => createFromTemplateMutation.mutate(input),
 
     deleteFlow: (id: string) => deleteMutation.mutate(id),
     isDeleting: deleteMutation.isPending,

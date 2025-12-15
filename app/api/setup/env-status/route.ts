@@ -17,8 +17,8 @@ export async function GET() {
 
         // Supabase
         supabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-        supabaseAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || !!process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY,
-        supabaseServiceKey: !!process.env.SUPABASE_SECRET_KEY,
+        supabaseAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || !!process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY || !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+        supabaseServiceKey: !!process.env.SUPABASE_SECRET_KEY || !!process.env.SUPABASE_SERVICE_ROLE_KEY,
 
         // QStash (required)
         qstashToken: !!process.env.QSTASH_TOKEN,

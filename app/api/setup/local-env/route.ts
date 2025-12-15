@@ -24,7 +24,11 @@ const ALLOWED_KEYS = new Set([
   'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY',
   // Alias compat: some setups use *_DEFAULT_KEY
   'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY',
+  // Alias compat: Supabase dashboard often calls this ANON_KEY
+  'NEXT_PUBLIC_SUPABASE_ANON_KEY',
   'SUPABASE_SECRET_KEY',
+  // Alias compat: some setups use this name for the service role key
+  'SUPABASE_SERVICE_ROLE_KEY',
   'QSTASH_TOKEN',
   'UPSTASH_EMAIL',
   'UPSTASH_API_KEY',

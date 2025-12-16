@@ -153,10 +153,27 @@ function extractGraphError(json: any) {
 function buildMissingPermissionsSteps(params: { objectLabel: string; objectId: string }) {
 	return [
 		`Confirme que o ${params.objectLabel} (${params.objectId}) está correto (copie do painel do WhatsApp Manager).`,
+		'Se estiver usando token gerado no painel do App (Configuração da API), gere novamente selecionando a WABA/número corretos antes de copiar.',
 		'No Business Manager: crie/seleciona um System User (recomendado) e atribua os ativos do WhatsApp (WABA + Phone Number).',
 		'Gere um token (ideal: System User) com as permissões whatsapp_business_messaging e whatsapp_business_management.',
 		'No app SmartZap: cole esse token e os IDs corretos em Ajustes → Credenciais WhatsApp.',
 		'Volte aqui e clique em Atualizar para revalidar.',
+	]
+}
+
+function asStringArray(v: unknown): string[] {
+	if (!v) return []
+	if (Array.isArray(v)) return v.filter((x): x is string => typeof x === 'string')
+	if (typeof v === 'string') return [v]
+	return []
+}
+
+function buildMissingScopesSteps(missing: string[]) {
+	const list = missing.length ? missing.join(', ') : '—'
+	return [
+		`Gere um token com os escopos/permissões: ${list}.`,
+		'Recomendado: usar System User no Business Manager e atribuir os ativos (WABA + Phone Number) antes de gerar o token.',
+		'No SmartZap: atualize o token em Ajustes → Credenciais WhatsApp e rode o diagnóstico novamente.',
 	]
 }
 
@@ -593,6 +610,8 @@ export async function GET() {
 		debugToken: null,
 	}
 
+	let debugTokenData: any = null
+
 	// 2a) debug_token (opcional, depende de APP_ID/APP_SECRET)
 	const appId = (process.env.META_APP_ID || '').trim()
 	const appSecret = (process.env.META_APP_SECRET || '').trim()
@@ -600,6 +619,7 @@ export async function GET() {
 		try {
 			const appAccessToken = `${appId}|${appSecret}`
 			const dbg = await graphGet('/debug_token', appAccessToken, { input_token: credentials.accessToken })
+			debugTokenData = dbg.ok ? (dbg.json?.data || null) : null
 			meta.debugToken = dbg.ok ? dbg.json?.data || dbg.json : dbg.json
 
 			if (dbg.ok && dbg.json?.data?.is_valid === false) {
@@ -618,9 +638,12 @@ export async function GET() {
 					message: 'Token válido segundo /debug_token',
 					details: {
 						appId: dbg.json?.data?.app_id || null,
+						type: dbg.json?.data?.type || null,
+						userId: dbg.json?.data?.user_id || null,
 						expiresAt: dbg.json?.data?.expires_at || null,
 						dataAccessExpiresAt: dbg.json?.data?.data_access_expires_at || null,
 						scopes: dbg.json?.data?.scopes || null,
+						granularScopes: dbg.json?.data?.granular_scopes || null,
 					},
 				})
 			} else {
@@ -650,6 +673,90 @@ export async function GET() {
 		})
 	}
 
+	// 2a.1) Avalia escopos e “asset assignment” usando debug_token (quando disponível)
+	if (debugTokenData && debugTokenData?.is_valid !== false) {
+		const scopes = asStringArray(debugTokenData?.scopes)
+		const required = ['whatsapp_business_messaging', 'whatsapp_business_management']
+		const missing = required.filter((s) => !scopes.includes(s))
+		const missingCritical = missing.includes('whatsapp_business_messaging')
+		const status: CheckStatus = missing.length === 0 ? 'pass' : (missingCritical ? 'fail' : 'warn')
+
+		checks.push({
+			id: 'meta_token_scopes',
+			title: 'Permissões do token (escopos)',
+			status,
+			message:
+				missing.length === 0
+					? 'Escopos principais presentes (via /debug_token)'
+					: `Escopos ausentes no token: ${missing.join(', ')}`,
+			details: {
+				required,
+				scopes,
+				missing,
+				nextSteps: missing.length ? buildMissingScopesSteps(missing) : undefined,
+				docs: 'Acess tokens (Meta): https://developers.facebook.com/docs/facebook-login/guides/access-tokens',
+			},
+		})
+
+		// Heurística: granular_scopes pode indicar a quais assets o token está amarrado
+		const granular = Array.isArray(debugTokenData?.granular_scopes) ? debugTokenData.granular_scopes : []
+		if (granular.length > 0) {
+			const targets = new Set<string>()
+			for (const g of granular) {
+				const s = typeof g?.scope === 'string' ? g.scope : null
+				if (!s) continue
+				if (!required.includes(s)) continue
+				const ids = Array.isArray(g?.target_ids) ? g.target_ids : []
+				for (const id of ids) {
+					if (id == null) continue
+					targets.add(String(id))
+				}
+			}
+
+			const wabaOk = targets.size === 0 ? null : targets.has(String(credentials.businessAccountId))
+			const phoneOk = targets.size === 0 ? null : targets.has(String(credentials.phoneNumberId))
+			const assetMismatch = (wabaOk === false) || (phoneOk === false)
+
+			checks.push({
+				id: 'meta_token_assets',
+				title: 'Acesso do token aos ativos (heurística)',
+				status: assetMismatch ? 'warn' : 'info',
+				message: assetMismatch
+					? 'O token parece não estar atribuído aos IDs configurados (possível “app/asset mismatch”)'
+					: 'Sem evidência clara de mismatch (granular_scopes) — valide pelos checks de acesso ao WABA/PHONE_NUMBER',
+				details: {
+					granularScopes: granular,
+					targetIds: Array.from(targets),
+					wabaId: credentials.businessAccountId,
+					phoneNumberId: credentials.phoneNumberId,
+					wabaMatches: wabaOk,
+					phoneMatches: phoneOk,
+					nextSteps: assetMismatch
+						? buildMissingPermissionsSteps({ objectLabel: 'ativos (WABA/PHONE_NUMBER)', objectId: `${credentials.businessAccountId} / ${credentials.phoneNumberId}` })
+						: undefined,
+				},
+			})
+		}
+
+		// Token gerado por outro app pode confundir alunos (especialmente quando misturam apps/painéis)
+		if (debugTokenData?.app_id && String(debugTokenData.app_id) !== String(appId)) {
+			checks.push({
+				id: 'meta_token_app_id',
+				title: 'Origem do token (app_id)',
+				status: 'warn',
+				message: 'O token parece ter sido gerado por outro App da Meta (app_id diferente do configurado)',
+				details: {
+					configuredMetaAppId: appId,
+					tokenAppId: debugTokenData.app_id,
+					nextSteps: [
+						'Gere o token no mesmo App que você usa para configurar o produto WhatsApp e o webhook.',
+						'Evite misturar tokens de apps diferentes (isso causa “Unsupported post request / missing permissions”).',
+					],
+				},
+			})
+		}
+	}
+
 	// 2b) /me + /me/permissions (melhor para identificar tipo/escopo do token)
 	try {
 		const me = await graphGet('/me', credentials.accessToken, { fields: 'id,name' })
@@ -676,29 +783,39 @@ export async function GET() {
 			})
 		}
 
-		// Permissões esperadas (heurística)
-		const granted = new Set<string>()
-		const rows = Array.isArray((perms as any)?.json?.data) ? (perms as any).json.data : []
-		for (const r of rows) {
-			if (r?.status === 'granted' && typeof r.permission === 'string') granted.add(r.permission)
-		}
+		// Permissões esperadas (heurística) — para System User tokens isso pode vir vazio/indisponível.
+		if (!perms.ok) {
+			checks.push({
+				id: 'meta_permissions',
+				title: 'Permissões do token (/me/permissions)',
+				status: 'info',
+				message: 'Não foi possível ler /me/permissions (isso é comum em alguns tipos de token) — use /debug_token e os checks de acesso a ativos',
+				details: { error: perms.json?.error || perms.json },
+			})
+		} else {
+			const granted = new Set<string>()
+			const rows = Array.isArray((perms as any)?.json?.data) ? (perms as any).json.data : []
+			for (const r of rows) {
+				if (r?.status === 'granted' && typeof r.permission === 'string') granted.add(r.permission)
+			}
 
-		const needs = ['whatsapp_business_management', 'whatsapp_business_messaging']
-		const missing = needs.filter((p) => !granted.has(p))
-		checks.push({
-			id: 'meta_permissions',
-			title: 'Permissões do token',
-			status: missing.length === 0 ? 'pass' : 'warn',
-			message:
-				missing.length === 0
-					? 'Permissões principais presentes'
-					: `Possíveis permissões ausentes: ${missing.join(', ')}`,
-			details: {
-				granted: Array.from(granted),
-				missing,
-				note: 'Nem todo tipo de token retorna /me/permissions de forma útil; trate como heurística.',
-			},
-		})
+			const needs = ['whatsapp_business_management', 'whatsapp_business_messaging']
+			const missing = needs.filter((p) => !granted.has(p))
+			checks.push({
+				id: 'meta_permissions',
+				title: 'Permissões do token (/me/permissions)',
+				status: missing.length === 0 ? 'pass' : 'warn',
+				message:
+					missing.length === 0
+						? 'Permissões principais presentes'
+						: `Possíveis permissões ausentes: ${missing.join(', ')}`,
+				details: {
+					granted: Array.from(granted),
+					missing,
+					note: 'Heurística: /me/permissions funciona melhor para tokens de usuário. Para System User, prefira /debug_token (escopos) + checks de acesso ao WABA/PHONE_NUMBER.',
+				},
+			})
+		}
 	} catch (e) {
 		checks.push({
 			id: 'meta_me',

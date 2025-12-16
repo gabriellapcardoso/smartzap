@@ -180,14 +180,31 @@ async function getInternalRecentFailures() {
 		const sevenDaysAgo = new Date()
 		sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
 
-		const { data, error } = await supabase
-			.from('campaign_contacts')
-			.select('failure_code,failure_title,created_at')
-			.eq('status', 'failed')
-			.gte('created_at', sevenDaysAgo.toISOString())
-			.limit(500)
-
-		if (error) throw error
+		// campaign_contacts não tem created_at/updated_at no schema base.
+		// Usamos failed_at como fonte de "recência" para falhas.
+		// Algumas colunas (failure_title) podem não existir em bases antigas.
+		let data: any[] | null = null
+		{
+			const first = await supabase
+				.from('campaign_contacts')
+				.select('failure_code,failure_title,failure_reason,failed_at')
+				.eq('status', 'failed')
+				.gte('failed_at', sevenDaysAgo.toISOString())
+				.limit(500)
+			if (first.error) {
+				// Retry sem failure_title (coluna pode não existir)
+				const second = await supabase
+					.from('campaign_contacts')
+					.select('failure_code,failure_reason,failed_at')
+					.eq('status', 'failed')
+					.gte('failed_at', sevenDaysAgo.toISOString())
+					.limit(500)
+				if (second.error) throw second.error
+				data = (second.data || []) as any[]
+			} else {
+				data = (first.data || []) as any[]
+			}
+		}
 
 		const counts = new Map<string, { code: number; title: string | null; count: number }>()
 		for (const row of (data || []) as any[]) {
@@ -198,10 +215,11 @@ async function getInternalRecentFailures() {
 			const prev = counts.get(key)
 			counts.set(key, {
 				code,
-				title:
-					row.failure_title && typeof row.failure_title === 'string'
-						? row.failure_title
-						: prev?.title || null,
+				title: (() => {
+					if (row.failure_title && typeof row.failure_title === 'string') return row.failure_title
+					if (row.failure_reason && typeof row.failure_reason === 'string') return row.failure_reason
+					return prev?.title || null
+				})(),
 				count: (prev?.count || 0) + 1,
 			})
 		}
@@ -225,16 +243,36 @@ async function getInternalLastStatusUpdateAt(): Promise<
 	{ ok: true; lastAt: string | null } | { ok: false; error: string; details?: Record<string, unknown> }
 > {
 	try {
-		// Observação: não existe uma tabela de "webhook_events" hoje.
-		// Usamos a atualização mais recente em campaign_contacts como proxy.
-		const { data, error } = await supabase
-			.from('campaign_contacts')
-			.select('updated_at')
-			.order('updated_at', { ascending: false })
-			.limit(1)
+		// campaign_contacts não tem created_at/updated_at no schema base.
+		// Para saber se "está vivo", pegamos o maior timestamp entre colunas de status.
+		const candidates = ['read_at', 'delivered_at', 'sent_at', 'failed_at', 'skipped_at', 'sending_at'] as const
 
-		if (error) throw error
-		const lastAt = (data?.[0] as any)?.updated_at ? String((data?.[0] as any).updated_at) : null
+		async function getLatestFromColumn(col: (typeof candidates)[number]): Promise<string | null> {
+			try {
+				const r = await supabase
+					.from('campaign_contacts')
+					.select(col)
+					.order(col, { ascending: false })
+					.limit(1)
+				if (r.error) {
+					// coluna pode não existir (ex.: skipped_at/sending_at em bases antigas)
+					return null
+				}
+				const v = (r.data?.[0] as any)?.[col]
+				return v ? String(v) : null
+			} catch {
+				return null
+			}
+		}
+
+		const values = await Promise.all(candidates.map((c) => getLatestFromColumn(c)))
+		const parsed = values
+			.filter((v): v is string => Boolean(v))
+			.map((v) => ({ v, t: Date.parse(v) }))
+			.filter((x) => Number.isFinite(x.t))
+			.sort((a, b) => b.t - a.t)
+
+		const lastAt = parsed.length ? parsed[0].v : null
 		return { ok: true, lastAt }
 	} catch (e) {
 		const norm = normalizeUnknownError(e)

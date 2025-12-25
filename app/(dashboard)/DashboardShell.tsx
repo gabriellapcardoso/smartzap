@@ -588,7 +588,7 @@ export function DashboardShell({
                     onClick={() => setIsSidebarHidden((prev) => !prev)}
                     title={isSidebarHidden ? 'Expandir menu' : 'Recolher menu'}
                 >
-                    <ChevronLeft size={14} />
+                    {isSidebarHidden ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
                 </button>
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-linear-to-br from-primary-600 to-primary-800 shadow-lg shadow-primary-900/20">
                     <Zap className="text-white" size={18} fill="currentColor" />
@@ -658,6 +658,16 @@ export function DashboardShell({
             )}
 
             {/* Sidebar */}
+            {isSidebarHidden && (
+                <button
+                    type="button"
+                    className="hidden lg:flex fixed left-2 top-4 z-50 h-8 w-8 items-center justify-center rounded-md border border-white/10 bg-zinc-950 text-gray-300 hover:text-white hover:bg-white/5 transition-colors"
+                    onClick={() => setIsSidebarHidden(false)}
+                    title="Expandir menu"
+                >
+                    <ChevronRight size={14} />
+                </button>
+            )}
             {Sidebar}
 
             {/* Main Content */}

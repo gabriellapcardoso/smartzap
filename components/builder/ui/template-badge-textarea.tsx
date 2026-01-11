@@ -226,7 +226,7 @@ export function TemplateBadgeTextarea({
     queryKey: ["customFields", "contact"],
     queryFn: () => customFieldService.getAll("contact"),
   });
-  const systemTokenOptions = useMemo(
+  const systemTokenOptions = useMemo<TokenOption[]>(
     () => [
       {
         id: "contact.name",
@@ -249,9 +249,9 @@ export function TemplateBadgeTextarea({
     ],
     []
   );
-  const customTokenOptions = useMemo(
+  const customTokenOptions = useMemo<TokenOption[]>(
     () => {
-      const mapped = customFields.map((field) => {
+      const mapped: Array<TokenOption | null> = customFields.map((field) => {
         const key = String(field.key || "").trim();
         const label = String(field.label || key).trim();
         if (!key || !label) return null;
@@ -259,7 +259,7 @@ export function TemplateBadgeTextarea({
           id: `custom.${key}`,
           label,
           token: `{{${key}}}`,
-          group: "Personalizado" as const,
+          group: "Personalizado",
         };
       });
       return mapped.filter((field): field is TokenOption => Boolean(field));

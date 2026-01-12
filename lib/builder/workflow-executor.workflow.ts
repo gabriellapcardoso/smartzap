@@ -835,7 +835,8 @@ export async function executeWorkflow(
 
             const nextNodes = edgesBySource.get(node.id) || [];
             const actionInfo = findActionById(effectiveActionType);
-            const shouldDebugAskQuestion = isAskQuestion;
+            const shouldDebugAskQuestion =
+              Boolean(processedConfig.variableKey) || isAskQuestion;
             const debugAskQuestion = shouldDebugAskQuestion
               ? {
                   nodeId: node.id,
@@ -849,6 +850,13 @@ export async function executeWorkflow(
                   variableKey: processedConfig.variableKey
                     ? String(processedConfig.variableKey)
                     : null,
+                  messagePresent: Boolean(
+                    typeof processedConfig.message === "string" &&
+                      processedConfig.message.trim()
+                  ),
+                  toSource: processedConfig.toSource
+                    ? String(processedConfig.toSource)
+                    : null,
                   nextNodesCount: nextNodes.length,
                   triggerFrom: (triggerInput?.from as string | undefined) ?? null,
                   triggerTo: (triggerInput?.to as string | undefined) ?? null,
@@ -860,6 +868,23 @@ export async function executeWorkflow(
 
             if (debugAskQuestion) {
               processedConfig._debugAskQuestion = debugAskQuestion;
+              processedConfig._executionAudit = {
+                actionType,
+                effectiveActionType,
+                isAskQuestion,
+                forcedAskQuestion:
+                  isAskQuestion && !isAskQuestionAction(actionType),
+                hasVariableKey: Boolean(processedConfig.variableKey),
+                hasMessage: Boolean(
+                  typeof processedConfig.message === "string" &&
+                    processedConfig.message.trim()
+                ),
+                toSource: processedConfig.toSource
+                  ? String(processedConfig.toSource)
+                  : null,
+                nextNodesCount: nextNodes.length,
+                resumeNodeId: debugAskQuestion.resumeNodeId,
+              };
               console.info("[AskQuestion] Preflight:", debugAskQuestion);
             }
 
@@ -922,9 +947,13 @@ export async function executeWorkflow(
               variables,
               executionDefaults,
             });
-            if (debugAskQuestion && stepResult && typeof stepResult === "object") {
-              (stepResult as Record<string, unknown>)._debugAskQuestion =
-                debugAskQuestion;
+            if (stepResult && typeof stepResult === "object") {
+              if (debugAskQuestion) {
+                (stepResult as Record<string, unknown>)._debugAskQuestion =
+                  debugAskQuestion;
+              }
+              (stepResult as Record<string, unknown>)._executionAudit =
+                processedConfig._executionAudit ?? null;
             }
 
             const isErrorResult =

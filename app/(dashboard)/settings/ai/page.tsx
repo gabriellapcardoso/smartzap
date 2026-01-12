@@ -5,7 +5,6 @@ import {
   Bot,
   ChevronDown,
   ChevronUp,
-  Coins,
   FileText,
   FormInput,
   MessageSquareText,
@@ -331,6 +330,11 @@ export default function AICenterPage() {
     () => (model ? getModelLabel(provider, model) : '—'),
     [provider, model]
   )
+  const activeRoutesCount = useMemo(
+    () => Object.values(routes).filter(Boolean).length,
+    [routes]
+  )
+  const totalRoutesCount = useMemo(() => Object.keys(routes).length, [routes])
   const primaryProviderStatus = providerStatuses[provider] ?? EMPTY_PROVIDER_STATUS
   const primaryProviderConfigured = primaryProviderStatus.isConfigured
 
@@ -449,16 +453,6 @@ export default function AICenterPage() {
     }
   }
 
-  const handleRestore = () => {
-    setProvider('google')
-    setModel(getDefaultModelId('google'))
-    setRoutes({ ...DEFAULT_AI_ROUTES })
-    setPrompts({ ...DEFAULT_AI_PROMPTS })
-    setFallback({ ...DEFAULT_AI_FALLBACK })
-    setErrorMessage(null)
-    toast.success('Padroes restaurados. Clique em Salvar para aplicar.')
-  }
-
   const handleSaveKey = async (targetProvider: AIProvider) => {
     const apiKey = apiKeyDrafts[targetProvider].trim()
     if (!apiKey) {
@@ -499,14 +493,6 @@ export default function AICenterPage() {
         <PageActions>
           <button
             type="button"
-            className="h-10 rounded-xl border border-white/10 bg-white/5 px-4 text-sm font-medium text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
-            onClick={handleRestore}
-            disabled={isLoading || isSaving}
-          >
-            Restaurar
-          </button>
-          <button
-            type="button"
             className="h-10 rounded-xl bg-white px-4 text-sm font-semibold text-zinc-900 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
             onClick={handleSave}
             disabled={isLoading || isSaving}
@@ -542,11 +528,13 @@ export default function AICenterPage() {
 
         <div className="glass-panel rounded-2xl p-5">
           <div className="flex items-center justify-between">
-            <div className="text-xs text-gray-400">Custo 30 dias</div>
-            <Coins className="size-4 text-amber-300" />
+            <div className="text-xs text-gray-400">Rotas ativas</div>
+            <Sparkles className="size-4 text-emerald-300" />
           </div>
-          <div className="mt-4 text-2xl font-semibold text-white">R$ 312,40</div>
-          <div className="text-xs text-gray-400">Últimos 30 dias</div>
+          <div className="mt-4 text-2xl font-semibold text-white">{activeRoutesCount}</div>
+          <div className="text-xs text-gray-400">
+            {activeRoutesCount} de {totalRoutesCount} em produção
+          </div>
         </div>
       </div>
 

@@ -503,25 +503,6 @@ export default function AICenterPage() {
         </div>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="glass-panel rounded-2xl p-5">
-          <div className="flex items-center justify-between">
-            <div className="text-xs text-gray-400">Status</div>
-            <StatusPill
-              label={primaryProviderConfigured ? 'Ativo' : 'Sem chave'}
-              tone={primaryProviderConfigured ? 'emerald' : 'amber'}
-            />
-          </div>
-          <div className="mt-4 flex items-center gap-3 text-white">
-            <Bot className="size-6 text-emerald-300" />
-            <div>
-              <div className="text-base font-semibold">{primaryProviderLabel}</div>
-              <div className="text-xs text-gray-400">Modelo: {primaryModelLabel}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div className="space-y-6">
         <section className="glass-panel rounded-2xl p-6">
           <div className="flex flex-wrap items-center justify-between gap-4">

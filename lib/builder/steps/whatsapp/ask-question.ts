@@ -19,6 +19,7 @@ export type AskQuestionInput = StepInput & {
   message?: string;
   previewUrl?: boolean | string;
   triggerData?: Record<string, unknown>;
+  _debugAskQuestion?: Record<string, unknown> | null;
 };
 
 export async function askQuestionStep(
@@ -67,7 +68,16 @@ export async function askQuestionStep(
       return { success: false, error: result.error, details: result.data };
     }
 
-    return { success: true, data: result.data };
+    const debugPayload = input._debugAskQuestion;
+    const responseData =
+      result.data && typeof result.data === "object"
+        ? { ...(result.data as Record<string, unknown>) }
+        : { value: result.data };
+    if (debugPayload) {
+      responseData._debugAskQuestion = debugPayload;
+    }
+
+    return { success: true, data: responseData };
   });
 }
 askQuestionStep.maxRetries = 0;

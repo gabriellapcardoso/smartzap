@@ -556,6 +556,7 @@ export function DashboardShell({
         { path: '/conversations', label: 'Conversas', icon: MessageCircle, hidden: true },
         { path: '/templates', label: 'Templates', icon: FileText },
         { path: '/contacts', label: 'Contatos', icon: Users },
+        { path: '/submissions', label: 'Submissões', icon: ClipboardList },
         { path: '/settings/ai', label: 'IA', icon: Sparkles },
         { path: '/settings', label: 'Configurações', icon: Settings },
     ].filter(item => !item.hidden)
@@ -574,6 +575,7 @@ export function DashboardShell({
         if (path.startsWith('/flows/builder/')) return 'Editor de MiniApp'
         if (path === '/templates') return 'Templates'
         if (path.startsWith('/contacts')) return 'Contatos'
+        if (path.startsWith('/submissions')) return 'Submissões'
         if (path === '/settings/ai') return 'Central de IA'
         if (path.startsWith('/settings')) return 'Configurações'
         return 'App'

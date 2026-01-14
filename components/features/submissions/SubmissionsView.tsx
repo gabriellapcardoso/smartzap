@@ -1,0 +1,219 @@
+'use client'
+
+import React from 'react'
+import { Search, ChevronLeft, ChevronRight, Loader2, Inbox, Phone, Calendar, FileText } from 'lucide-react'
+import { Page, PageHeader, PageTitle, PageDescription } from '@/components/ui/page'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { SubmissionsController } from '@/hooks/useSubmissions'
+import { FlowSubmission } from '@/services/submissionsService'
+
+interface SubmissionsViewProps {
+  controller: SubmissionsController
+  title?: string
+  description?: string
+}
+
+function SubmissionCard({
+  submission,
+  extractFormFields,
+  formatPhone,
+}: {
+  submission: FlowSubmission
+  extractFormFields: (s: FlowSubmission) => Record<string, unknown>
+  formatPhone: (phone: string) => string
+}) {
+  const fields = extractFormFields(submission)
+  const fieldEntries = Object.entries(fields)
+  const createdAt = new Date(submission.created_at)
+
+  return (
+    <div className="rounded-2xl border border-white/10 bg-zinc-900/60 p-5 hover:bg-zinc-900/80 transition-colors">
+      {/* Header */}
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+            <Phone className="w-4 h-4 text-emerald-400" />
+          </div>
+          <div>
+            <div className="font-medium text-white">{formatPhone(submission.from_phone)}</div>
+            <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
+              <Calendar className="w-3 h-3" />
+              {createdAt.toLocaleDateString('pt-BR')} às {createdAt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Form Fields */}
+      {fieldEntries.length > 0 ? (
+        <div className="space-y-2 pl-11">
+          {fieldEntries.map(([key, value]) => (
+            <div key={key} className="flex items-start gap-2">
+              <span className="text-xs text-gray-500 min-w-[80px] pt-0.5">{formatFieldLabel(key)}:</span>
+              <span className="text-sm text-gray-200">{formatFieldValue(value)}</span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-sm text-gray-500 pl-11 italic">Sem dados do formulário</div>
+      )}
+    </div>
+  )
+}
+
+function formatFieldLabel(key: string): string {
+  // Converte snake_case para Title Case
+  return key
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
+function formatFieldValue(value: unknown): string {
+  if (value === null || value === undefined) return '-'
+  if (typeof value === 'boolean') return value ? 'Sim' : 'Não'
+  if (Array.isArray(value)) return value.join(', ')
+  return String(value)
+}
+
+function EmptyState() {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 text-center">
+      <div className="p-4 rounded-2xl bg-zinc-800/50 mb-4">
+        <Inbox className="w-8 h-8 text-gray-500" />
+      </div>
+      <h3 className="text-lg font-medium text-white mb-2">Nenhuma submissão encontrada</h3>
+      <p className="text-sm text-gray-500 max-w-sm">
+        As submissões aparecerão aqui quando os leads preencherem seus formulários MiniApp.
+      </p>
+    </div>
+  )
+}
+
+function LoadingSkeleton() {
+  return (
+    <div className="space-y-4">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="rounded-2xl border border-white/10 bg-zinc-900/60 p-5 animate-pulse">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-zinc-700/50" />
+            <div>
+              <div className="w-32 h-5 bg-zinc-700/50 rounded mb-2" />
+              <div className="w-24 h-3 bg-zinc-700/50 rounded" />
+            </div>
+          </div>
+          <div className="space-y-2 pl-11">
+            <div className="w-48 h-4 bg-zinc-700/50 rounded" />
+            <div className="w-36 h-4 bg-zinc-700/50 rounded" />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+export function SubmissionsView({
+  controller,
+  title = 'Submissões',
+  description = 'Respostas dos formulários MiniApp',
+}: SubmissionsViewProps) {
+  const {
+    submissions,
+    total,
+    stats,
+    search,
+    setSearch,
+    page,
+    totalPages,
+    hasNextPage,
+    hasPrevPage,
+    nextPage,
+    prevPage,
+    isLoading,
+    extractFormFields,
+    formatPhone,
+  } = controller
+
+  return (
+    <Page>
+      <PageHeader>
+        <div>
+          <PageTitle>{title}</PageTitle>
+          <PageDescription>{description}</PageDescription>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900/60 border border-white/10">
+            <FileText className="w-4 h-4 text-emerald-400" />
+            <span className="text-sm text-gray-300">
+              <span className="font-semibold text-white">{total}</span> submissões
+            </span>
+          </div>
+        </div>
+      </PageHeader>
+
+      {/* Search Bar */}
+      <div className="mb-6">
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+          <Input
+            placeholder="Buscar por telefone..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-10 bg-zinc-900/60 border-white/10"
+          />
+        </div>
+      </div>
+
+      {/* Content */}
+      {isLoading ? (
+        <LoadingSkeleton />
+      ) : submissions.length === 0 ? (
+        <EmptyState />
+      ) : (
+        <>
+          <div className="space-y-4">
+            {submissions.map((submission) => (
+              <SubmissionCard
+                key={submission.id}
+                submission={submission}
+                extractFormFields={extractFormFields}
+                formatPhone={formatPhone}
+              />
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-8 pt-6 border-t border-white/10">
+              <div className="text-sm text-gray-500">
+                Página {page + 1} de {totalPages}
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={prevPage}
+                  disabled={!hasPrevPage}
+                  className="border-white/10 bg-zinc-900 hover:bg-white/5"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Anterior
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={nextPage}
+                  disabled={!hasNextPage}
+                  className="border-white/10 bg-zinc-900 hover:bg-white/5"
+                >
+                  Próxima
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </Page>
+  )
+}

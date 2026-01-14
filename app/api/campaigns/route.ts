@@ -84,7 +84,10 @@ interface CreateCampaignBody {
   scheduledAt?: string
   selectedContactIds?: string[]
   contacts?: { name: string; phone: string; email?: string | null; custom_fields?: Record<string, unknown> }[]
-  templateVariables?: { header: string[], headerMediaId?: string, body: string[], buttons?: Record<string, string> }  // Meta API structure
+  // Meta API structure:
+  // - header: text variables for templates with TEXT header
+  // - headerMediaId: media ID for templates with MEDIA header (image/document/video)
+  templateVariables?: { header: string[], headerMediaId?: string, body: string[], buttons?: Record<string, string> }
 }
 
 /**

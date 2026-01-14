@@ -2,6 +2,26 @@ import { supabase } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
 
+// CSV header columns - extracted to constant to avoid duplication
+const CSV_HEADER = [
+  'message_id',
+  'campaign_id',
+  'flow_id',
+  'flow_name',
+  'flow_token',
+  'flow_local_id',
+  'from_phone',
+  'contact_id',
+  'message_timestamp',
+  'created_at',
+  'phone_number_id',
+  'waba_id',
+  'response_json_raw',
+  'response_json',
+  'mapped_data',
+  'mapped_at',
+] as const
+
 const csvEscape = (value: unknown) => {
   const s = value === null || value === undefined ? '' : String(value)
   const needsQuotes = /[",\n\r]/.test(s)
@@ -79,25 +99,7 @@ export async function GET(request: Request) {
     const { data, error } = await q
     if (error) {
       if (campaignId && isMissingColumn(error, 'campaign_id')) {
-        const header = [
-          'message_id',
-          'campaign_id',
-          'flow_id',
-          'flow_name',
-          'flow_token',
-          'flow_local_id',
-          'from_phone',
-          'contact_id',
-          'message_timestamp',
-          'created_at',
-          'phone_number_id',
-          'waba_id',
-          'response_json_raw',
-          'response_json',
-          'mapped_data',
-          'mapped_at',
-        ]
-        const csv = `\ufeff${header.join(',')}\n`
+        const csv = `\ufeff${CSV_HEADER.join(',')}\n`
         return new Response(csv, {
           status: 200,
           headers: {
@@ -115,26 +117,7 @@ export async function GET(request: Request) {
 
     const rows = Array.isArray(data) ? data : []
 
-    const header = [
-      'message_id',
-      'campaign_id',
-      'flow_id',
-      'flow_name',
-      'flow_token',
-      'flow_local_id',
-      'from_phone',
-      'contact_id',
-      'message_timestamp',
-      'created_at',
-      'phone_number_id',
-      'waba_id',
-      'response_json_raw',
-      'response_json',
-      'mapped_data',
-      'mapped_at',
-    ]
-
-    const lines = [header.join(',')]
+    const lines = [CSV_HEADER.join(',')]
     for (const row of rows) {
       lines.push(
         [
@@ -196,25 +179,7 @@ export async function GET(request: Request) {
     console.error('[flow submissions csv] Failed to generate report:', err)
 
     if (isMissingTable(err)) {
-      const header = [
-        'message_id',
-        'campaign_id',
-        'flow_id',
-        'flow_name',
-        'flow_token',
-        'flow_local_id',
-        'from_phone',
-        'contact_id',
-        'message_timestamp',
-        'created_at',
-        'phone_number_id',
-        'waba_id',
-        'response_json_raw',
-        'response_json',
-        'mapped_data',
-        'mapped_at',
-      ]
-      const csv = `\ufeff${header.join(',')}\n`
+      const csv = `\ufeff${CSV_HEADER.join(',')}\n`
       return new Response(csv, {
         status: 200,
         headers: {

@@ -5,7 +5,7 @@ import { isSupabaseConfigured } from '@/lib/supabase'
 export async function GET() {
   try {
     if (!isSupabaseConfigured()) {
-      return NextResponse.json({ connected: false, error: 'Supabase nao configurado' }, { status: 400 })
+      return NextResponse.json({ connected: false, error: 'Supabase não configurado' }, { status: 400 })
     }
 
     const [tokens, config, channel] = await Promise.all([

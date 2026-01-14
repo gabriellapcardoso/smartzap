@@ -6,8 +6,8 @@ import { contactService } from '../services';
 import { Contact, ContactStatus } from '../types';
 import { customFieldService } from '../services/customFieldService';
 import { getSupabaseBrowser } from '../lib/supabase';
-
-const ITEMS_PER_PAGE = 10;
+import { PAGINATION, CACHE } from '@/lib/constants';
+import { invalidateContacts, invalidateContact } from '@/lib/query-invalidation';
 
 const normalizeEmailForUpdate = (email?: string | null) => {
   const trimmed = (email ?? '').trim();
@@ -55,13 +55,13 @@ export const useContactsController = () => {
   const contactsQuery = useQuery({
     queryKey: contactsQueryKey,
     queryFn: () => contactService.list({
-      limit: ITEMS_PER_PAGE,
-      offset: (currentPage - 1) * ITEMS_PER_PAGE,
+      limit: PAGINATION.contacts,
+      offset: (currentPage - 1) * PAGINATION.contacts,
       search: searchTerm.trim(),
       status: statusFilter,
       tag: tagFilter,
     }),
-    staleTime: 30 * 1000,  // 30 segundos
+    staleTime: CACHE.contacts,
     placeholderData: keepPreviousData,
   });
 
@@ -85,19 +85,19 @@ export const useContactsController = () => {
   const statsQuery = useQuery({
     queryKey: ['contactStats'],
     queryFn: contactService.getStats,
-    staleTime: 60 * 1000
+    staleTime: CACHE.stats
   });
 
   const tagsQuery = useQuery({
     queryKey: ['contactTags'],
     queryFn: contactService.getTags,
-    staleTime: 60 * 1000,
+    staleTime: CACHE.stats,
   });
 
   const customFieldsQuery = useQuery({
     queryKey: ['customFields'],
     queryFn: () => customFieldService.getAll(),
-    staleTime: 60 * 1000
+    staleTime: CACHE.customFields
   });
 
   const refreshCustomFields = () => {
@@ -136,16 +136,10 @@ export const useContactsController = () => {
   }, [queryClient]);
 
   // --- Mutations ---
-  const invalidateAll = () => {
-    queryClient.invalidateQueries({ queryKey: ['contacts'] });
-    queryClient.invalidateQueries({ queryKey: ['contactStats'] });
-    queryClient.invalidateQueries({ queryKey: ['contactTags'] });
-  };
-
   const addMutation = useMutation({
     mutationFn: contactService.add,
     onSuccess: () => {
-      invalidateAll();
+      invalidateContacts(queryClient);
       setIsAddModalOpen(false);
       toast.success('Contato adicionado com sucesso!');
     },
@@ -158,7 +152,7 @@ export const useContactsController = () => {
     mutationFn: ({ id, data }: { id: string; data: Partial<Omit<Contact, 'id'>> }) =>
       contactService.update(id, data),
     onSuccess: (updated) => {
-      invalidateAll();
+      invalidateContacts(queryClient);
       if (updated?.id) {
         queryClient.invalidateQueries({ queryKey: ['contact', updated.id] });
       }
@@ -174,7 +168,7 @@ export const useContactsController = () => {
   const deleteMutation = useMutation({
     mutationFn: contactService.delete,
     onSuccess: () => {
-      invalidateAll();
+      invalidateContacts(queryClient);
       setIsDeleteModalOpen(false);
       setDeleteTarget(null);
       toast.success('Contato excluído com sucesso!');
@@ -187,7 +181,7 @@ export const useContactsController = () => {
   const deleteManyMutation = useMutation({
     mutationFn: contactService.deleteMany,
     onSuccess: (count) => {
-      invalidateAll();
+      invalidateContacts(queryClient);
       setSelectedIds(new Set());
       setIsDeleteModalOpen(false);
       setDeleteTarget(null);
@@ -201,7 +195,7 @@ export const useContactsController = () => {
   const importMutation = useMutation({
     mutationFn: contactService.import,
     onSuccess: (count) => {
-      invalidateAll();
+      invalidateContacts(queryClient);
       toast.success(`${count} contatos importados com sucesso!`);
     },
     onError: () => toast.error('Erro ao importar contatos')
@@ -211,7 +205,7 @@ export const useContactsController = () => {
   const importFromFileMutation = useMutation({
     mutationFn: (file: File) => contactService.importFromFile(file),
     onSuccess: (result) => {
-      invalidateAll();
+      invalidateContacts(queryClient);
       setImportReport(result.report);
       if (result.imported > 0) {
         toast.success(`${result.imported} contatos importados!`);
@@ -228,7 +222,7 @@ export const useContactsController = () => {
   // --- Filtering & Pagination Logic (server-side) ---
   const contacts = contactsQuery.data?.data || [];
   const totalFiltered = contactsQuery.data?.total || 0;
-  const totalPages = Math.max(1, Math.ceil(totalFiltered / ITEMS_PER_PAGE));
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / PAGINATION.contacts));
 
   useEffect(() => {
     if (currentPage > totalPages) {
@@ -393,7 +387,7 @@ export const useContactsController = () => {
     setCurrentPage,
     totalPages,
     totalFiltered,
-    itemsPerPage: ITEMS_PER_PAGE,
+    itemsPerPage: PAGINATION.contacts,
 
     // Selection
     selectedIds,

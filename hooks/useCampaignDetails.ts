@@ -5,11 +5,8 @@ import { toast } from 'sonner';
 import { campaignService } from '../services';
 import { useCampaignRealtime } from './useCampaignRealtime';
 import { Campaign, CampaignStatus, MessageStatus, Message } from '../types';
-
-// Polling interval as backup while Realtime is connected (60 seconds)
-const BACKUP_POLLING_INTERVAL = 60 * 1000;
-// Fallback polling when Realtime is not connected (keeps stats fresh without F5)
-const DISCONNECTED_POLLING_INTERVAL = 10 * 1000;
+import { POLLING, getPollingInterval, isLargeCampaign } from '@/lib/constants';
+import { invalidateCampaign, invalidateCampaigns } from '@/lib/query-invalidation';
 
 function mergeCampaignCountersMonotonic(oldCampaign: Campaign | undefined, fresh: Campaign | undefined): Campaign | undefined {
   if (!fresh) return oldCampaign;
@@ -136,13 +133,12 @@ export const useCampaignDetailsController = () => {
     campaign?.status === CampaignStatus.SCHEDULED ||
     campaign?.status === CampaignStatus.COMPLETED;
 
-  const isLargeCampaign = (campaign?.recipients || 0) >= 10000;
+  const isLarge = isLargeCampaign(campaign?.recipients || 0);
 
   const pollingInterval = useMemo(() => {
     if (!isActiveCampaign) return false as const;
-    if (isLargeCampaign) return BACKUP_POLLING_INTERVAL;
-    return isRealtimeConnected ? BACKUP_POLLING_INTERVAL : DISCONNECTED_POLLING_INTERVAL;
-  }, [isActiveCampaign, isLargeCampaign, isRealtimeConnected]);
+    return getPollingInterval(isRealtimeConnected, isLarge);
+  }, [isActiveCampaign, isLarge, isRealtimeConnected]);
 
   const metricsQuery = useQuery<any | null>({
     queryKey: ['campaignMetrics', id],

@@ -996,12 +996,16 @@ export default function CampaignsNewRealPage() {
   const displayAudienceCost = isSegmentCountLoading ? '—' : audienceCostFormatted
   const pricePerMessageLabel = hasPricing ? `${audiencePricing!.pricePerMessageBRLFormatted}/msg` : 'R$ --/msg'
   const exchangeRateLabel = hasRate ? `USD/BRL ${exchangeRate!.toFixed(2).replace('.', ',')}` : 'Câmbio indisponível'
+  // No Step 1 (Configuração), não faz sentido mostrar contagem/custo de audiência
+  // porque o usuário ainda não selecionou o público
   const footerSummary =
-    audienceMode === 'teste'
-      ? `${selectedTestCount || 0} contato${selectedTestCount === 1 ? '' : 's'} de teste`
-      : isSegmentCountLoading
-        ? 'Calculando estimativa...'
-        : `${audienceCount} contatos • ${audienceCostFormatted}`
+    step === 1
+      ? selectedTemplate?.name || 'Template selecionado'
+      : audienceMode === 'teste'
+        ? `${selectedTestCount || 0} contato${selectedTestCount === 1 ? '' : 's'} de teste`
+        : isSegmentCountLoading
+          ? 'Calculando estimativa...'
+          : `${audienceCount} contatos • ${audienceCostFormatted}`
   const activeTemplate = previewTemplate ?? (templateSelected ? selectedTemplate : null)
 
   const parameterFormat = (
@@ -2733,14 +2737,19 @@ export default function CampaignsNewRealPage() {
               </button>
             </div>
             <div className="mt-4 space-y-3 text-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-gray-500">Contatos</span>
-                <span className="text-white">{displayAudienceCount}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-500">Custo</span>
-                <span className="text-emerald-300">{displayAudienceCost}</span>
-              </div>
+              {/* Contatos e Custo só aparecem a partir do Step 2 (quando faz sentido) */}
+              {step >= 2 && (
+                <>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-500">Contatos</span>
+                    <span className="text-white">{displayAudienceCount}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-500">Custo</span>
+                    <span className="text-emerald-300">{displayAudienceCost}</span>
+                  </div>
+                </>
+              )}
               <div className="flex items-center justify-between">
                 <span className="text-gray-500">Custo Base</span>
                 <div className="text-right">
@@ -2762,16 +2771,19 @@ export default function CampaignsNewRealPage() {
                 <span className="text-gray-500">Template</span>
                 <span className="text-white">{templateSelected ? selectedTemplate?.name || '—' : '—'}</span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-500">Público</span>
-                <span className="text-white">
-                  {audienceMode === 'teste'
-                    ? `${selectedTestCount || 0} contato(s) de teste`
-                    : isSegmentCountLoading
-                      ? 'Calculando...'
-                      : `${audienceCount} contatos`}
-                </span>
-              </div>
+              {/* Público só aparece a partir do Step 2 */}
+              {step >= 2 && (
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-500">Público</span>
+                  <span className="text-white">
+                    {audienceMode === 'teste'
+                      ? `${selectedTestCount || 0} contato(s) de teste`
+                      : isSegmentCountLoading
+                        ? 'Calculando...'
+                        : `${audienceCount} contatos`}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 

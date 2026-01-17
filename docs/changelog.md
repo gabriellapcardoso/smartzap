@@ -13,6 +13,11 @@
   - `app/api/webhook/route.ts` agora extrai labels do `flow_json` e substitui `topics/notes/...` pelo texto da pergunta
   - Fallback mantém o comportamento antigo quando não há `flow_json` disponível
 
+## 15/01/2026 - Build fix do editor
+
+- **🛠️ Ajuste de tipagem no editor unificado**
+  - `app/(dashboard)/flows/builder/[id]/page.tsx` tipa corretamente o `prev` do `setEditorSpecOverride`, evitando erro TS no build
+
 ## 17/01/2026 - Confirmação pós-finalização no editor unificado
 
 - **✅ Confirmação voltou a funcionar em telas finais**

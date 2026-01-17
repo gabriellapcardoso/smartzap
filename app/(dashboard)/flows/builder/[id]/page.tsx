@@ -83,7 +83,7 @@ export default function FlowBuilderEditorPage({
         fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'max-depth',hypothesisId:'L2',location:'app/(dashboard)/flows/builder/[id]/page.tsx:onPreviewChange',message:'page applying editor preview (guarded editorSpecOverride)',data:{stepNow,startModeNow,activeScreenId,firstScreenId,hadOverride},timestamp:Date.now()})}).catch(()=>{})
       } catch {}
       // #endregion agent log
-      setEditorSpecOverride((prev) => {
+      setEditorSpecOverride((prev: unknown) => {
         if (prev) return prev
         const base = controllerSpecRef.current && typeof controllerSpecRef.current === 'object' ? (controllerSpecRef.current as any) : {}
         return { ...base, dynamicFlow: spec }

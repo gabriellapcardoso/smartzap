@@ -403,6 +403,7 @@ export const campaignService = {
   },
 
   // Start a scheduled or draft campaign immediately
+  // Optimized: retorna resultado do PATCH diretamente ao invés de fazer getById extra
   start: async (id: string): Promise<Campaign | undefined> => {
     console.log('🚀 Starting campaign:', { id });
 
@@ -427,7 +428,7 @@ export const campaignService = {
       return undefined
     }
 
-    // Atualiza estado imediatamente no DB para a UI não ficar “Iniciar Agora” enquanto já está enviando.
+    // Atualiza estado imediatamente no DB para a UI não ficar "Iniciar Agora" enquanto já está enviando.
     // O workflow também setará status/startedAt, mas isso pode demorar alguns segundos.
     const nowIso = new Date().toISOString()
 
@@ -446,9 +447,12 @@ export const campaignService = {
 
     if (!updateResponse.ok) {
       console.warn('Failed to clear scheduled fields after dispatch');
+      // Retorna dados originais com status atualizado otimisticamente
+      return { ...campaignData, status: CampaignStatus.SENDING };
     }
 
-    return campaignService.getById(id);
+    // Retorna diretamente o resultado do PATCH (evita getById extra)
+    return updateResponse.json();
   },
 
   // Cancel a scheduled campaign (QStash one-shot)

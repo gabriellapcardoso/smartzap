@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -6,6 +6,53 @@ import { Trash2, Plus, Type, Loader2 } from 'lucide-react';
 import { customFieldService } from '@/services/customFieldService';
 import { CustomFieldDefinition } from '@/types';
 import { toast } from 'sonner';
+
+// =============================================================================
+// MEMOIZED SUBCOMPONENT - Evita re-render de todos os itens ao adicionar/remover
+// =============================================================================
+
+interface CustomFieldItemProps {
+  field: CustomFieldDefinition;
+  onDelete: (id: string) => void;
+}
+
+const CustomFieldItem = memo(function CustomFieldItem({ field, onDelete }: CustomFieldItemProps) {
+  const handleDelete = useCallback(() => {
+    onDelete(field.id);
+  }, [field.id, onDelete]);
+
+  return (
+    <div
+      className="flex items-center justify-between p-3.5 rounded-xl border border-white/5 bg-zinc-900/30 hover:bg-zinc-900/80 hover:border-white/10 transition-all group"
+    >
+      <div className="flex items-center gap-3">
+        <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-zinc-800 border border-white/5 text-gray-400 group-hover:text-white transition-colors">
+          <Type size={14} />
+        </div>
+        <div>
+          <p className="text-sm font-medium text-white">{field.label}</p>
+          <p className="text-[10px] font-mono text-gray-500 flex items-center gap-1">
+            <span>{'{{'}</span>
+            {field.key}
+            <span>{'}}'}</span>
+          </p>
+        </div>
+      </div>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="text-gray-500 hover:text-red-400 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-all rounded-lg h-9 w-9"
+        onClick={handleDelete}
+      >
+        <Trash2 size={15} />
+      </Button>
+    </div>
+  );
+});
+
+// =============================================================================
+// MAIN COMPONENT
+// =============================================================================
 
 interface CustomFieldsManagerProps {
     entityType?: 'contact' | 'deal';
@@ -84,10 +131,10 @@ export function CustomFieldsManager({
         }
     };
 
-    const handleDelete = async (id: string) => {
+    const handleDelete = useCallback(async (id: string) => {
         try {
             await customFieldService.delete(id);
-            setFields(fields.filter(f => f.id !== id));
+            setFields(prev => prev.filter(f => f.id !== id));
             toast.success('Campo removido');
 
             if (onFieldDeleted) {
@@ -97,7 +144,7 @@ export function CustomFieldsManager({
             console.error(error);
             toast.error('Erro ao remover campo');
         }
-    };
+    }, [onFieldDeleted]);
 
     return (
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -189,32 +236,11 @@ export function CustomFieldsManager({
                 ) : (
                     <div className="space-y-2.5">
                         {fields.map((field) => (
-                            <div
+                            <CustomFieldItem
                                 key={field.id}
-                                className="flex items-center justify-between p-3.5 rounded-xl border border-white/5 bg-zinc-900/30 hover:bg-zinc-900/80 hover:border-white/10 transition-all group"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-zinc-800 border border-white/5 text-gray-400 group-hover:text-white transition-colors">
-                                        <Type size={14} />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-medium text-white">{field.label}</p>
-                                        <p className="text-[10px] font-mono text-gray-500 flex items-center gap-1">
-                                            <span>{'{{'}</span>
-                                            {field.key}
-                                            <span>{'}}'}</span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="text-gray-500 hover:text-red-400 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-all rounded-lg h-9 w-9"
-                                    onClick={() => handleDelete(field.id)}
-                                >
-                                    <Trash2 size={15} />
-                                </Button>
-                            </div>
+                                field={field}
+                                onDelete={handleDelete}
+                            />
                         ))}
                     </div>
                 )}

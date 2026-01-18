@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useMutation, useQueryClient, type QueryKey } from '@tanstack/react-query';
 import { campaignService, type CampaignListResult } from '../services/campaignService';
 import { Campaign } from '../types';
@@ -175,19 +175,19 @@ export const useCampaignsController = (initialData?: CampaignListResult) => {
     }
   }, [currentPage, totalPages]);
 
-  // Handlers
-  const handleDelete = (id: string) => {
+  // Handlers - memoizados para evitar re-renders desnecessários
+  const handleDelete = useCallback((id: string) => {
     // Deletar diretamente sem confirmação (pode ser desfeito clonando)
     deleteCampaign(id);
-  };
+  }, [deleteCampaign]);
 
-  const handleRefresh = () => {
+  const handleRefresh = useCallback(() => {
     refetch();
-  };
+  }, [refetch]);
 
-  const handleDuplicate = (id: string) => {
+  const handleDuplicate = useCallback((id: string) => {
     duplicateCampaign(id);
-  };
+  }, [duplicateCampaign]);
 
   return {
     // Data

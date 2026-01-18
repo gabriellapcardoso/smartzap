@@ -68,12 +68,34 @@ export const useSettingsController = () => {
   const [isTestingConnection, setIsTestingConnection] = useState(false);
 
   // --- Queries ---
-  const settingsQuery = useQuery({
-    queryKey: ['settings'],
-    queryFn: settingsService.get,
+  // Consolidated query for all independent settings (reduces 8 requests to 1)
+  const allSettingsQuery = useQuery({
+    queryKey: ['allSettings'],
+    queryFn: settingsService.getAll,
+    staleTime: 30 * 1000,
   });
 
-  // Webhook info query
+  // Derive individual data from consolidated query
+  const settingsData = useMemo(() => {
+    if (!allSettingsQuery.data?.credentials) return null;
+    const cred = allSettingsQuery.data.credentials;
+    return {
+      phoneNumberId: cred.phoneNumberId || '',
+      businessAccountId: cred.businessAccountId || '',
+      displayPhoneNumber: cred.displayPhoneNumber,
+      verifiedName: cred.verifiedName,
+      accessToken: cred.hasToken ? '***configured***' : '',
+      isConnected: cred.isConnected,
+    } as AppSettings;
+  }, [allSettingsQuery.data?.credentials]);
+
+  // Legacy settingsQuery accessor for compatibility
+  const settingsQuery = {
+    data: settingsData,
+    isLoading: allSettingsQuery.isLoading,
+  };
+
+  // Webhook info query (dependent on isConnected)
   const webhookQuery = useQuery({
     queryKey: ['webhookInfo'],
     queryFn: async (): Promise<WebhookInfo> => {
@@ -81,16 +103,15 @@ export const useSettingsController = () => {
       if (!response.ok) throw new Error('Failed to fetch webhook info');
       return response.json();
     },
-    enabled: !!settingsQuery.data?.isConnected, // Only fetch when connected
-    staleTime: 30 * 1000, // Cache for 30 seconds
+    enabled: !!settingsData?.isConnected,
+    staleTime: 30 * 1000,
   });
 
-  // Meta subscription status (WABA subscribed_apps) — needed to receive `messages`
+  // Meta subscription status (WABA subscribed_apps) — dependent on isConnected
   const webhookSubscriptionQuery = useQuery({
     queryKey: ['metaWebhookSubscription'],
     queryFn: async (): Promise<WebhookSubscriptionStatus> => {
       const response = await fetch('/api/meta/webhooks/subscription');
-      // We intentionally return the body even on non-2xx to display details in UI
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
         return {
@@ -101,25 +122,21 @@ export const useSettingsController = () => {
       }
       return data as WebhookSubscriptionStatus;
     },
-    enabled: !!settingsQuery.data?.isConnected,
-    // Importante: esse status costuma confundir (Meta UI vs subscribed_apps).
-    // Para evitar mostrar “Inativo” com cache ao navegar para Configurações,
-    // sempre revalida ao montar.
+    enabled: !!settingsData?.isConnected,
     refetchOnMount: 'always',
     refetchOnWindowFocus: true,
     staleTime: 0,
     retry: false,
   });
 
-  // Phone numbers query (for webhook override management)
-  // Backend usa credenciais salvas (Supabase settings / env) — não precisa passar do frontend
+  // Phone numbers query (dependent on isConnected)
   const phoneNumbersQuery = useQuery({
     queryKey: ['phoneNumbers'],
     queryFn: async (): Promise<PhoneNumber[]> => {
       const response = await fetch('/api/phone-numbers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({}), // Body vazio: backend usa credenciais salvas (Supabase/env)
+        body: JSON.stringify({}),
       });
       if (!response.ok) {
         const error = await response.json();
@@ -127,79 +144,75 @@ export const useSettingsController = () => {
       }
       return response.json();
     },
-    enabled: !!settingsQuery.data?.isConnected,
-    staleTime: 60 * 1000, // Cache for 1 minute
-    retry: false, // Don't retry on auth errors
+    enabled: !!settingsData?.isConnected,
+    staleTime: 60 * 1000,
+    retry: false,
   });
 
-  // AI Settings Query
-  const aiSettingsQuery = useQuery({
-    queryKey: ['aiSettings'],
-    queryFn: settingsService.getAIConfig,
-    staleTime: 60 * 1000,
-  });
+  // AI Settings - derived from consolidated query
+  const aiSettingsQuery = {
+    data: allSettingsQuery.data?.ai,
+    isLoading: allSettingsQuery.isLoading,
+  };
 
-  // Meta App (opcional): permite debug_token no diagnóstico
-  const metaAppQuery = useQuery({
-    queryKey: ['metaAppConfig'],
-    queryFn: settingsService.getMetaAppConfig,
-    staleTime: 60 * 1000,
-  })
+  // Meta App - derived from consolidated query
+  const metaAppQuery = {
+    data: allSettingsQuery.data?.metaApp,
+    isLoading: allSettingsQuery.isLoading,
+  };
 
-  // Test Contact Query - persisted in Supabase
-  const testContactQuery = useQuery({
-    queryKey: ['testContact'],
-    queryFn: settingsService.getTestContact,
-    staleTime: 60 * 1000,
-  });
+  // Test Contact - derived from consolidated query
+  const testContactQuery = {
+    data: allSettingsQuery.data?.testContact,
+    isLoading: allSettingsQuery.isLoading,
+  };
 
-
-  // WhatsApp Turbo (Adaptive Throttle)
+  // WhatsApp Turbo (dependent on isConnected)
   const whatsappThrottleQuery = useQuery({
     queryKey: ['whatsappThrottle'],
     queryFn: settingsService.getWhatsAppThrottle,
-    enabled: !!settingsQuery.data?.isConnected,
+    enabled: !!settingsData?.isConnected,
     staleTime: 30 * 1000,
     retry: false,
   });
 
-  // Auto-supressão (Proteção de Qualidade)
+  // Auto-supressão (dependent on isConnected)
   const autoSuppressionQuery = useQuery({
     queryKey: ['autoSuppression'],
     queryFn: settingsService.getAutoSuppression,
-    enabled: !!settingsQuery.data?.isConnected,
+    enabled: !!settingsData?.isConnected,
     staleTime: 30 * 1000,
     retry: false,
-  })
-
-  // Calendar Booking (Google Calendar)
-  const calendarBookingQuery = useQuery({
-    queryKey: ['calendarBookingConfig'],
-    queryFn: settingsService.getCalendarBookingConfig,
-    staleTime: 60 * 1000,
-    retry: false,
-  })
-
-  const workflowExecutionQuery = useQuery({
-    queryKey: ['workflowExecutionConfig'],
-    queryFn: settingsService.getWorkflowExecutionConfig,
-    staleTime: 60 * 1000,
-    retry: false,
-  })
-
-
-  // Available domains query (auto-detect from Vercel)
-  const domainsQuery = useQuery({
-    queryKey: ['availableDomains'],
-    queryFn: async (): Promise<{ domains: DomainOption[]; webhookPath: string; currentSelection: string | null }> => {
-      const response = await fetch('/api/settings/domains');
-      if (!response.ok) throw new Error('Failed to fetch domains');
-      return response.json();
-    },
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
-  // System status query (consolidated: health + usage + vercel info)
+  // Calendar Booking - derived from consolidated query
+  const calendarBookingQuery = {
+    data: allSettingsQuery.data?.calendarBooking,
+    isLoading: allSettingsQuery.isLoading,
+  };
+
+  // Workflow Execution - derived from consolidated query
+  const workflowExecutionQuery = {
+    data: allSettingsQuery.data?.workflowExecution,
+    isLoading: allSettingsQuery.isLoading,
+  };
+
+  // Domains - derived from consolidated query and transformed to DomainOption format
+  const availableDomains = useMemo((): DomainOption[] => {
+    const rawDomains = allSettingsQuery.data?.domains?.domains || [];
+    return rawDomains.map((d) => ({
+      url: d.value,
+      source: d.isPrimary ? 'production' : 'vercel',
+      recommended: d.isPrimary,
+    }));
+  }, [allSettingsQuery.data?.domains?.domains]);
+
+  const domainsQuery = {
+    data: allSettingsQuery.data?.domains,
+    isLoading: allSettingsQuery.isLoading,
+  };
+
+  // System status query (kept separate - has different caching needs)
   const systemQuery = useQuery({
     queryKey: ['systemStatus'],
     queryFn: async () => {
@@ -207,8 +220,7 @@ export const useSettingsController = () => {
       if (!response.ok) throw new Error('Failed to fetch system status');
       return response.json();
     },
-    staleTime: 60 * 1000, // Cache for 1 minute
-    // No polling - user can manually refresh if needed
+    staleTime: 60 * 1000,
   });
 
   // Backward compatible healthQuery accessor
@@ -684,7 +696,7 @@ export const useSettingsController = () => {
     setWebhookOverride,
     removeWebhookOverride,
     // Available domains for webhook URL
-    availableDomains: domainsQuery.data?.domains || [],
+    availableDomains,
     webhookPath: domainsQuery.data?.webhookPath || DEFAULT_WEBHOOK_PATH,
     selectedDomain: domainsQuery.data?.currentSelection || null,
     // System health

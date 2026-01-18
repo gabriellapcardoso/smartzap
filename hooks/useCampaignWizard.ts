@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback, useReducer } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@/lib/navigation';
 import { toast } from 'sonner';
@@ -17,46 +17,41 @@ import {
   type AudiencePresetId,
 } from '@/lib/business/audience';
 import { getTemplateVariableInfo } from '@/lib/business/template';
+import {
+  wizardReducer,
+  initialWizardState,
+  audienceReducer,
+  initialAudienceState,
+  schedulingReducer,
+  initialSchedulingState,
+} from './campaigns/campaignWizardReducer';
 
 export const useCampaignWizardController = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const [step, setStep] = useState(1);
+  // Grouped state via reducers (reduces re-renders)
+  const [wizard, dispatchWizard] = useReducer(wizardReducer, initialWizardState);
+  const [audience, dispatchAudience] = useReducer(audienceReducer, initialAudienceState);
+  const [scheduling, dispatchScheduling] = useReducer(schedulingReducer, initialSchedulingState);
 
-  // Form State
-  const [name, setName] = useState('');
-  const [selectedTemplateId, setSelectedTemplateId] = useState('');
-  const [recipientSource, setRecipientSource] = useState<'all' | 'specific' | 'test' | null>(null);
-  const [selectedContactIds, setSelectedContactIds] = useState<string[]>([]);
-  const [contactSearchTerm, setContactSearchTerm] = useState('');
+  // Destructure for easier access
+  const { step, name, selectedTemplateId, templateVariables } = wizard;
+  const { recipientSource, selectedContactIds, audiencePreset, audienceCriteria, contactSearchTerm } = audience;
+  const { scheduledAt, isScheduling } = scheduling;
 
-  // Jobs/Ive audience presets (simple, fast decisions)
-  // Types imported from @/lib/business/audience
-
-  const [audiencePreset, setAudiencePreset] = useState<AudiencePresetId | null>(null);
-  const [audienceCriteria, setAudienceCriteria] = useState<AudienceCriteria>({
-    status: 'OPT_IN',
-    includeTag: null,
-    createdWithinDays: null,
-    excludeOptOut: true,
-    noTags: false,
-    uf: null,
-    ddi: null,
-    customFieldKey: null,
-    customFieldMode: null,
-    customFieldValue: null,
-  });
-
-  // Template Variables State - Official Meta API Structure
-  // header: array of values for header {{1}}, {{2}}, etc.
-  // body: array of values for body {{1}}, {{2}}, etc.
-  // buttons: optional Record for button URL variables
-  const [templateVariables, setTemplateVariables] = useState<{ header: string[], body: string[], buttons?: Record<string, string> }>({ header: [], body: [] });
-
-  // Scheduling State
-  const [scheduledAt, setScheduledAt] = useState<string | null>(null);
-  const [isScheduling, setIsScheduling] = useState(false);
+  // State setters (backward compatible API)
+  const setStep = useCallback((s: number) => dispatchWizard({ type: 'SET_STEP', payload: s }), []);
+  const setName = useCallback((n: string) => dispatchWizard({ type: 'SET_NAME', payload: n }), []);
+  const setSelectedTemplateId = useCallback((id: string) => dispatchWizard({ type: 'SET_TEMPLATE', payload: id }), []);
+  const setTemplateVariables = useCallback((vars: typeof templateVariables) => dispatchWizard({ type: 'SET_TEMPLATE_VARIABLES', payload: vars }), []);
+  const setRecipientSource = useCallback((src: typeof recipientSource) => dispatchAudience({ type: 'SET_SOURCE', payload: src }), []);
+  const setSelectedContactIds = useCallback((ids: string[]) => dispatchAudience({ type: 'SET_SELECTED_IDS', payload: ids }), []);
+  const setContactSearchTerm = useCallback((term: string) => dispatchAudience({ type: 'SET_SEARCH', payload: term }), []);
+  const setAudiencePreset = useCallback((preset: AudiencePresetId | null) => dispatchAudience({ type: 'SET_PRESET', payload: preset }), []);
+  const setAudienceCriteria = useCallback((criteria: AudienceCriteria) => dispatchAudience({ type: 'SET_CRITERIA', payload: criteria }), []);
+  const setScheduledAt = useCallback((at: string | null) => dispatchScheduling({ type: 'SET_SCHEDULED_AT', payload: at }), []);
+  const setIsScheduling = useCallback((is: boolean) => dispatchScheduling({ type: 'SET_IS_SCHEDULING', payload: is }), []);
 
   // Validation Modal State
   const [showBlockModal, setShowBlockModal] = useState(false);
@@ -340,48 +335,71 @@ export const useCampaignWizardController = () => {
   );
 
   // Use pure function from business logic for criteria filtering
+  // Uses batch action to update all audience state in one dispatch (reduces re-renders)
   const applyAudienceCriteria = useCallback((criteria: AudienceCriteria, preset?: AudiencePresetId) => {
-    setRecipientSource('specific');
-    setAudiencePreset(preset ?? 'manual');
-    setAudienceCriteria(criteria);
     const ids = getContactIdsByCriteria(allContacts, criteria, suppressedPhones);
-    setSelectedContactIds(ids);
+    dispatchAudience({
+      type: 'APPLY_PRESET',
+      payload: {
+        source: 'specific',
+        preset: preset ?? 'manual',
+        criteria,
+        selectedIds: ids,
+      },
+    });
   }, [allContacts, suppressedPhones]);
 
   // Use pure function from business logic for preset application
+  // Uses batch action to update all audience state in one dispatch (reduces re-renders)
   const selectAudiencePreset = useCallback((preset: AudiencePresetId) => {
     if (preset === 'test') {
-      setRecipientSource('test');
-      setAudiencePreset('test');
-      setSelectedContactIds([]);
+      dispatchAudience({
+        type: 'APPLY_PRESET',
+        payload: {
+          source: 'test',
+          preset: 'test',
+          criteria: initialAudienceState.audienceCriteria,
+          selectedIds: [],
+        },
+      });
       return;
     }
 
     if (preset === 'manual') {
-      setRecipientSource('specific');
-      setAudiencePreset('manual');
-      setAudienceCriteria({
-        status: 'ALL',
-        includeTag: null,
-        createdWithinDays: null,
-        excludeOptOut: false,
-        noTags: false,
-        uf: null,
-        ddi: null,
-        customFieldKey: null,
-        customFieldMode: null,
-        customFieldValue: null,
+      dispatchAudience({
+        type: 'APPLY_PRESET',
+        payload: {
+          source: 'specific',
+          preset: 'manual',
+          criteria: {
+            status: 'ALL',
+            includeTag: null,
+            createdWithinDays: null,
+            excludeOptOut: false,
+            noTags: false,
+            uf: null,
+            ddi: null,
+            customFieldKey: null,
+            customFieldMode: null,
+            customFieldValue: null,
+          },
+          selectedIds: [],
+        },
       });
-      setSelectedContactIds([]);
       return;
     }
 
     // Use applyPreset from business logic for all other presets
     const result = applyPreset(preset, allContacts, suppressedPhones, { topTag });
-    setRecipientSource('specific');
-    setAudiencePreset(result.fallbackPreset ?? preset);
-    setAudienceCriteria(result.criteria);
-    setSelectedContactIds(result.contactIds);
+    dispatchAudience({
+      type: 'APPLY_PRESET',
+      payload: {
+        source: 'specific',
+        preset: result.fallbackPreset ?? preset,
+        criteria: result.criteria,
+        selectedIds: result.contactIds,
+      },
+    });
   }, [allContacts, suppressedPhones, topTag]);
 
   // Default audience (Jobs-mode): novos (7d), once contacts are available.
@@ -478,13 +496,9 @@ export const useCampaignWizardController = () => {
   // Use the limit from validation (respects DEBUG mode) not from API limits
   const currentLimit = liveValidation?.currentLimit || limits?.maxUniqueUsersPerDay || 250;
 
-  const toggleContact = (contactId: string) => {
-    setSelectedContactIds(prev =>
-      prev.includes(contactId)
-        ? prev.filter(id => id !== contactId)
-        : [...prev, contactId]
-    );
-  };
+  const toggleContact = useCallback((contactId: string) => {
+    dispatchAudience({ type: 'TOGGLE_CONTACT', payload: contactId });
+  }, []);
 
   const handleNext = () => {
     if (step === 1) {
@@ -502,10 +516,10 @@ export const useCampaignWizardController = () => {
         return;
       }
     }
-    setStep((prev) => Math.min(prev + 1, 3));
+    dispatchWizard({ type: 'NEXT_STEP' });
   };
 
-  const handleBack = () => setStep((prev) => Math.max(prev - 1, 1));
+  const handleBack = () => dispatchWizard({ type: 'PREV_STEP' });
 
   const runPrecheck = async (options?: { silent?: boolean; force?: boolean }) => {
     if (!selectedTemplate?.name) {

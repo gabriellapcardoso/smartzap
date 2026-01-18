@@ -10,11 +10,8 @@ import { invalidateContacts } from '@/lib/query-invalidation';
 import {
   normalizeEmailForUpdate,
   sanitizeCustomFieldsForUpdate,
-  toggleContactSelection,
-  toggleSelectAllContacts,
-  clearContactSelection,
-  selectAllContactsGlobal,
 } from '@/lib/business/contact';
+import { useContactSelection } from './useContactSelection';
 
 // =============================================================================
 // QUERY KEY HELPERS - Normalized for consistency
@@ -47,12 +44,11 @@ export const useContactsController = () => {
   // Em alguns ambientes de teste o mock pode retornar null/undefined.
   const editFromUrl = (searchParams as any)?.get?.('edit') as string | null;
 
-  // UI State
+  // UI State - Filters
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<ContactStatus | 'ALL' | 'SUPPRESSED'>('ALL');
   const [tagFilter, setTagFilter] = useState<string>('ALL');
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   // Modal State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -315,54 +311,41 @@ export const useContactsController = () => {
     }
   }, [currentPage, totalPages]);
 
-  // Reset page when filters change
-  const handleSearchChange = (term: string) => {
+  // Reset page when filters change - memoizados para evitar re-renders
+  const handleSearchChange = useCallback((term: string) => {
     setSearchTerm(term);
     setCurrentPage(1);
-  };
+  }, []);
 
-  const handleStatusFilterChange = (status: ContactStatus | 'ALL' | 'SUPPRESSED') => {
+  const handleStatusFilterChange = useCallback((status: ContactStatus | 'ALL' | 'SUPPRESSED') => {
     setStatusFilter(status);
     setCurrentPage(1);
-  };
+  }, []);
 
-  const handleTagFilterChange = (tag: string) => {
+  const handleTagFilterChange = useCallback((tag: string) => {
     setTagFilter(tag);
     setCurrentPage(1);
-  };
+  }, []);
 
-  // --- Selection Logic ---
-  const toggleSelect = (id: string) => {
-    setSelectedIds(toggleContactSelection(selectedIds, id));
-  };
+  // --- Selection Logic (extracted to reusable hook) ---
+  const pageContactIds = useMemo(() => contacts.map(c => c.id), [contacts]);
+  const selectionFilters = useMemo(
+    () => ({ search: searchTerm, status: statusFilter, tag: tagFilter }),
+    [searchTerm, statusFilter, tagFilter]
+  );
+  const {
+    selectedIds,
+    setSelectedIds,
+    toggleSelect,
+    toggleSelectAll,
+    selectAllGlobal,
+    clearSelection,
+    isAllSelected,
+    isSomeSelected,
+  } = useContactSelection(pageContactIds, selectionFilters);
 
-  const toggleSelectAll = () => {
-    const pageIds = contacts.map(c => c.id);
-    const allOnPageSelected = pageIds.length > 0 && pageIds.every(id => selectedIds.has(id));
-    setSelectedIds(toggleSelectAllContacts(selectedIds, pageIds, allOnPageSelected));
-  };
-
-  const selectAllGlobal = () => {
-    void contactService.getIds({
-      search: searchTerm.trim(),
-      status: statusFilter,
-      tag: tagFilter,
-    }).then((ids) => {
-      setSelectedIds(selectAllContactsGlobal(ids));
-    }).catch((error: any) => {
-      toast.error(error.message || 'Erro ao selecionar todos os contatos');
-    });
-  };
-
-  const clearSelection = () => {
-    setSelectedIds(clearContactSelection());
-  };
-
-  const isAllSelected = contacts.length > 0 && contacts.every(c => selectedIds.has(c.id));
-  const isSomeSelected = selectedIds.size > 0;
-
-  // --- Handlers ---
-  const handleAddContact = (contact: { name: string; phone: string; email?: string; tags: string; custom_fields?: Record<string, any> }) => {
+  // --- Handlers - memoizados para evitar re-renders ---
+  const handleAddContact = useCallback((contact: { name: string; phone: string; email?: string; tags: string; custom_fields?: Record<string, any> }) => {
     if (!contact.phone) {
       toast.error('Telefone é obrigatório');
       return;
@@ -383,41 +366,41 @@ export const useContactsController = () => {
       tags: contact.tags.split(',').map(t => t.trim()).filter(t => t),
       custom_fields: contact.custom_fields
     });
-  };
+  }, [addMutation]);
 
-  const handleEditContact = (contact: Contact) => {
+  const handleEditContact = useCallback((contact: Contact) => {
     setEditingContact(contact);
     setIsEditModalOpen(true);
-  };
+  }, []);
 
-  const handleUpdateContact = (data: { name: string; phone: string; email?: string; tags: string; status: ContactStatus; custom_fields?: Record<string, any> }) => {
+  const handleUpdateContact = useCallback((data: { name: string; phone: string; email?: string; tags: string; status: ContactStatus; custom_fields?: Record<string, any> }) => {
     if (!editingContact) return;
     updateMutation.mutate({
       id: editingContact.id,
       data: {
         name: data.name,
         phone: data.phone,
-        // Para “apagar” email, precisamos enviar null (undefined não altera no banco)
+        // Para "apagar" email, precisamos enviar null (undefined não altera no banco)
         email: normalizeEmailForUpdate(data.email),
         status: data.status,
         tags: data.tags.split(',').map(t => t.trim()).filter(t => t),
         custom_fields: sanitizeCustomFieldsForUpdate(data.custom_fields)
       }
     });
-  };
+  }, [editingContact, updateMutation]);
 
-  const handleDeleteClick = (id: string) => {
+  const handleDeleteClick = useCallback((id: string) => {
     setDeleteTarget({ type: 'single', id });
     setIsDeleteModalOpen(true);
-  };
+  }, []);
 
-  const handleBulkDeleteClick = () => {
+  const handleBulkDeleteClick = useCallback(() => {
     if (selectedIds.size === 0) return;
     setDeleteTarget({ type: 'bulk' });
     setIsDeleteModalOpen(true);
-  };
+  }, [selectedIds.size]);
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = useCallback(() => {
     if (!deleteTarget) return;
 
     if (deleteTarget.type === 'single' && deleteTarget.id) {
@@ -425,12 +408,12 @@ export const useContactsController = () => {
     } else if (deleteTarget.type === 'bulk') {
       deleteManyMutation.mutate(Array.from(selectedIds));
     }
-  };
+  }, [deleteTarget, deleteMutation, deleteManyMutation, selectedIds]);
 
-  const handleCancelDelete = () => {
+  const handleCancelDelete = useCallback(() => {
     setIsDeleteModalOpen(false);
     setDeleteTarget(null);
-  };
+  }, []);
 
   return {
     // Data
@@ -492,6 +475,6 @@ export const useContactsController = () => {
 
     // Import report
     importReport,
-    clearImportReport: () => setImportReport(null),
+    clearImportReport: useCallback(() => setImportReport(null), []),
   };
 };

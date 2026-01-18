@@ -2,7 +2,60 @@ import type { AiFallbackConfig, AiPromptsConfig, AiRoutesConfig } from '../lib/a
 import { storage } from '../lib/storage';
 import { AppSettings, CalendarBookingConfig, WorkflowExecutionConfig } from '../types';
 
+// =============================================================================
+// CONSOLIDATED SETTINGS - Fetch all independent settings in one request
+// =============================================================================
+
+export interface AllSettingsResponse {
+  credentials: {
+    source: 'db' | 'env_fallback' | 'db_error' | 'none'
+    phoneNumberId?: string
+    businessAccountId?: string
+    displayPhoneNumber?: string
+    verifiedName?: string
+    hasToken?: boolean
+    isConnected: boolean
+    warning?: string
+  }
+  ai: {
+    provider: string
+    model: string
+    providers: Record<string, { isConfigured: boolean; source: string; tokenPreview: string | null }>
+    isConfigured: boolean
+    source: string
+    tokenPreview: string | null
+    routes: any
+    fallback: any
+    prompts: any
+  }
+  metaApp: {
+    source: 'db' | 'env' | 'none'
+    appId: string | null
+    hasAppSecret: boolean
+    isConfigured: boolean
+  }
+  testContact: { name?: string; phone: string } | null
+  domains: {
+    domains: Array<{ value: string; label: string; isPrimary: boolean }>
+    webhookPath: string
+    currentSelection: string | null
+  }
+  calendarBooking: { ok: boolean; source: 'db' | 'default'; config: CalendarBookingConfig }
+  workflowExecution: { ok: boolean; source: 'db' | 'env'; config: WorkflowExecutionConfig }
+  timestamp: string
+}
+
 export const settingsService = {
+  /**
+   * Get ALL independent settings in a single request
+   * Reduces 8+ API calls to 1 for Settings page
+   */
+  getAll: async (): Promise<AllSettingsResponse> => {
+    const response = await fetch('/api/settings/all', { cache: 'no-store' })
+    if (!response.ok) throw new Error('Failed to fetch all settings')
+    return response.json()
+  },
+
   /**
    * Get settings - combines local storage (UI state) with server credentials
    */

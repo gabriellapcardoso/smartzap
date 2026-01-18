@@ -73,6 +73,13 @@ const StatusIcon = ({ status }: { status: 'ok' | 'warning' | 'critical' }) => {
   return <AlertTriangle size={14} className="text-red-400" />
 }
 
+// Constantes de cores hoistadas para evitar re-criação em cada render
+const PROGRESS_BAR_COLORS = {
+  ok: 'bg-emerald-500',
+  warning: 'bg-amber-500',
+  critical: 'bg-red-500',
+} as const
+
 const ProgressBar = ({
   percentage,
   status
@@ -80,16 +87,10 @@ const ProgressBar = ({
   percentage: number
   status: 'ok' | 'warning' | 'critical'
 }) => {
-  const colors = {
-    ok: 'bg-emerald-500',
-    warning: 'bg-amber-500',
-    critical: 'bg-red-500',
-  }
-
   return (
     <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
       <div
-        className={`h-full ${colors[status]} transition-all duration-500`}
+        className={`h-full ${PROGRESS_BAR_COLORS[status]} transition-all duration-500`}
         style={{ width: `${Math.min(percentage, 100)}%` }}
       />
     </div>

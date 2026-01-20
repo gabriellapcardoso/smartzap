@@ -33,15 +33,15 @@ export function WizardSidebar({
   };
 
   return (
-    <aside className="w-full lg:w-72 border-b lg:border-b-0 lg:border-r border-white/10 bg-zinc-900/50 p-6 lg:p-8">
+    <aside className="w-full lg:w-72 border-b lg:border-b-0 lg:border-r border-[var(--ds-border-default)] bg-[var(--ds-bg-elevated)] p-6 lg:p-8">
       {/* Logo */}
       <div className="flex items-center gap-3 mb-8">
-        <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-          <Calendar className="w-5 h-5 text-emerald-400" />
+        <div className="w-10 h-10 rounded-xl bg-[var(--ds-status-success-bg)] flex items-center justify-center">
+          <Calendar className="w-5 h-5 text-[var(--ds-status-success-text)]" />
         </div>
         <div>
-          <div className="text-sm font-medium text-white">Google Calendar</div>
-          <div className="text-xs text-gray-500">Configuracao</div>
+          <div className="text-sm font-medium text-[var(--ds-text-primary)]">Google Calendar</div>
+          <div className="text-xs text-[var(--ds-text-muted)]">Configuracao</div>
         </div>
       </div>
 
@@ -60,18 +60,18 @@ export function WizardSidebar({
               disabled={!isUnlocked}
               className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left transition-all ${
                 isActive
-                  ? 'bg-emerald-500/15 border border-emerald-500/30'
+                  ? 'bg-[var(--ds-status-success-bg)] border border-[var(--ds-status-success)]/30'
                   : isUnlocked
-                    ? 'hover:bg-white/5 border border-transparent'
+                    ? 'hover:bg-[var(--ds-bg-hover)] border border-transparent'
                     : 'opacity-40 cursor-not-allowed border border-transparent'
               }`}
             >
               <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium ${
                 status === 'completed' && !isActive
-                  ? 'bg-emerald-500 text-white'
+                  ? 'bg-[var(--ds-status-success)] text-white'
                   : isActive
-                    ? 'bg-emerald-500/30 text-emerald-300 border border-emerald-500/50'
-                    : 'bg-white/10 text-gray-400'
+                    ? 'bg-[var(--ds-status-success)]/30 text-[var(--ds-status-success-text)] border border-[var(--ds-status-success)]/50'
+                    : 'bg-[var(--ds-bg-surface)] text-[var(--ds-text-secondary)]'
               }`}>
                 {status === 'completed' && !isActive ? (
                   <Check size={14} />
@@ -79,7 +79,7 @@ export function WizardSidebar({
                   step.id + 1
                 )}
               </span>
-              <span className={`text-sm ${isActive ? 'text-white font-medium' : 'text-gray-400'}`}>
+              <span className={`text-sm ${isActive ? 'text-[var(--ds-text-primary)] font-medium' : 'text-[var(--ds-text-secondary)]'}`}>
                 {step.label}
               </span>
             </button>
@@ -88,14 +88,14 @@ export function WizardSidebar({
       </div>
 
       {/* Help */}
-      <div className="mt-8 rounded-xl border border-white/10 bg-white/5 p-4">
-        <div className="text-xs font-medium text-white mb-3">Ajuda rapida</div>
+      <div className="mt-8 rounded-xl border border-[var(--ds-border-default)] bg-[var(--ds-bg-hover)] p-4">
+        <div className="text-xs font-medium text-[var(--ds-text-primary)] mb-3">Ajuda rapida</div>
         <div className="space-y-2">
           <a
             href="https://developers.google.com/calendar/api/quickstart/js"
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-2 text-xs text-emerald-400 hover:text-emerald-300 transition-colors"
+            className="flex items-center gap-2 text-xs text-[var(--ds-status-success-text)] hover:opacity-80 transition-colors"
           >
             <ExternalLink size={12} />
             Guia oficial do Google
@@ -104,7 +104,7 @@ export function WizardSidebar({
             href="https://www.youtube.com/results?search_query=google+calendar+oauth+setup"
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-2 text-xs text-emerald-400 hover:text-emerald-300 transition-colors"
+            className="flex items-center gap-2 text-xs text-[var(--ds-status-success-text)] hover:opacity-80 transition-colors"
           >
             <ExternalLink size={12} />
             Videos tutoriais
@@ -112,7 +112,7 @@ export function WizardSidebar({
         </div>
       </div>
 
-      <p className="mt-4 text-[11px] text-gray-500">
+      <p className="mt-4 text-[11px] text-[var(--ds-text-muted)]">
         Seu progresso fica salvo automaticamente.
       </p>
     </aside>

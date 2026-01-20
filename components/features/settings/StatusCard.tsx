@@ -42,9 +42,9 @@ export const StatusCard = forwardRef<HTMLDivElement, StatusCardProps>(function S
       <Container
         variant="glass"
         padding="lg"
-        className={`flex items-start gap-6 transition-all duration-500 ${settings.isConnected ? 'border-emerald-500/30 shadow-[0_0_30px_rgba(16,185,129,0.1)]' : 'border-red-500/30 shadow-[0_0_30px_rgba(239,68,68,0.1)]'}`}
+        className={`flex items-start gap-6 transition-all duration-500 ${settings.isConnected ? 'border-[var(--ds-status-success)]/30' : 'border-[var(--ds-status-error)]/30'}`}
       >
-      <div className={`p-4 rounded-2xl ${settings.isConnected ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+      <div className={`p-4 rounded-2xl border ${settings.isConnected ? 'bg-[var(--ds-status-success-bg)] text-[var(--ds-status-success-text)] border-[var(--ds-status-success)]/20' : 'bg-[var(--ds-status-error-bg)] text-[var(--ds-status-error-text)] border-[var(--ds-status-error)]/20'}`}>
         {settings.isConnected ? <Wifi size={32} /> : <AlertTriangle size={32} />}
       </div>
       <div className="flex-1">
@@ -52,16 +52,16 @@ export const StatusCard = forwardRef<HTMLDivElement, StatusCardProps>(function S
           {settings.isConnected ? 'Sistema Online' : 'Desconectado'}
         </h3>
 
-        <div className={`text-sm mt-3 space-y-1.5 ${settings.isConnected ? 'text-[var(--ds-text-secondary)]' : 'text-red-500 dark:text-red-400'}`}>
+        <div className={`text-sm mt-3 space-y-1.5 ${settings.isConnected ? 'text-[var(--ds-text-secondary)]' : 'text-[var(--ds-status-error-text)]'}`}>
           {settings.isConnected ? (
             <>
               <div className="flex items-center gap-2">
                 <span className="text-[var(--ds-text-muted)]">Conta Comercial:</span>
-                <span className="font-mono text-emerald-600 dark:text-emerald-300 bg-emerald-500/10 px-1.5 py-0.5 rounded">{settings.businessAccountId}</span>
+                <span className="font-mono text-[var(--ds-status-success-text)] bg-[var(--ds-status-success-bg)] px-1.5 py-0.5 rounded">{settings.businessAccountId}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-[var(--ds-text-muted)]">Telefone Verificado:</span>
-                <span className="font-mono text-emerald-600 dark:text-emerald-300 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                <span className="font-mono text-[var(--ds-status-success-text)] bg-[var(--ds-status-success-bg)] px-1.5 py-0.5 rounded">
                   {settings.displayPhoneNumber || settings.phoneNumberId}
                 </span>
               </div>
@@ -82,7 +82,7 @@ export const StatusCard = forwardRef<HTMLDivElement, StatusCardProps>(function S
             ) : limitsError ? (
               <button
                 onClick={onRefreshLimits}
-                className="h-10 px-3 bg-red-500/10 rounded-lg text-xs font-medium text-red-400 border border-red-500/20 flex items-center gap-1.5 hover:bg-red-500/20 transition-colors focus-visible:outline-2 focus-visible:outline-red-500 focus-visible:outline-offset-2"
+                className="h-10 px-3 bg-[var(--ds-status-error-bg)] rounded-lg text-xs font-medium text-[var(--ds-status-error-text)] border border-[var(--ds-status-error)]/20 flex items-center gap-1.5 hover:bg-[var(--ds-status-error)]/20 transition-colors focus-visible:outline-2 focus-visible:outline-red-500 focus-visible:outline-offset-2"
                 aria-label="Tentar buscar limites da conta novamente"
               >
                 <AlertCircle size={12} aria-hidden="true" />
@@ -90,7 +90,7 @@ export const StatusCard = forwardRef<HTMLDivElement, StatusCardProps>(function S
                 <RefreshCw size={10} className="ml-1" aria-hidden="true" />
               </button>
             ) : (
-              <span className="px-3 py-1.5 bg-[var(--ds-bg-elevated)] rounded-lg text-xs font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+              <span className="px-3 py-1.5 bg-[var(--ds-bg-elevated)] rounded-lg text-xs font-medium text-[var(--ds-status-success-text)] border border-[var(--ds-status-success)]/20 flex items-center gap-1.5">
                 <Wifi size={12} />
                 Limite: {accountLimits?.maxUniqueUsersPerDay?.toLocaleString('pt-BR')} msgs/dia
               </span>
@@ -99,11 +99,11 @@ export const StatusCard = forwardRef<HTMLDivElement, StatusCardProps>(function S
             {/* Quality Status */}
             {!limitsError && !limitsLoading && (
               <span className={`px-3 py-1.5 bg-[var(--ds-bg-elevated)] rounded-lg text-xs font-medium border flex items-center gap-1.5 ${accountLimits?.qualityScore === 'GREEN'
-                ? 'text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+                ? 'text-[var(--ds-status-success-text)] border-[var(--ds-status-success)]/20'
                 : accountLimits?.qualityScore === 'YELLOW'
-                  ? 'text-yellow-600 dark:text-yellow-400 border-yellow-500/20'
+                  ? 'text-[var(--ds-status-warning-text)] border-[var(--ds-status-warning)]/20'
                   : accountLimits?.qualityScore === 'RED'
-                    ? 'text-red-600 dark:text-red-400 border-red-500/20'
+                    ? 'text-[var(--ds-status-error-text)] border-[var(--ds-status-error)]/20'
                     : 'text-[var(--ds-text-secondary)] border-[var(--ds-border-default)]'
                 }`}>
                 <Shield size={12} />
@@ -120,7 +120,7 @@ export const StatusCard = forwardRef<HTMLDivElement, StatusCardProps>(function S
             onClick={onToggleEdit}
             className={`group relative overflow-hidden rounded-xl h-10 px-4 text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 focus-visible:outline-2 focus-visible:outline-primary-500 focus-visible:outline-offset-2
               ${isEditing
-                ? 'bg-white text-black shadow-lg hover:bg-gray-100'
+                ? 'bg-primary-600 text-white shadow-lg hover:bg-primary-500 dark:bg-white dark:text-black dark:hover:bg-neutral-100'
                 : 'bg-[var(--ds-bg-hover)] text-[var(--ds-text-primary)] hover:bg-[var(--ds-bg-surface)] border border-[var(--ds-border-default)] hover:border-[var(--ds-border-strong)]'
               }`}
             aria-label={isEditing ? 'Cancelar edição das configurações' : 'Editar configurações'}

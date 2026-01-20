@@ -96,14 +96,14 @@ export const WizardPreviewPanel: React.FC<WizardPreviewPanelProps> = ({
     : undefined;
 
   return (
-    <div className="hidden lg:flex flex-col lg:col-span-3 bg-zinc-900/30 rounded-2xl border border-white/5 p-4">
+    <div className="hidden lg:flex flex-col lg:col-span-3 bg-[var(--ds-bg-elevated)] rounded-2xl border border-[var(--ds-border-subtle)] p-4">
       <div className="flex flex-col h-full">
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2 text-gray-400 text-xs uppercase tracking-widest font-bold">
+          <div className="flex items-center gap-2 text-[var(--ds-text-secondary)] text-xs uppercase tracking-widest font-bold">
             <Eye size={14} /> Pre-visualizacao
           </div>
           {step === 2 && isOverLimit && (
-            <span className="text-red-400 text-[10px]">(ajuste os contatos)</span>
+            <span className="text-[var(--ds-status-error-text)] text-[10px]">(ajuste os contatos)</span>
           )}
         </div>
 

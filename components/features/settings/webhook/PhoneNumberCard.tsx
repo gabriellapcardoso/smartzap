@@ -72,8 +72,8 @@ export function PhoneNumberCard({
               <Phone size={18} />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="font-medium text-white">{phone.display_phone_number}</div>
-              <div className="text-sm text-gray-400 truncate">
+              <div className="font-medium text-[var(--ds-text-primary)]">{phone.display_phone_number}</div>
+              <div className="text-sm text-[var(--ds-text-secondary)] truncate">
                 {phone.verified_name || 'Sem nome verificado'}
               </div>
               {/* Status line */}
@@ -113,14 +113,14 @@ export function PhoneNumberCard({
             <button
               onClick={() => setIsFunnelExpanded(!isFunnelExpanded)}
               className={
-                'px-2.5 py-1 text-xs font-medium rounded-lg flex items-center gap-1.5 transition-all hover:ring-2 hover:ring-white/20 ' +
+                'px-2.5 py-1 text-xs font-medium rounded-lg flex items-center gap-1.5 transition-all hover:ring-2 hover:ring-[var(--ds-border-strong)] ' +
                 (cardColor === 'emerald'
-                  ? 'bg-emerald-500/20 text-emerald-400'
+                  ? 'bg-[var(--ds-status-success-bg)] text-[var(--ds-status-success-text)]'
                   : cardColor === 'amber'
-                    ? 'bg-amber-500/20 text-amber-400'
+                    ? 'bg-[var(--ds-status-warning-bg)] text-[var(--ds-status-warning-text)]'
                     : cardColor === 'blue'
-                      ? 'bg-blue-500/20 text-blue-400'
-                      : 'bg-zinc-700 text-gray-300')
+                      ? 'bg-[var(--ds-status-info-bg)] text-[var(--ds-status-info-text)]'
+                      : 'bg-[var(--ds-bg-surface)] text-[var(--ds-text-secondary)]')
               }
               title="Clique para ver o funil completo"
             >
@@ -141,7 +141,7 @@ export function PhoneNumberCard({
                   <button
                     onClick={() => onSetZapflowWebhook(phone.id)}
                     disabled={isBusy}
-                    className="h-10 px-3 text-xs font-medium bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-600/50 text-white rounded-lg transition-colors flex items-center gap-1"
+                    className="h-10 px-3 text-xs font-medium bg-[var(--ds-status-success)] hover:opacity-90 disabled:opacity-50 text-white rounded-lg transition-colors flex items-center gap-1"
                   >
                     {isBusy ? (
                       <Loader2 size={12} className="animate-spin" />
@@ -155,7 +155,7 @@ export function PhoneNumberCard({
                   <button
                     onClick={() => onRemoveOverride(phone.id)}
                     disabled={isBusy}
-                    className="h-10 w-10 flex items-center justify-center text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                    className="h-10 w-10 flex items-center justify-center text-[var(--ds-text-muted)] hover:text-[var(--ds-status-error-text)] hover:bg-[var(--ds-status-error-bg)] rounded-lg transition-colors"
                     title="Remover override (voltar para padrão)"
                   >
                     <Trash2 size={14} />
@@ -175,9 +175,9 @@ export function PhoneNumberCard({
       {/* Edit form */}
       {isEditing && (
         <div className="px-4 pb-4">
-          <div className="pt-4 border-t border-white/5 space-y-3">
+          <div className="pt-4 border-t border-[var(--ds-border-subtle)] space-y-3">
             <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5">
+              <label className="block text-xs font-medium text-[var(--ds-text-secondary)] mb-1.5">
                 URL do Webhook (deve ser HTTPS)
               </label>
               <input
@@ -185,7 +185,7 @@ export function PhoneNumberCard({
                 value={overrideUrl}
                 onChange={(e) => setOverrideUrl(e.target.value)}
                 placeholder="https://seu-sistema.com/webhook"
-                className="w-full px-3 py-2 bg-zinc-900/50 border border-white/10 rounded-lg text-sm font-mono text-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none"
+                className="w-full px-3 py-2 bg-[var(--ds-bg-elevated)] border border-[var(--ds-border-default)] rounded-lg text-sm font-mono text-[var(--ds-text-primary)] focus:ring-2 focus:ring-[var(--ds-status-info)]/50 focus:border-[var(--ds-status-info)]/50 outline-none"
               />
             </div>
             <div className="flex justify-end gap-2">
@@ -194,14 +194,14 @@ export function PhoneNumberCard({
                   setIsEditing(false);
                   setOverrideUrl('');
                 }}
-                className="h-10 px-4 text-sm text-gray-400 hover:text-white transition-colors"
+                className="h-10 px-4 text-sm text-[var(--ds-text-secondary)] hover:text-[var(--ds-text-primary)] transition-colors"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleSetOverride}
                 disabled={isLocalSaving || !overrideUrl.trim()}
-                className="h-10 px-4 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-600/50 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
+                className="h-10 px-4 bg-[var(--ds-status-info)] hover:opacity-90 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
               >
                 {isLocalSaving ? (
                   <Loader2 size={14} className="animate-spin" />

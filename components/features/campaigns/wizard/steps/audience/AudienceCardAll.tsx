@@ -22,14 +22,14 @@ export function AudienceCardAll({
       onClick={onSelect}
       className={`relative p-6 rounded-2xl border transition-all duration-200 flex flex-col items-center justify-center gap-4 h-full min-h-47.5 ${
         isOverLimit
-          ? 'bg-zinc-900/50 border-red-500/30 text-gray-400 opacity-60'
+          ? 'bg-[var(--ds-bg-elevated)] border-red-500/30 text-[var(--ds-text-secondary)] opacity-60'
           : isSelected
-            ? 'bg-white text-black border-white shadow-[0_0_20px_rgba(255,255,255,0.10)] ring-2 ring-white/70'
-            : 'bg-zinc-900/50 border-white/10 hover:bg-zinc-900 hover:border-white/20 text-gray-300'
+            ? 'bg-primary-600 text-white dark:bg-white dark:text-black border-primary-600 dark:border-white shadow-lg ring-2 ring-primary-500/50 dark:ring-white/70'
+            : 'bg-[var(--ds-bg-elevated)] border-[var(--ds-border-default)] hover:bg-[var(--ds-bg-surface)] hover:border-[var(--ds-border-strong)] text-[var(--ds-text-secondary)]'
       }`}
     >
       {isSelected && !isOverLimit && (
-        <div className="absolute top-3 right-3 text-black">
+        <div className="absolute top-3 right-3 text-white dark:text-black">
           <CheckCircleFilled size={20} />
         </div>
       )}
@@ -43,8 +43,8 @@ export function AudienceCardAll({
           isOverLimit
             ? 'bg-red-500/20 text-red-400'
             : isSelected
-              ? 'bg-gray-200 text-black'
-              : 'bg-zinc-800 text-gray-400'
+              ? 'bg-white/20 text-white dark:bg-gray-200 dark:text-black'
+              : 'bg-[var(--ds-bg-surface)] text-[var(--ds-text-secondary)]'
         }`}
       >
         <Users size={24} />
@@ -53,7 +53,7 @@ export function AudienceCardAll({
         <h3 className="font-bold text-sm">Todos</h3>
         <p
           className={`text-xs mt-1 ${
-            isOverLimit ? 'text-red-400' : isSelected ? 'text-gray-600' : 'text-gray-500'
+            isOverLimit ? 'text-red-400' : isSelected ? 'text-white/70 dark:text-gray-600' : 'text-[var(--ds-text-muted)]'
           }`}
         >
           {eligibleContactsCount} contatos • exclui opt-out e supressões
@@ -63,7 +63,7 @@ export function AudienceCardAll({
             Excede limite ({currentLimit})
           </p>
         ) : isSelected && selectedTemplate ? (
-          <p className="text-xs mt-2 font-bold text-primary-600">
+          <p className="text-xs mt-2 font-bold text-primary-300 dark:text-primary-600">
             {
               getPricingBreakdown(
                 selectedTemplate.category,

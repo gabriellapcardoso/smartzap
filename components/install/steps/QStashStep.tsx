@@ -38,17 +38,17 @@ export function QStashStep({ onComplete }: QStashStepProps) {
     return trimmed.split('.').length === 3 || trimmed.startsWith('qstash_');
   };
 
-  // Valida formato da signing key
+  // Valida formato da signing key (apenas tamanho mínimo - formato varia)
   const isValidSigningKey = (k: string): boolean => {
     const trimmed = k.trim();
-    return trimmed.startsWith('sig_') && trimmed.length >= 30;
+    // QStash signing keys têm ~50+ chars, exigimos mínimo de 20
+    return trimmed.length >= 20;
   };
 
   const canSubmit =
     token.trim().length >= 30 &&
     isValidToken(token) &&
-    signingKey.trim().length >= 30 &&
-    isValidSigningKey(signingKey);
+    signingKey.trim().length >= 20;
 
   const handleValidate = async () => {
     if (validating || success) return;

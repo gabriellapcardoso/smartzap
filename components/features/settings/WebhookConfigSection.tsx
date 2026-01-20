@@ -154,7 +154,7 @@ export function WebhookConfigSection({
             <button
               onClick={onRefreshPhoneNumbers}
               disabled={phoneNumbersLoading}
-              className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+              className="p-2 text-[var(--ds-text-muted)] hover:text-[var(--ds-text-primary)] hover:bg-[var(--ds-bg-hover)] rounded-lg transition-colors"
               title="Atualizar lista"
             >
               <RefreshCw size={16} className={phoneNumbersLoading ? 'animate-spin' : ''} />
@@ -163,7 +163,7 @@ export function WebhookConfigSection({
         }
       />
 
-      <p className="text-sm text-gray-400 mt-4 mb-6">
+      <p className="text-sm text-[var(--ds-text-secondary)] mt-4 mb-6">
         Webhooks são notificações que a Meta envia quando algo acontece (mensagem entregue, lida, etc).
       </p>
 

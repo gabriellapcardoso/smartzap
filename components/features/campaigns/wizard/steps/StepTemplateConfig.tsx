@@ -135,12 +135,12 @@ export function StepTemplateConfig({
     <div className="flex-1 min-h-0 flex flex-col space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-auto p-6">
       {/* Campaign Name */}
       <div>
-        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">
+        <label className="block text-xs font-bold text-[var(--ds-text-muted)] uppercase tracking-wider mb-2 ml-1">
           Nome da Campanha
         </label>
         <input
           type="text"
-          className="w-full px-5 py-4 bg-zinc-900 border border-white/10 rounded-xl focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500/50 outline-none transition-all text-white placeholder-gray-600 text-lg font-medium"
+          className="w-full px-5 py-4 bg-[var(--ds-bg-elevated)] border border-[var(--ds-border-default)] rounded-xl focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500/50 outline-none transition-all text-[var(--ds-text-primary)] placeholder-[var(--ds-text-muted)] text-lg font-medium"
           placeholder="ex: Promoção de Verão"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -150,7 +150,7 @@ export function StepTemplateConfig({
       {/* Template Selection */}
       <div>
         <div className="flex items-center justify-between mb-4 ml-1">
-          <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">
+          <label className="block text-xs font-bold text-[var(--ds-text-muted)] uppercase tracking-wider">
             Selecione o Template
           </label>
           <PrefetchLink href="/templates" className="text-xs text-primary-400 hover:text-primary-300 flex items-center gap-1">
@@ -161,7 +161,7 @@ export function StepTemplateConfig({
         {/* Category filter - only when no template is selected */}
         {!selectedTemplateId && availableTemplates.length > 0 && (
           <div className="mb-4 flex items-center gap-3">
-            <div className="inline-flex rounded-xl bg-zinc-900 border border-white/10 p-1">
+            <div className="inline-flex rounded-xl bg-[var(--ds-bg-elevated)] border border-[var(--ds-border-default)] p-1">
               {([
                 { id: 'ALL' as const, label: 'Todos', Icon: Circle },
                 { id: 'MARKETING' as const, label: 'Marketing', Icon: TrendingUp },
@@ -177,7 +177,7 @@ export function StepTemplateConfig({
                     aria-pressed={active}
                     className={`px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${active
                       ? 'bg-primary-500/20 text-primary-300 ring-1 ring-primary-500/30'
-                      : 'text-gray-400 hover:text-white hover:bg-white/5'
+                      : 'text-[var(--ds-text-secondary)] hover:text-[var(--ds-text-primary)] hover:bg-[var(--ds-bg-hover)]'
                     }`}
                   >
                     <Icon size={14} />
@@ -186,25 +186,25 @@ export function StepTemplateConfig({
                 );
               })}
             </div>
-            <span className="text-xs text-gray-500">Filtre por tipo</span>
+            <span className="text-xs text-[var(--ds-text-muted)]">Filtre por tipo</span>
           </div>
         )}
 
         {/* Search bar - only show when no template is selected */}
         {!selectedTemplateId && availableTemplates.length > 3 && (
           <div className="relative mb-4">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--ds-text-muted)]" size={16} />
             <input
               type="text"
               placeholder="Buscar template por nome ou conteúdo..."
               value={templateSearch}
               onChange={(e) => setTemplateSearch(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 bg-zinc-900 border border-white/20 rounded-xl focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500/50 outline-none transition-all text-white placeholder-gray-500 text-sm"
+              className="w-full pl-11 pr-4 py-3 bg-[var(--ds-bg-elevated)] border border-[var(--ds-border-default)] rounded-xl focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500/50 outline-none transition-all text-[var(--ds-text-primary)] placeholder-[var(--ds-text-muted)] text-sm"
             />
             {templateSearch && (
               <button
                 onClick={() => setTemplateSearch('')}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--ds-text-muted)] hover:text-[var(--ds-text-primary)] transition-colors"
               >
                 <X size={16} />
               </button>
@@ -224,7 +224,7 @@ export function StepTemplateConfig({
                 setSelectedTemplateId('');
                 setTemplateSearch('');
               }}
-              className="text-xs text-gray-400 hover:text-white transition-colors flex items-center gap-1"
+              className="text-xs text-[var(--ds-text-secondary)] hover:text-[var(--ds-text-primary)] transition-colors flex items-center gap-1"
             >
               <RefreshCw size={12} /> Trocar template
             </button>
@@ -234,8 +234,8 @@ export function StepTemplateConfig({
         {/* Template List */}
         <div className="space-y-2 flex-1 min-h-0 overflow-y-auto pr-2 custom-scrollbar">
           {availableTemplates.length === 0 && (
-            <div className="text-center p-8 border border-dashed border-white/10 rounded-xl">
-              <p className="text-gray-500 mb-2">Nenhum template aprovado encontrado.</p>
+            <div className="text-center p-8 border border-dashed border-[var(--ds-border-default)] rounded-xl">
+              <p className="text-[var(--ds-text-muted)] mb-2">Nenhum template aprovado encontrado.</p>
               <PrefetchLink href="/templates" className="text-primary-400 text-sm hover:underline">
                 Sincronizar Templates
               </PrefetchLink>
@@ -243,8 +243,8 @@ export function StepTemplateConfig({
           )}
 
           {filteredTemplates.length === 0 && availableTemplates.length > 0 && !selectedTemplateId && templateSearch.trim() && (
-            <div className="text-center p-8 border border-dashed border-white/10 rounded-xl">
-              <p className="text-gray-500 mb-2">Nenhum template encontrado para &ldquo;{templateSearch}&rdquo;</p>
+            <div className="text-center p-8 border border-dashed border-[var(--ds-border-default)] rounded-xl">
+              <p className="text-[var(--ds-text-muted)] mb-2">Nenhum template encontrado para &ldquo;{templateSearch}&rdquo;</p>
               <button
                 onClick={() => setTemplateSearch('')}
                 className="text-primary-400 text-sm hover:underline"
@@ -255,9 +255,9 @@ export function StepTemplateConfig({
           )}
 
           {filteredTemplates.length === 0 && availableTemplates.length > 0 && !selectedTemplateId && !templateSearch.trim() && templateCategoryFilter !== 'ALL' && (
-            <div className="text-center p-8 border border-dashed border-white/10 rounded-xl">
-              <p className="text-gray-500 mb-2">
-                Nenhum template de <span className="text-white">
+            <div className="text-center p-8 border border-dashed border-[var(--ds-border-default)] rounded-xl">
+              <p className="text-[var(--ds-text-muted)] mb-2">
+                Nenhum template de <span className="text-[var(--ds-text-primary)]">
                   {templateCategoryFilter === 'AUTENTICACAO' ? 'Autenticação' : templateCategoryFilter === 'UTILIDADE' ? 'Utilidade' : 'Marketing'}
                 </span> encontrado.
               </p>
@@ -280,30 +280,30 @@ export function StepTemplateConfig({
                 ? 'border-primary-500 bg-primary-500/10 ring-1 ring-primary-500'
                 : hoveredTemplateId === t.id
                   ? 'border-primary-400/50 bg-primary-500/5'
-                  : 'border-white/10 bg-zinc-900/50 hover:border-white/20 hover:bg-zinc-900'
+                  : 'border-[var(--ds-border-default)] bg-[var(--ds-bg-elevated)] hover:border-[var(--ds-border-strong)] hover:bg-[var(--ds-bg-surface)]'
               }`}
             >
               {/* Radio indicator */}
               <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${selectedTemplateId === t.id
                 ? 'border-primary-500 bg-primary-500'
-                : 'border-zinc-600 bg-transparent group-hover:border-zinc-500'
+                : 'border-[var(--ds-border-default)] bg-transparent group-hover:border-[var(--ds-border-strong)]'
               }`}>
                 {selectedTemplateId === t.id && (
-                  <div className="w-2 h-2 rounded-full bg-black" />
+                  <div className="w-2 h-2 rounded-full bg-[var(--ds-bg-base)]" />
                 )}
               </div>
 
               {/* Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-1">
-                  <h3 className={`font-semibold text-sm truncate ${selectedTemplateId === t.id ? 'text-white' : 'text-gray-200'}`}>
+                  <h3 className={`font-semibold text-sm truncate ${selectedTemplateId === t.id ? 'text-[var(--ds-text-primary)]' : 'text-[var(--ds-text-secondary)]'}`}>
                     {t.name}
                   </h3>
-                  <span className="text-[10px] text-gray-500 font-mono uppercase tracking-wider ml-2 shrink-0">
+                  <span className="text-[10px] text-[var(--ds-text-muted)] font-mono uppercase tracking-wider ml-2 shrink-0">
                     {t.category}
                   </span>
                 </div>
-                <p className={`text-sm line-clamp-2 leading-relaxed transition-colors ${selectedTemplateId === t.id ? 'text-gray-300' : 'text-gray-500 group-hover:text-gray-400'}`}>
+                <p className={`text-sm line-clamp-2 leading-relaxed transition-colors ${selectedTemplateId === t.id ? 'text-[var(--ds-text-secondary)]' : 'text-[var(--ds-text-muted)] group-hover:text-[var(--ds-text-secondary)]'}`}>
                   {t.content.split(/(\{\{.*?\}\})/).map((part, i) =>
                     part.match(/^\{\{.*?\}\}$/) ? (
                       <span key={i} className="font-medium text-primary-400/80">{part}</span>
@@ -326,10 +326,10 @@ export function StepTemplateConfig({
               <Sparkles className="text-primary-400" size={18} />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white">Variáveis do Template</h3>
-              <p className="text-xs text-gray-400 mt-1">
+              <h3 className="text-sm font-bold text-[var(--ds-text-primary)]">Variáveis do Template</h3>
+              <p className="text-xs text-[var(--ds-text-secondary)] mt-1">
                 Preencha os valores que serão usados neste template.
-                Esses valores serão <span className="text-white">iguais para todos</span> os destinatários.
+                Esses valores serão <span className="text-[var(--ds-text-primary)]">iguais para todos</span> os destinatários.
               </p>
             </div>
           </div>
@@ -338,7 +338,7 @@ export function StepTemplateConfig({
             {/* HEADER Variables */}
             {templateVariableInfo.header.length > 0 && (
               <div className="space-y-2">
-                <p className="text-xs text-gray-500 uppercase font-bold tracking-wider flex items-center gap-2">
+                <p className="text-xs text-[var(--ds-text-muted)] uppercase font-bold tracking-wider flex items-center gap-2">
                   <Eye size={14} /> Variáveis do Cabeçalho
                 </p>
                 {templateVariableInfo.header.map((varInfo, idx) => (
@@ -356,7 +356,7 @@ export function StepTemplateConfig({
                           setTemplateVariables({ ...templateVariables, header: newHeader });
                         }}
                         placeholder={varInfo.context}
-                        className="w-full pl-4 pr-10 py-2 bg-zinc-900/50 border border-white/10 rounded-lg focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 outline-none transition-all text-white text-sm placeholder-gray-600"
+                        className="w-full pl-4 pr-10 py-2 bg-[var(--ds-bg-elevated)] border border-[var(--ds-border-default)] rounded-lg focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 outline-none transition-all text-[var(--ds-text-primary)] text-sm placeholder-[var(--ds-text-muted)]"
                       />
                       <VariablePicker
                         customFields={customFields}
@@ -380,8 +380,8 @@ export function StepTemplateConfig({
 
             {/* BODY Variables */}
             {templateVariableInfo.body.length > 0 && (
-              <div className={`space-y-2 ${templateVariableInfo.header.length > 0 ? 'pt-2 border-t border-white/5' : ''}`}>
-                <p className="text-xs text-gray-500 uppercase font-bold tracking-wider flex items-center gap-2">
+              <div className={`space-y-2 ${templateVariableInfo.header.length > 0 ? 'pt-2 border-t border-[var(--ds-border-subtle)]' : ''}`}>
+                <p className="text-xs text-[var(--ds-text-muted)] uppercase font-bold tracking-wider flex items-center gap-2">
                   <MessageSquare size={14} /> Variáveis do Corpo
                 </p>
                 {templateVariableInfo.body.map((varInfo, idx) => {
@@ -401,7 +401,7 @@ export function StepTemplateConfig({
                             setTemplateVariables({ ...templateVariables, body: newBody });
                           }}
                           placeholder={varInfo.context}
-                          className="w-full pl-4 pr-10 py-2 bg-zinc-900/50 border border-white/10 rounded-lg focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 outline-none transition-all text-white text-sm placeholder-gray-600"
+                          className="w-full pl-4 pr-10 py-2 bg-[var(--ds-bg-elevated)] border border-[var(--ds-border-default)] rounded-lg focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 outline-none transition-all text-[var(--ds-text-primary)] text-sm placeholder-[var(--ds-text-muted)]"
                         />
                         <VariablePicker
                           customFields={customFields}
@@ -426,8 +426,8 @@ export function StepTemplateConfig({
 
             {/* BUTTON URL Variables */}
             {templateVariableInfo.buttons.length > 0 && (
-              <div className="space-y-2 pt-2 border-t border-white/5">
-                <p className="text-xs text-gray-500 uppercase font-bold tracking-wider flex items-center gap-2">
+              <div className="space-y-2 pt-2 border-t border-[var(--ds-border-subtle)]">
+                <p className="text-xs text-[var(--ds-text-muted)] uppercase font-bold tracking-wider flex items-center gap-2">
                   <ExternalLink size={12} /> URLs Dinâmicas dos Botões
                 </p>
                 {templateVariableInfo.buttons.map((varInfo) => (
@@ -448,7 +448,7 @@ export function StepTemplateConfig({
                         });
                       }}
                       placeholder={`Parte dinâmica da URL do botão "${varInfo.buttonText}"`}
-                      className="flex-1 px-4 py-2 bg-zinc-900/50 border border-white/10 rounded-lg focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 outline-none transition-all text-white text-sm placeholder-gray-600"
+                      className="flex-1 px-4 py-2 bg-[var(--ds-bg-elevated)] border border-[var(--ds-border-default)] rounded-lg focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 outline-none transition-all text-[var(--ds-text-primary)] text-sm placeholder-[var(--ds-text-muted)]"
                     />
                     {!templateVariables.buttons?.[`button_${varInfo.buttonIndex}_0`] ? (
                       <span className="text-xs text-amber-400">obrigatório</span>
@@ -457,9 +457,9 @@ export function StepTemplateConfig({
                     )}
                   </div>
                 ))}
-                <p className="text-xs text-gray-500 mt-1 flex items-center gap-1.5 pl-1">
+                <p className="text-xs text-[var(--ds-text-muted)] mt-1 flex items-center gap-1.5 pl-1">
                   <AlertCircle size={11} />
-                  Ex: Se a URL é <code className="bg-zinc-800 px-1 rounded">zoom.us/j/{'{{1}}'}</code>, preencha apenas o ID da reunião
+                  Ex: Se a URL é <code className="bg-[var(--ds-bg-elevated)] px-1 rounded">zoom.us/j/{'{{1}}'}</code>, preencha apenas o ID da reunião
                 </p>
               </div>
             )}
@@ -483,55 +483,55 @@ function VariablePicker({ customFields, onSelect, onManageFields }: VariablePick
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
-            className="p-1 hover:bg-white/10 text-gray-400 hover:text-amber-400 rounded-md transition-colors outline-none"
+            className="p-1 hover:bg-[var(--ds-bg-hover)] text-[var(--ds-text-secondary)] hover:text-amber-400 rounded-md transition-colors outline-none"
             title="Inserir Variável Dinâmica"
           >
             <Braces size={14} />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="bg-zinc-900 border-zinc-800 text-white min-w-50">
-          <DropdownMenuLabel className="text-xs text-gray-500 uppercase tracking-wider px-2 py-1.5">
+        <DropdownMenuContent align="end" className="bg-[var(--ds-bg-elevated)] border-[var(--ds-border-default)] text-[var(--ds-text-primary)] min-w-50">
+          <DropdownMenuLabel className="text-xs text-[var(--ds-text-muted)] uppercase tracking-wider px-2 py-1.5">
             Dados do Contato
           </DropdownMenuLabel>
           <DropdownMenuItem
-            className="text-sm cursor-pointer hover:bg-zinc-800 focus:bg-zinc-800 px-2 py-1.5 rounded-sm flex items-center gap-2 outline-none"
+            className="text-sm cursor-pointer hover:bg-[var(--ds-bg-hover)] focus:bg-[var(--ds-bg-hover)] px-2 py-1.5 rounded-sm flex items-center gap-2 outline-none"
             onClick={() => onSelect('{{nome}}')}
           >
             <Users size={14} className="text-indigo-400" />
             <span>Nome</span>
           </DropdownMenuItem>
           <DropdownMenuItem
-            className="text-sm cursor-pointer hover:bg-zinc-800 focus:bg-zinc-800 px-2 py-1.5 rounded-sm flex items-center gap-2 outline-none"
+            className="text-sm cursor-pointer hover:bg-[var(--ds-bg-hover)] focus:bg-[var(--ds-bg-hover)] px-2 py-1.5 rounded-sm flex items-center gap-2 outline-none"
             onClick={() => onSelect('{{telefone}}')}
           >
             <div className="text-green-400 font-mono text-[10px] w-3.5 text-center">Ph</div>
             <span>Telefone</span>
           </DropdownMenuItem>
           <DropdownMenuItem
-            className="text-sm cursor-pointer hover:bg-zinc-800 focus:bg-zinc-800 px-2 py-1.5 rounded-sm flex items-center gap-2 outline-none"
+            className="text-sm cursor-pointer hover:bg-[var(--ds-bg-hover)] focus:bg-[var(--ds-bg-hover)] px-2 py-1.5 rounded-sm flex items-center gap-2 outline-none"
             onClick={() => onSelect('{{email}}')}
           >
             <div className="text-blue-400 font-mono text-[10px] w-3.5 text-center">@</div>
             <span>Email</span>
           </DropdownMenuItem>
-          <DropdownMenuSeparator className="bg-white/10 my-1" />
+          <DropdownMenuSeparator className="bg-[var(--ds-border-default)] my-1" />
 
           {customFields.length > 0 && (
             <>
-              <DropdownMenuLabel className="text-xs text-gray-500 uppercase tracking-wider px-2 py-1.5 mt-2">
+              <DropdownMenuLabel className="text-xs text-[var(--ds-text-muted)] uppercase tracking-wider px-2 py-1.5 mt-2">
                 Campos Personalizados
               </DropdownMenuLabel>
               {customFields.map(field => (
                 <DropdownMenuItem
                   key={field.id}
-                  className="text-sm cursor-pointer hover:bg-zinc-800 focus:bg-zinc-800 px-2 py-1.5 rounded-sm flex items-center gap-2 outline-none"
+                  className="text-sm cursor-pointer hover:bg-[var(--ds-bg-hover)] focus:bg-[var(--ds-bg-hover)] px-2 py-1.5 rounded-sm flex items-center gap-2 outline-none"
                   onClick={() => onSelect(`{{${field.key}}}`)}
                 >
                   <div className="text-amber-400 font-mono text-[10px] w-3.5 text-center">#</div>
                   <span>{field.label}</span>
                 </DropdownMenuItem>
               ))}
-              <DropdownMenuSeparator className="bg-white/10 my-1" />
+              <DropdownMenuSeparator className="bg-[var(--ds-border-default)] my-1" />
             </>
           )}
 

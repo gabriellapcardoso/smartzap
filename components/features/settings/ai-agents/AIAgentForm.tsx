@@ -122,7 +122,7 @@ export function AIAgentForm({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="flex h-full w-full flex-col gap-0 p-0 sm:max-w-lg">
         {/* Header fixo */}
-        <SheetHeader className="border-b border-zinc-800 px-6 py-4">
+        <SheetHeader className="border-b border-[var(--ds-border-default)] px-6 py-4">
           <SheetTitle className="flex items-center gap-2 text-lg">
             <Bot className="h-5 w-5 text-primary-400" />
             {isEditing ? 'Editar Agente' : 'Novo Agente IA'}
@@ -178,7 +178,7 @@ export function AIAgentForm({
                   </SelectContent>
                 </Select>
                 {selectedModel && (
-                  <p className="text-xs text-zinc-500">{selectedModel.description}</p>
+                  <p className="text-xs text-[var(--ds-text-muted)]">{selectedModel.description}</p>
                 )}
               </div>
             </div>
@@ -199,7 +199,7 @@ export function AIAgentForm({
                 className="min-h-[180px] resize-none font-mono text-sm"
                 required
               />
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-[var(--ds-text-muted)]">
                 Instruções que definem a personalidade e comportamento do agente
               </p>
             </div>
@@ -208,9 +208,9 @@ export function AIAgentForm({
                 SEÇÃO: Parâmetros Avançados
             ═══════════════════════════════════════════════════════════════ */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2 border-b border-zinc-800 pb-2">
-                <SlidersHorizontal className="h-4 w-4 text-zinc-400" />
-                <span className="text-sm font-medium text-zinc-300">
+              <div className="flex items-center gap-2 border-b border-[var(--ds-border-default)] pb-2">
+                <SlidersHorizontal className="h-4 w-4 text-[var(--ds-text-muted)]" />
+                <span className="text-sm font-medium text-[var(--ds-text-secondary)]">
                   Parâmetros Avançados
                 </span>
               </div>
@@ -219,7 +219,7 @@ export function AIAgentForm({
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label className="text-sm">Temperature</Label>
-                  <span className="rounded bg-zinc-800 px-2 py-0.5 text-xs font-mono text-zinc-300">
+                  <span className="rounded bg-[var(--ds-bg-surface)] px-2 py-0.5 text-xs font-mono text-[var(--ds-text-secondary)]">
                     {temperature.toFixed(1)}
                   </span>
                 </div>
@@ -231,7 +231,7 @@ export function AIAgentForm({
                   step={0.1}
                   className="w-full"
                 />
-                <div className="flex justify-between text-[10px] text-zinc-600">
+                <div className="flex justify-between text-[10px] text-[var(--ds-text-muted)]">
                   <span>Focado</span>
                   <span>Criativo</span>
                 </div>
@@ -241,7 +241,7 @@ export function AIAgentForm({
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label className="text-sm">Max Tokens</Label>
-                  <span className="rounded bg-zinc-800 px-2 py-0.5 text-xs font-mono text-zinc-300">
+                  <span className="rounded bg-[var(--ds-bg-surface)] px-2 py-0.5 text-xs font-mono text-[var(--ds-text-secondary)]">
                     {maxTokens}
                   </span>
                 </div>
@@ -253,7 +253,7 @@ export function AIAgentForm({
                   step={128}
                   className="w-full"
                 />
-                <div className="flex justify-between text-[10px] text-zinc-600">
+                <div className="flex justify-between text-[10px] text-[var(--ds-text-muted)]">
                   <span>Curto (256)</span>
                   <span>Longo (4096)</span>
                 </div>
@@ -263,7 +263,7 @@ export function AIAgentForm({
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label className="text-sm">Debounce</Label>
-                  <span className="rounded bg-zinc-800 px-2 py-0.5 text-xs font-mono text-zinc-300">
+                  <span className="rounded bg-[var(--ds-bg-surface)] px-2 py-0.5 text-xs font-mono text-[var(--ds-text-secondary)]">
                     {debounceMs / 1000}s
                   </span>
                 </div>
@@ -275,7 +275,7 @@ export function AIAgentForm({
                   step={1000}
                   className="w-full"
                 />
-                <p className="text-[10px] text-zinc-600">
+                <p className="text-[10px] text-[var(--ds-text-muted)]">
                   Aguarda mensagens consecutivas antes de responder
                 </p>
               </div>
@@ -284,13 +284,13 @@ export function AIAgentForm({
             {/* ═══════════════════════════════════════════════════════════════
                 SEÇÃO: Status
             ═══════════════════════════════════════════════════════════════ */}
-            <div className="space-y-3 rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
+            <div className="space-y-3 rounded-lg border border-[var(--ds-border-default)] bg-[var(--ds-bg-elevated)] p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <Label htmlFor="isActive" className="text-sm">
                     Agente ativo
                   </Label>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-[var(--ds-text-muted)]">
                     Desativar impede uso em conversas
                   </p>
                 </div>
@@ -301,12 +301,12 @@ export function AIAgentForm({
                 />
               </div>
 
-              <div className="flex items-center justify-between border-t border-zinc-800 pt-3">
+              <div className="flex items-center justify-between border-t border-[var(--ds-border-default)] pt-3">
                 <div>
                   <Label htmlFor="isDefault" className="text-sm">
                     Definir como padrão
                   </Label>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-[var(--ds-text-muted)]">
                     {isDefault
                       ? 'Este agente é usado em novas conversas'
                       : 'Usado automaticamente em novas conversas'}
@@ -323,7 +323,7 @@ export function AIAgentForm({
         </form>
 
         {/* Footer fixo */}
-        <SheetFooter className="border-t border-zinc-800 px-6 py-4">
+        <SheetFooter className="border-t border-[var(--ds-border-default)] px-6 py-4">
           <div className="flex w-full justify-end gap-2">
             <Button
               type="button"

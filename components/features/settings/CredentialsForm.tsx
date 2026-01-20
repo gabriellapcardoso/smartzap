@@ -178,7 +178,7 @@ export const CredentialsForm = forwardRef<HTMLDivElement, CredentialsFormProps>(
             {isTestingConnection ? 'Testando...' : 'Testar Conexao'}
           </button>
           <button
-            className="h-10 px-8 rounded-xl bg-white text-black font-bold hover:bg-gray-200 transition-colors flex items-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+            className="h-10 px-8 rounded-xl bg-primary-600 text-white font-bold hover:bg-primary-500 dark:bg-white dark:text-black dark:hover:bg-neutral-100 transition-colors flex items-center gap-2 shadow-[var(--ds-shadow-lg)]"
             onClick={handleSave}
             disabled={isSaving}
           >

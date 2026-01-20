@@ -1,13 +1,17 @@
 'use client'
 
 /**
- * T037: MessageInput - Textarea + send button + quick replies trigger
- * Ctrl+Enter to send, expandable textarea
- * AI Co-pilot: Suggest button for AI-assisted responses
+ * MessageInput - Editorial Minimal Design
+ *
+ * Design Philosophy:
+ * - Ultra-clean input area
+ * - Subtle borders and backgrounds
+ * - Smooth micro-interactions
+ * - Refined button states
  */
 
 import React, { useState, useRef, useCallback, useEffect } from 'react'
-import { Send, Loader2, Sparkles } from 'lucide-react'
+import { Send, Loader2, Sparkles, Zap } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -36,7 +40,7 @@ export function MessageInput({
   onSend,
   isSending,
   disabled,
-  placeholder = 'Digite sua mensagem...',
+  placeholder = 'Escreva uma mensagem...',
   quickReplies,
   quickRepliesLoading,
   conversationId,
@@ -45,6 +49,7 @@ export function MessageInput({
   const [value, setValue] = useState('')
   const [isLoadingSuggestion, setIsLoadingSuggestion] = useState(false)
   const [suggestionNotes, setSuggestionNotes] = useState<string | null>(null)
+  const [isFocused, setIsFocused] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   // Auto-resize textarea
@@ -52,7 +57,7 @@ export function MessageInput({
     const textarea = textareaRef.current
     if (textarea) {
       textarea.style.height = 'auto'
-      textarea.style.height = `${Math.min(textarea.scrollHeight, 150)}px`
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`
     }
   }, [value])
 
@@ -63,6 +68,7 @@ export function MessageInput({
 
     onSend(trimmed)
     setValue('')
+    setSuggestionNotes(null)
 
     // Reset textarea height
     if (textareaRef.current) {
@@ -85,17 +91,12 @@ export function MessageInput({
   // Insert quick reply content
   const handleQuickReplySelect = useCallback((content: string) => {
     setValue((prev) => {
-      // If there's existing text, add a space before
       if (prev.trim()) {
         return `${prev.trimEnd()} ${content}`
       }
       return content
     })
-
-    // Focus textarea after inserting
-    setTimeout(() => {
-      textareaRef.current?.focus()
-    }, 0)
+    setTimeout(() => textareaRef.current?.focus(), 0)
   }, [])
 
   // AI Suggest handler
@@ -118,19 +119,14 @@ export function MessageInput({
       }
 
       const data = await response.json()
-
-      // Set the suggestion in the textarea
       setValue(data.suggestion)
 
-      // Show notes if available
       if (data.notes) {
         setSuggestionNotes(data.notes)
       }
 
-      // Focus textarea for editing
       setTimeout(() => {
         textareaRef.current?.focus()
-        // Move cursor to end
         if (textareaRef.current) {
           textareaRef.current.selectionStart = textareaRef.current.value.length
           textareaRef.current.selectionEnd = textareaRef.current.value.length
@@ -138,13 +134,12 @@ export function MessageInput({
       }, 0)
     } catch (error) {
       console.error('[AI Suggest] Error:', error)
-      // Could show a toast here
     } finally {
       setIsLoadingSuggestion(false)
     }
   }, [conversationId, isLoadingSuggestion, disabled])
 
-  // Clear suggestion notes when value changes manually
+  // Clear suggestion notes when value is cleared
   useEffect(() => {
     if (suggestionNotes && value.trim() === '') {
       setSuggestionNotes(null)
@@ -155,13 +150,17 @@ export function MessageInput({
   const canSuggest = showAISuggest && conversationId && !isLoadingSuggestion && !disabled
 
   return (
-    <div className="flex flex-col border-t border-[var(--ds-border-default)] bg-[var(--ds-bg-elevated)]">
-      {/* AI Suggestion notes */}
+    <div className={cn(
+      'border-t transition-colors duration-200',
+      isFocused ? 'border-zinc-800' : 'border-zinc-800/30',
+      'bg-zinc-950'
+    )}>
+      {/* AI Suggestion notes - elegant banner */}
       {suggestionNotes && (
-        <div className="px-3 pt-2">
-          <div className="flex items-start gap-2 p-2 rounded-lg bg-primary-500/10 border border-primary-500/20">
-            <Sparkles className="h-4 w-4 text-primary-400 mt-0.5 shrink-0" />
-            <p className="text-xs text-primary-300">{suggestionNotes}</p>
+        <div className="px-4 py-2.5 bg-emerald-500/5 border-b border-emerald-500/10">
+          <div className="flex items-start gap-2">
+            <Sparkles className="h-3.5 w-3.5 text-emerald-400/70 mt-0.5 shrink-0" />
+            <p className="text-xs text-zinc-400 leading-relaxed">{suggestionNotes}</p>
           </div>
         </div>
       )}
@@ -178,28 +177,27 @@ export function MessageInput({
         {showAISuggest && (
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
+              <button
                 onClick={handleAISuggest}
                 disabled={!canSuggest}
-                variant="ghost"
-                size="icon"
                 className={cn(
-                  'h-10 w-10 shrink-0',
+                  'h-9 w-9 shrink-0 rounded-lg flex items-center justify-center',
+                  'transition-all duration-200',
                   isLoadingSuggestion && 'animate-pulse',
                   canSuggest
-                    ? 'text-primary-400 hover:text-primary-300 hover:bg-primary-500/10'
-                    : 'text-[var(--ds-text-muted)]'
+                    ? 'text-emerald-400/70 hover:text-emerald-400 hover:bg-emerald-500/10'
+                    : 'text-zinc-600 cursor-not-allowed'
                 )}
               >
                 {isLoadingSuggestion ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <Sparkles className="h-4 w-4" />
+                  <Zap className="h-4 w-4" />
                 )}
-              </Button>
+              </button>
             </TooltipTrigger>
-            <TooltipContent>
-              <p>Sugestão AI</p>
+            <TooltipContent side="top" className="text-xs">
+              Sugestão IA
             </TooltipContent>
           </Tooltip>
         )}
@@ -211,32 +209,34 @@ export function MessageInput({
             value={value}
             onChange={(e) => setValue(e.target.value)}
             onKeyDown={handleKeyDown}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
             placeholder={placeholder}
             disabled={disabled || isSending || isLoadingSuggestion}
             rows={1}
             className={cn(
-              'min-h-[40px] max-h-[150px] resize-none py-2.5 pr-10',
-              'bg-[var(--ds-bg-surface)] border-[var(--ds-border-default)]',
-              'focus:border-primary-500 focus:ring-primary-500/20'
+              'min-h-[36px] max-h-[100px] resize-none py-2 px-3',
+              'bg-zinc-900 border-zinc-800/50 rounded-lg',
+              'text-[13px] text-zinc-200 placeholder:text-zinc-600',
+              'focus:border-zinc-700 focus:ring-0',
+              'transition-all duration-150',
+              disabled && 'opacity-40 cursor-not-allowed'
             )}
           />
-          <span className="absolute bottom-2 right-2 text-[10px] text-[var(--ds-text-muted)]">
-            Ctrl+Enter
-          </span>
         </div>
 
         {/* Send button */}
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button
+            <button
               onClick={handleSend}
               disabled={!canSend}
-              size="icon"
               className={cn(
-                'h-10 w-10 shrink-0',
+                'h-9 w-9 shrink-0 rounded-lg flex items-center justify-center',
+                'transition-all duration-200',
                 canSend
-                  ? 'bg-primary-500 hover:bg-primary-600'
-                  : 'bg-[var(--ds-bg-surface)] text-[var(--ds-text-muted)]'
+                  ? 'bg-emerald-600 text-white hover:bg-emerald-500 active:scale-95'
+                  : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
               )}
             >
               {isSending ? (
@@ -244,10 +244,10 @@ export function MessageInput({
               ) : (
                 <Send className="h-4 w-4" />
               )}
-            </Button>
+            </button>
           </TooltipTrigger>
-          <TooltipContent>
-            <p>{canSend ? 'Enviar mensagem' : 'Digite uma mensagem'}</p>
+          <TooltipContent side="top" className="text-xs">
+            {canSend ? 'Enviar · ⌘↵' : 'Digite uma mensagem'}
           </TooltipContent>
         </Tooltip>
       </div>

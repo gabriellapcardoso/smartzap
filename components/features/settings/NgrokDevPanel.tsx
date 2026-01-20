@@ -95,37 +95,37 @@ export function NgrokDevPanel() {
   return (
     <Container variant="glass" padding="sm" className="space-y-3">
       <div>
-        <div className="text-sm font-semibold text-white">Webhook local (dev)</div>
-        <div className="text-xs text-gray-500 mt-1">
+        <div className="text-sm font-semibold text-[var(--ds-text-primary)]">Webhook local (dev)</div>
+        <div className="text-xs text-[var(--ds-text-muted)] mt-1">
           Inicia o ngrok localmente para monitorar o webhook no ambiente de desenvolvimento.
         </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
         <div className="flex items-center gap-2">
-          <span className="text-[11px] text-gray-500">Porta</span>
+          <span className="text-[11px] text-[var(--ds-text-muted)]">Porta</span>
           <Input value={port} onChange={(e) => setPort(e.target.value)} className="h-8 w-20" />
         </div>
         <Button type="button" onClick={start} disabled={loading || !canStart} className="h-8">
           Iniciar ngrok
         </Button>
-        <Button type="button" variant="outline" onClick={stop} disabled={loading} className="h-8 border-white/10 bg-zinc-900/60">
+        <Button type="button" variant="outline" onClick={stop} disabled={loading} className="h-8">
           Parar
         </Button>
-        <Button type="button" variant="outline" onClick={() => refresh()} disabled={loading} className="h-8 border-white/10 bg-zinc-900/60">
+        <Button type="button" variant="outline" onClick={() => refresh()} disabled={loading} className="h-8">
           Atualizar
         </Button>
       </div>
 
-      <div className="rounded-xl border border-white/10 bg-zinc-900/60 px-3 py-2 text-xs text-gray-300">
+      <div className="rounded-xl border border-[var(--ds-border-default)] bg-[var(--ds-bg-surface)] px-3 py-2 text-xs text-[var(--ds-text-secondary)]">
         <div className="flex items-center justify-between">
           <span>Status</span>
           <StatusBadge status={showRunning ? 'success' : 'default'} showDot>
             {showRunning ? 'Ativo' : 'Parado'}
           </StatusBadge>
         </div>
-        <div className="mt-2 text-[11px] text-gray-500">
-          {status?.publicUrl ? `Webhook: ${webhookUrl}` : 'Ainda sem URL pública. Clique em “Atualizar” após iniciar.'}
+        <div className="mt-2 text-[11px] text-[var(--ds-text-muted)]">
+          {status?.publicUrl ? `Webhook: ${webhookUrl}` : 'Ainda sem URL pública. Clique em "Atualizar" após iniciar.'}
         </div>
         {canCopy ? (
           <div className="mt-2">
@@ -133,21 +133,21 @@ export function NgrokDevPanel() {
               type="button"
               variant="outline"
               onClick={copyUrl}
-              className="h-8 border-white/10 bg-zinc-900/60 text-xs"
+              className="h-8 text-xs"
             >
               Copiar URL
             </Button>
           </div>
         ) : null}
         {showApiError ? (
-          <div className="mt-2 text-[11px] text-amber-300">
+          <div className="mt-2 text-[11px] text-[var(--ds-status-warning-text)]">
             Não consegui acessar o painel local do ngrok (localhost:4040).
             {hasNgrok ? (
-              <div className="mt-1 text-[11px] text-amber-200">
-                Vou tentar iniciar automaticamente. Se demorar, clique em “Atualizar”.
+              <div className="mt-1 text-[11px] text-[var(--ds-status-warning-text)]">
+                Vou tentar iniciar automaticamente. Se demorar, clique em "Atualizar".
               </div>
             ) : (
-              <div className="mt-1 text-[11px] text-amber-200">
+              <div className="mt-1 text-[11px] text-[var(--ds-status-warning-text)]">
                 Instale o ngrok e autentique: ngrok config add-authtoken SEU_TOKEN
               </div>
             )}
@@ -156,13 +156,13 @@ export function NgrokDevPanel() {
       </div>
 
       {showApiError ? (
-        <div className="rounded-xl border border-white/10 bg-zinc-900/60 px-3 py-2 text-xs text-gray-300">
-          <div className="text-[11px] text-gray-400 mb-1">Alternativa (cloudflared)</div>
-          <div className="text-[11px] text-gray-300">
+        <div className="rounded-xl border border-[var(--ds-border-default)] bg-[var(--ds-bg-surface)] px-3 py-2 text-xs text-[var(--ds-text-secondary)]">
+          <div className="text-[11px] text-[var(--ds-text-muted)] mb-1">Alternativa (cloudflared)</div>
+          <div className="text-[11px] text-[var(--ds-text-secondary)]">
             cloudflared tunnel --url http://localhost:{port || '3000'}
           </div>
           {!hasCloudflared ? (
-            <div className="mt-1 text-[11px] text-amber-200">
+            <div className="mt-1 text-[11px] text-[var(--ds-status-warning-text)]">
               Instale o cloudflared para usar esse modo.
             </div>
           ) : null}

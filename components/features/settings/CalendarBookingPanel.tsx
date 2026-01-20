@@ -47,8 +47,8 @@ export function CalendarBookingPanel({
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-            <Calendar size={20} className="text-emerald-600 dark:text-emerald-400" />
+          <div className="w-10 h-10 rounded-xl bg-[var(--ds-status-success-bg)] flex items-center justify-center">
+            <Calendar size={20} className="text-[var(--ds-status-success-text)]" />
           </div>
           <div>
             <h3 className="text-base font-semibold text-[var(--ds-text-primary)]">Agendamento (Google Calendar)</h3>
@@ -95,7 +95,7 @@ export function CalendarBookingPanel({
           <button
             type="button"
             onClick={() => setIsExpanded(true)}
-            className="text-sm text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 dark:hover:text-emerald-300 flex items-center gap-1"
+            className="text-sm text-[var(--ds-status-success-text)] hover:opacity-80 flex items-center gap-1"
           >
             Expandir <ChevronDown size={16} />
           </button>

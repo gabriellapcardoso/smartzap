@@ -72,30 +72,30 @@ export function InboxRetentionPanel() {
 
   if (isLoading) {
     return (
-      <div className="rounded-xl border border-white/5 bg-zinc-900/50 p-6">
+      <div className="rounded-xl border border-[var(--ds-border-default)] bg-[var(--ds-bg-elevated)] p-6">
         <div className="flex items-center gap-3">
-          <Loader2 className="h-5 w-5 animate-spin text-zinc-500" />
-          <span className="text-sm text-zinc-400">Carregando...</span>
+          <Loader2 className="h-5 w-5 animate-spin text-[var(--ds-text-muted)]" />
+          <span className="text-sm text-[var(--ds-text-secondary)]">Carregando...</span>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="rounded-xl border border-white/5 bg-zinc-900/50 p-6">
+    <div className="rounded-xl border border-[var(--ds-border-default)] bg-[var(--ds-bg-elevated)] p-6">
       <div className="flex items-start gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-amber-500/10 border border-amber-500/20">
-          <Archive className="h-6 w-6 text-amber-400" />
+        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--ds-status-warning-bg)] border border-[var(--ds-status-warning)]/20">
+          <Archive className="h-6 w-6 text-[var(--ds-status-warning-text)]" />
         </div>
         <div className="flex-1">
-          <h3 className="text-base font-semibold text-white">Retenção de Mensagens</h3>
-          <p className="mt-1 text-sm text-zinc-400">
+          <h3 className="text-base font-semibold text-[var(--ds-text-primary)]">Retenção de Mensagens</h3>
+          <p className="mt-1 text-sm text-[var(--ds-text-secondary)]">
             Define por quantos dias as mensagens do inbox são mantidas antes de serem arquivadas automaticamente.
           </p>
 
           <div className="mt-4 flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2">
-              <label htmlFor="retention-days" className="text-sm text-zinc-300">
+              <label htmlFor="retention-days" className="text-sm text-[var(--ds-text-secondary)]">
                 Manter mensagens por:
               </label>
               <input
@@ -105,15 +105,15 @@ export function InboxRetentionPanel() {
                 max={365}
                 value={retentionDays}
                 onChange={(e) => setRetentionDays(parseInt(e.target.value, 10) || 7)}
-                className="w-20 rounded-lg border border-white/10 bg-zinc-800 px-3 py-2 text-sm text-white focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/50"
+                className="w-20 rounded-lg border border-[var(--ds-border-default)] bg-[var(--ds-bg-surface)] px-3 py-2 text-sm text-[var(--ds-text-primary)] focus:border-[var(--ds-status-warning)]/50 focus:outline-none focus:ring-1 focus:ring-[var(--ds-status-warning)]/50"
               />
-              <span className="text-sm text-zinc-400">dias</span>
+              <span className="text-sm text-[var(--ds-text-secondary)]">dias</span>
             </div>
 
             <button
               onClick={handleSave}
               disabled={!hasChanges || isSaving}
-              className="flex items-center gap-2 rounded-lg bg-amber-500/20 border border-amber-500/30 px-4 py-2 text-sm font-medium text-amber-300 transition-colors hover:bg-amber-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 rounded-lg bg-[var(--ds-status-warning-bg)] border border-[var(--ds-status-warning)]/30 px-4 py-2 text-sm font-medium text-[var(--ds-status-warning-text)] transition-colors hover:bg-[var(--ds-status-warning)]/20 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSaving ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -124,7 +124,7 @@ export function InboxRetentionPanel() {
             </button>
           </div>
 
-          <p className="mt-3 text-xs text-zinc-500">
+          <p className="mt-3 text-xs text-[var(--ds-text-muted)]">
             Valores permitidos: 7 a 365 dias. Mensagens mais antigas serão arquivadas automaticamente.
           </p>
         </div>

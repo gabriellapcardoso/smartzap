@@ -205,11 +205,11 @@ function StatusPill({
 }) {
   const toneClass =
     tone === 'emerald'
-      ? 'text-emerald-300 border-emerald-500/30 bg-emerald-500/10'
+      ? 'text-[var(--ds-status-success-text)] border-[var(--ds-status-success)]/30 bg-[var(--ds-status-success-bg)]'
       : tone === 'amber'
-        ? 'text-amber-300 border-amber-500/30 bg-amber-500/10'
+        ? 'text-[var(--ds-status-warning-text)] border-[var(--ds-status-warning)]/30 bg-[var(--ds-status-warning-bg)]'
         : tone === 'red'
-          ? 'text-red-300 border-red-500/30 bg-red-500/10'
+          ? 'text-[var(--ds-status-error-text)] border-[var(--ds-status-error)]/30 bg-[var(--ds-status-error-bg)]'
           : 'text-[var(--ds-text-secondary)] border-[var(--ds-border-default)] bg-[var(--ds-bg-hover)]'
   return (
     <span
@@ -605,7 +605,7 @@ export default function AICenterPage() {
     <Page>
       <PageHeader>
         <div className="space-y-3">
-          <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-emerald-300/70">
+          <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-[var(--ds-status-success-text)]">
             <Sparkles className="size-4" />
             Central de IA
           </div>
@@ -617,7 +617,7 @@ export default function AICenterPage() {
         <PageActions>
           <button
             type="button"
-            className="h-10 rounded-xl bg-white px-4 text-sm font-semibold text-zinc-900 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
+            className="h-10 rounded-xl bg-primary-600 px-4 text-sm font-semibold text-white transition hover:bg-primary-500 dark:bg-white dark:text-zinc-900 dark:hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
             onClick={handleSave}
             disabled={isLoading || isSaving}
           >
@@ -627,7 +627,7 @@ export default function AICenterPage() {
       </PageHeader>
 
       {errorMessage && (
-        <div className="mb-4 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-xs text-red-300">
+        <div className="mb-4 rounded-2xl border border-[var(--ds-status-error)]/20 bg-[var(--ds-status-error-bg)] px-4 py-3 text-xs text-[var(--ds-status-error-text)]">
           {errorMessage}
         </div>
       )}
@@ -817,7 +817,7 @@ export default function AICenterPage() {
                       />
                       <button
                         type="button"
-                        className="rounded-lg bg-white px-4 py-2 text-xs font-semibold text-zinc-900 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="rounded-lg bg-primary-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-primary-500 dark:bg-white dark:text-zinc-900 dark:hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
                         onClick={() => handleSaveKey(item.id)}
                         disabled={isSavingKey || !apiKeyDrafts[item.id].trim()}
                       >
@@ -984,7 +984,7 @@ export default function AICenterPage() {
                       type="button"
                       onClick={handleSaveMistralKey}
                       disabled={isSavingOcr || !mistralKeyDraft.trim()}
-                      className="rounded-lg bg-white px-4 py-2 text-xs font-semibold text-zinc-900 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="rounded-lg bg-primary-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-primary-500 dark:bg-white dark:text-zinc-900 dark:hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {isSavingOcr ? 'Salvando...' : 'Salvar chave'}
                     </button>

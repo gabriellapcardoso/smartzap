@@ -29,8 +29,8 @@ export const WizardNavigation: React.FC<WizardNavigationProps> = ({
 }) => {
   const isMobile = variant === 'mobile';
   const containerClasses = isMobile
-    ? `flex items-center p-6 border-t border-white/5 bg-zinc-900/30 mt-auto lg:hidden ${step === 1 ? 'justify-center' : 'justify-between'}`
-    : `mt-4 pt-4 border-t border-white/5 flex items-center gap-3 ${step === 1 ? 'justify-center' : 'justify-between'}`;
+    ? `flex items-center p-6 border-t border-[var(--ds-border-subtle)] bg-[var(--ds-bg-elevated)] mt-auto lg:hidden ${step === 1 ? 'justify-center' : 'justify-between'}`
+    : `mt-4 pt-4 border-t border-[var(--ds-border-subtle)] flex items-center gap-3 ${step === 1 ? 'justify-center' : 'justify-between'}`;
 
   const handleSendClick = () => {
     if (scheduleMode === 'scheduled' && scheduledDate && scheduledTime) {
@@ -45,12 +45,12 @@ export const WizardNavigation: React.FC<WizardNavigationProps> = ({
 
   // Button size classes based on variant
   const backButtonClasses = isMobile
-    ? 'px-6 py-3 rounded-xl text-gray-400 font-medium hover:text-white transition-colors flex items-center gap-2 hover:bg-white/5'
-    : 'px-4 py-2 rounded-xl text-gray-400 font-medium hover:text-white transition-colors flex items-center gap-2 hover:bg-white/5';
+    ? 'px-6 py-3 rounded-xl text-[var(--ds-text-secondary)] font-medium hover:text-[var(--ds-text-primary)] transition-colors flex items-center gap-2 hover:bg-[var(--ds-bg-hover)]'
+    : 'px-4 py-2 rounded-xl text-[var(--ds-text-secondary)] font-medium hover:text-[var(--ds-text-primary)] transition-colors flex items-center gap-2 hover:bg-[var(--ds-bg-hover)]';
 
   const continueButtonClasses = isMobile
-    ? `group relative bg-white text-black font-bold hover:bg-gray-200 transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] overflow-hidden ${step === 1 ? 'px-14 py-4 rounded-2xl text-lg min-w-65 justify-center' : 'px-8 py-3 rounded-xl'}`
-    : `group relative bg-white text-black font-bold hover:bg-gray-200 transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] overflow-hidden ${step === 1 ? 'px-10 py-4 rounded-2xl text-base min-w-60 justify-center' : 'px-6 py-2.5 rounded-xl'}`;
+    ? `group relative bg-primary-600 text-white dark:bg-white dark:text-black font-bold hover:bg-primary-500 dark:hover:bg-neutral-100 transition-all flex items-center gap-2 shadow-lg overflow-hidden ${step === 1 ? 'px-14 py-4 rounded-2xl text-lg min-w-65 justify-center' : 'px-8 py-3 rounded-xl'}`
+    : `group relative bg-primary-600 text-white dark:bg-white dark:text-black font-bold hover:bg-primary-500 dark:hover:bg-neutral-100 transition-all flex items-center gap-2 shadow-lg overflow-hidden ${step === 1 ? 'px-10 py-4 rounded-2xl text-base min-w-60 justify-center' : 'px-6 py-2.5 rounded-xl'}`;
 
   const sendButtonClasses = isMobile
     ? `group relative px-10 py-3 rounded-xl ${scheduleMode === 'scheduled' ? 'bg-purple-600 hover:bg-purple-500 shadow-[0_0_20px_rgba(147,51,234,0.4)] hover:shadow-[0_0_40px_rgba(147,51,234,0.6)]' : 'bg-primary-600 hover:bg-primary-500 shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:shadow-[0_0_40px_rgba(16,185,129,0.6)]'} text-white font-bold transition-all flex items-center gap-2 hover:scale-105 ${isCreating || isScheduleDisabled ? 'opacity-70 cursor-not-allowed' : ''}`

@@ -62,11 +62,11 @@ export function PrecheckSection({
   onOpenFixedValueDialog,
 }: PrecheckSectionProps) {
   return (
-    <div className="bg-zinc-900/50 border border-white/10 rounded-xl p-4">
+    <div className="bg-[var(--ds-bg-elevated)] border border-[var(--ds-border-default)] rounded-xl p-4">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <ShieldAlert size={16} className="text-primary-400" />
-          <h3 className="text-sm font-bold text-white">
+          <h3 className="text-sm font-bold text-[var(--ds-text-primary)]">
             Pré-check de destinatários
           </h3>
         </div>
@@ -80,7 +80,7 @@ export function PrecheckSection({
               className={
                 'px-4 py-2 rounded-lg text-sm font-bold border transition-colors flex items-center gap-2 ' +
                 (!!isPrechecking || !!quickEditContactId
-                  ? 'bg-zinc-800 border-white/10 text-gray-500'
+                  ? 'bg-[var(--ds-bg-surface)] border-[var(--ds-border-default)] text-[var(--ds-text-muted)]'
                   : 'bg-primary-600 text-white border-primary-500/40 hover:bg-primary-500')
               }
               title="Corrigir contatos ignorados em sequência (sem sair da campanha)"
@@ -99,8 +99,8 @@ export function PrecheckSection({
             className={
               'px-4 py-2 rounded-lg text-sm font-bold border transition-colors flex items-center gap-2 ' +
               (isPrechecking
-                ? 'bg-zinc-800 border-white/10 text-gray-400'
-                : 'bg-white text-black border-white hover:bg-gray-200')
+                ? 'bg-[var(--ds-bg-surface)] border-[var(--ds-border-default)] text-[var(--ds-text-secondary)]'
+                : 'bg-primary-600 text-white dark:bg-white dark:text-black border-primary-500 dark:border-white hover:bg-primary-500 dark:hover:bg-gray-200')
             }
             title="Valida telefones + variáveis do template sem criar campanha"
           >
@@ -116,7 +116,7 @@ export function PrecheckSection({
           </button>
 
           {recipientSource === 'test' && isEnsuringTestContact && (
-            <span className="text-[11px] text-gray-500">
+            <span className="text-[11px] text-[var(--ds-text-muted)]">
               Preparando contato de teste...
             </span>
           )}
@@ -124,7 +124,7 @@ export function PrecheckSection({
       </div>
 
       {precheckResult?.totals && (
-        <div className="mt-3 text-xs text-gray-400 space-y-2">
+        <div className="mt-3 text-xs text-[var(--ds-text-secondary)] space-y-2">
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-emerald-400 font-bold">
               Válidos: {precheckResult.totals.valid}
@@ -132,7 +132,7 @@ export function PrecheckSection({
             <span className="text-amber-400 font-bold">
               Serão ignorados: {precheckResult.totals.skipped}
             </span>
-            <span className="text-gray-500">
+            <span className="text-[var(--ds-text-muted)]">
               Total: {precheckResult.totals.total}
             </span>
           </div>

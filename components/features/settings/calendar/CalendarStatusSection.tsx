@@ -46,7 +46,7 @@ export function CalendarStatusSection({
               href={calendarTestResult.link}
               target="_blank"
               rel="noreferrer"
-              className="mt-2 inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-300 hover:text-emerald-500 dark:hover:text-emerald-200"
+              className="mt-2 inline-flex items-center gap-1 text-xs text-[var(--ds-status-success-text)] hover:opacity-80"
             >
               <ExternalLink size={12} />
               Evento de teste criado
@@ -67,7 +67,7 @@ export function CalendarStatusSection({
           <button
             type="button"
             onClick={handlePrimaryCalendarAction}
-            className="h-9 px-4 rounded-lg bg-emerald-500/90 text-[var(--ds-text-primary)] text-xs font-medium hover:bg-emerald-500 transition-colors"
+            className="h-9 px-4 rounded-lg bg-primary-600 text-white hover:bg-primary-500 dark:bg-white dark:text-black dark:hover:bg-neutral-100 text-xs font-medium transition-colors"
           >
             {calendarAuthStatus?.connected ? 'Gerenciar conexao' : 'Conectar Google Calendar'}
           </button>

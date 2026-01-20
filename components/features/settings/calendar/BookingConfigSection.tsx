@@ -171,10 +171,10 @@ export function BookingConfigSection({
                   onChange={(e) => updateCalendarDraft({ allowSimultaneous: e.target.checked })}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-[var(--ds-bg-surface)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                <div className="w-11 h-6 bg-[var(--ds-bg-surface)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--ds-status-success)]"></div>
               </label>
             ) : (
-              <span className={`text-sm ${calendarDraft.allowSimultaneous ? 'text-emerald-600 dark:text-emerald-400' : 'text-[var(--ds-text-secondary)]'}`}>
+              <span className={`text-sm ${calendarDraft.allowSimultaneous ? 'text-[var(--ds-status-success-text)]' : 'text-[var(--ds-text-secondary)]'}`}>
                 {calendarDraft.allowSimultaneous ? 'Sim' : 'Nao'}
               </span>
             )}
@@ -225,7 +225,7 @@ export function BookingConfigSection({
               disabled={!isEditingCalendarBooking}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                 day.enabled
-                  ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
+                  ? 'bg-[var(--ds-status-success-bg)] text-[var(--ds-status-success-text)] border border-[var(--ds-status-success)]/30'
                   : 'bg-[var(--ds-bg-surface)] text-[var(--ds-text-muted)] border border-[var(--ds-border-default)]'
               } ${isEditingCalendarBooking ? 'hover:opacity-80 cursor-pointer' : 'cursor-default'}`}
             >
@@ -325,7 +325,7 @@ export function BookingConfigSection({
                             const newSlots = [...slots, { start: '14:00', end: '18:00' }];
                             updateWorkingHours(day.day, { slots: newSlots });
                           }}
-                          className="p-1 text-[var(--ds-text-muted)] hover:text-emerald-600 dark:text-emerald-400 transition-colors"
+                          className="p-1 text-[var(--ds-text-muted)] hover:text-[var(--ds-status-success-text)] transition-colors"
                           title="Adicionar periodo (ex: apos almoco)"
                         >
                           <Plus size={14} />
@@ -366,7 +366,7 @@ export function BookingConfigSection({
             type="button"
             onClick={handleSaveCalendarBooking}
             disabled={!!isSavingCalendarBooking}
-            className="h-10 px-6 rounded-lg bg-emerald-500/90 text-[var(--ds-text-primary)] hover:bg-emerald-500 transition-colors text-sm font-medium inline-flex items-center gap-2"
+            className="h-10 px-6 rounded-lg bg-primary-600 text-white hover:bg-primary-500 dark:bg-white dark:text-black dark:hover:bg-neutral-100 transition-colors text-sm font-medium inline-flex items-center gap-2"
           >
             {isSavingCalendarBooking ? 'Salvando...' : 'Salvar regras'}
           </button>

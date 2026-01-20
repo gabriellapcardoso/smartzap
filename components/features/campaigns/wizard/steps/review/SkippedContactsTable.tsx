@@ -49,14 +49,14 @@ export function SkippedContactsTable({
   };
 
   return (
-    <details className="bg-zinc-950/30 border border-white/5 rounded-lg p-3">
-      <summary className="cursor-pointer text-gray-300 font-medium">
+    <details className="bg-[var(--ds-bg-surface)] border border-[var(--ds-border-subtle)] rounded-lg p-3">
+      <summary className="cursor-pointer text-[var(--ds-text-secondary)] font-medium">
         Ver ignorados (motivo + ação)
       </summary>
 
       <div className="mt-3 overflow-x-auto">
         <table className="w-full text-left">
-          <thead className="text-[10px] uppercase tracking-wider text-gray-500">
+          <thead className="text-[10px] uppercase tracking-wider text-[var(--ds-text-muted)]">
             <tr>
               <th className="py-2 pr-3">Contato</th>
               <th className="py-2 pr-3">Telefone</th>
@@ -64,7 +64,7 @@ export function SkippedContactsTable({
               <th className="py-2 pr-3">Ação</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5">
+          <tbody className="divide-y divide-[var(--ds-border-subtle)]">
             {skippedResults.map((r, idx) => {
               const h = humanizePrecheckReason(
                 String(r.reason || r.skipCode || ''),
@@ -72,8 +72,8 @@ export function SkippedContactsTable({
               );
               return (
                 <tr key={r.phone + '_' + idx}>
-                  <td className="py-2 pr-3 text-gray-200">{r.name}</td>
-                  <td className="py-2 pr-3 font-mono text-[11px] text-gray-500">
+                  <td className="py-2 pr-3 text-[var(--ds-text-secondary)]">{r.name}</td>
+                  <td className="py-2 pr-3 font-mono text-[11px] text-[var(--ds-text-muted)]">
                     {r.normalizedPhone || r.phone}
                   </td>
                   <td className="py-2 pr-3">
@@ -91,7 +91,7 @@ export function SkippedContactsTable({
                         Corrigir contato
                       </button>
                     ) : (
-                      <span className="text-gray-600">-</span>
+                      <span className="text-[var(--ds-text-muted)]">-</span>
                     )}
                   </td>
                 </tr>
@@ -100,7 +100,7 @@ export function SkippedContactsTable({
           </tbody>
         </table>
         {totalSkipped > 20 && (
-          <p className="mt-2 text-[10px] text-gray-500">
+          <p className="mt-2 text-[10px] text-[var(--ds-text-muted)]">
             Mostrando 20 de {totalSkipped} ignorados.
           </p>
         )}

@@ -73,18 +73,18 @@ export function CalendarWizardModal({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 bg-zinc-950 overflow-y-auto p-6">
+    <div className="fixed inset-0 z-50 bg-[var(--ds-bg-base)] overflow-y-auto p-6">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-lg font-semibold text-white">Conectar Google Calendar</h1>
-            <p className="text-sm text-gray-500">Passo {calendarWizardStep + 1} de 4</p>
+            <h1 className="text-lg font-semibold text-[var(--ds-text-primary)]">Conectar Google Calendar</h1>
+            <p className="text-sm text-[var(--ds-text-muted)]">Passo {calendarWizardStep + 1} de 4</p>
           </div>
           <button
             type="button"
             onClick={() => setIsCalendarWizardOpen(false)}
-            className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-2 rounded-lg text-[var(--ds-text-secondary)] hover:text-[var(--ds-text-primary)] hover:bg-[var(--ds-bg-hover)] transition-colors"
           >
             <X size={20} />
           </button>
@@ -95,7 +95,7 @@ export function CalendarWizardModal({
           <div className="flex gap-2">
             {steps.map((step) => {
               const isActive = calendarWizardStep === step.id;
-              const isClickable = step.id === 0 || step.id === 1 
+              const isClickable = step.id === 0 || step.id === 1
                 || (step.id === 2 && calendarCredsStatus?.isConfigured)
                 || (step.id === 3 && calendarAuthStatus?.connected);
 
@@ -107,10 +107,10 @@ export function CalendarWizardModal({
                   disabled={!isClickable}
                   className={`flex-1 h-2 rounded-full transition-colors ${
                     isActive
-                      ? 'bg-emerald-500'
+                      ? 'bg-[var(--ds-status-success)]'
                       : step.done
-                        ? 'bg-emerald-500/50'
-                        : 'bg-white/10'
+                        ? 'bg-[var(--ds-status-success)]/50'
+                        : 'bg-[var(--ds-bg-surface)]'
                   } ${isClickable ? 'cursor-pointer hover:opacity-80' : 'cursor-not-allowed'}`}
                   title={step.label}
                 />
@@ -121,9 +121,9 @@ export function CalendarWizardModal({
             {steps.map((step) => {
               const isActive = calendarWizardStep === step.id;
               return (
-                <span 
-                  key={step.id} 
-                  className={`text-xs ${isActive ? 'text-emerald-400 font-medium' : 'text-gray-500'}`}
+                <span
+                  key={step.id}
+                  className={`text-xs ${isActive ? 'text-[var(--ds-status-success-text)] font-medium' : 'text-[var(--ds-text-muted)]'}`}
                 >
                   {step.done && !isActive && <Check size={12} className="inline mr-1" />}
                   {step.label}
@@ -135,7 +135,7 @@ export function CalendarWizardModal({
 
         {/* Error */}
         {currentError && (
-          <div className="mb-6 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+          <div className="mb-6 rounded-lg border border-[var(--ds-status-error)]/30 bg-[var(--ds-status-error-bg)] px-4 py-3 text-sm text-[var(--ds-status-error-text)]">
             {currentError}
           </div>
         )}
@@ -200,11 +200,11 @@ export function CalendarWizardModal({
         )}
 
         {/* Navigation */}
-        <div className="flex justify-between mt-8 pt-6 border-t border-white/10">
+        <div className="flex justify-between mt-8 pt-6 border-t border-[var(--ds-border-default)]">
           <button
             type="button"
             onClick={handleCalendarWizardBack}
-            className="h-10 px-5 rounded-lg border border-white/10 text-sm text-white hover:bg-white/5 transition-colors"
+            className="h-10 px-5 rounded-lg border border-[var(--ds-border-default)] text-sm text-[var(--ds-text-primary)] hover:bg-[var(--ds-bg-hover)] transition-colors"
           >
             {calendarWizardStep === 0 ? 'Fechar' : 'Voltar'}
           </button>
@@ -212,7 +212,7 @@ export function CalendarWizardModal({
             type="button"
             onClick={handleCalendarWizardNext}
             disabled={!calendarWizardCanContinue || calendarTestLoading}
-            className="h-10 px-6 rounded-lg bg-emerald-500 text-sm font-medium text-white hover:bg-emerald-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="h-10 px-6 rounded-lg bg-primary-600 text-white hover:bg-primary-500 dark:bg-white dark:text-black dark:hover:bg-neutral-100 text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {calendarWizardStep === 3
               ? (calendarTestLoading ? 'Testando...' : 'Concluir')

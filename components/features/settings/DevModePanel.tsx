@@ -24,8 +24,8 @@ export function DevModePanel() {
         {/* Toggle */}
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-white">Modo Desenvolvedor</p>
-            <p className="text-xs text-zinc-400">
+            <p className="text-sm font-medium text-[var(--ds-text-primary)]">Modo Desenvolvedor</p>
+            <p className="text-xs text-[var(--ds-text-secondary)]">
               Exibe painéis avançados e ferramentas de debug
             </p>
           </div>
@@ -34,8 +34,8 @@ export function DevModePanel() {
 
         {/* Links para rotas dev-only (só visível no dev mode) */}
         {isDevMode && (
-          <div className="pt-4 border-t border-white/5 space-y-3">
-            <p className="text-xs text-zinc-500 uppercase tracking-wider font-medium">
+          <div className="pt-4 border-t border-[var(--ds-border-subtle)] space-y-3">
+            <p className="text-xs text-[var(--ds-text-muted)] uppercase tracking-wider font-medium">
               Ferramentas de Desenvolvimento
             </p>
             <div className="flex flex-wrap gap-2">

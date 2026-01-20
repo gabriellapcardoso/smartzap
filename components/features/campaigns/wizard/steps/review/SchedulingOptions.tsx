@@ -30,8 +30,8 @@ export function SchedulingOptions({
   };
 
   return (
-    <div className="border-t border-white/5 pt-6 space-y-4">
-      <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+    <div className="border-t border-[var(--ds-border-subtle)] pt-6 space-y-4">
+      <h3 className="text-sm font-bold text-[var(--ds-text-primary)] mb-4 flex items-center gap-2">
         <Clock size={16} className="text-primary-400" />
         Quando enviar?
       </h3>
@@ -44,12 +44,12 @@ export function SchedulingOptions({
           className={
             'relative p-4 rounded-xl border transition-all duration-200 flex flex-col items-center justify-center gap-3 ' +
             (scheduleMode === 'now'
-              ? 'bg-white text-black border-white shadow-[0_0_20px_rgba(255,255,255,0.1)]'
-              : 'bg-zinc-900/50 border-white/10 hover:bg-zinc-900 hover:border-white/20 text-gray-300')
+              ? 'bg-primary-600 text-white dark:bg-white dark:text-black border-primary-500 dark:border-white shadow-[0_0_20px_rgba(var(--primary-rgb),0.1)] dark:shadow-[0_0_20px_rgba(255,255,255,0.1)]'
+              : 'bg-[var(--ds-bg-elevated)] border-[var(--ds-border-default)] hover:bg-[var(--ds-bg-surface)] hover:border-[var(--ds-border-strong)] text-[var(--ds-text-secondary)]')
           }
         >
           {scheduleMode === 'now' && (
-            <div className="absolute top-2 right-2 text-black">
+            <div className="absolute top-2 right-2 text-white dark:text-black">
               <CheckCircle size={16} />
             </div>
           )}
@@ -57,8 +57,8 @@ export function SchedulingOptions({
             className={
               'p-2 rounded-lg ' +
               (scheduleMode === 'now'
-                ? 'bg-gray-200 text-black'
-                : 'bg-zinc-800 text-gray-400')
+                ? 'bg-white/20 text-white dark:bg-gray-200 dark:text-black'
+                : 'bg-[var(--ds-bg-surface)] text-[var(--ds-text-secondary)]')
             }
           >
             <Zap size={18} />
@@ -68,7 +68,7 @@ export function SchedulingOptions({
             <p
               className={
                 'text-xs mt-1 ' +
-                (scheduleMode === 'now' ? 'text-gray-600' : 'text-gray-500')
+                (scheduleMode === 'now' ? 'text-white/70 dark:text-gray-600' : 'text-[var(--ds-text-muted)]')
               }
             >
               Disparo imediato
@@ -83,12 +83,12 @@ export function SchedulingOptions({
           className={
             'relative p-4 rounded-xl border transition-all duration-200 flex flex-col items-center justify-center gap-3 ' +
             (scheduleMode === 'scheduled'
-              ? 'bg-white text-black border-white shadow-[0_0_20px_rgba(255,255,255,0.1)]'
-              : 'bg-zinc-900/50 border-white/10 hover:bg-zinc-900 hover:border-white/20 text-gray-300')
+              ? 'bg-primary-600 text-white dark:bg-white dark:text-black border-primary-500 dark:border-white shadow-[0_0_20px_rgba(var(--primary-rgb),0.1)] dark:shadow-[0_0_20px_rgba(255,255,255,0.1)]'
+              : 'bg-[var(--ds-bg-elevated)] border-[var(--ds-border-default)] hover:bg-[var(--ds-bg-surface)] hover:border-[var(--ds-border-strong)] text-[var(--ds-text-secondary)]')
           }
         >
           {scheduleMode === 'scheduled' && (
-            <div className="absolute top-2 right-2 text-black">
+            <div className="absolute top-2 right-2 text-white dark:text-black">
               <CheckCircle size={16} />
             </div>
           )}
@@ -96,8 +96,8 @@ export function SchedulingOptions({
             className={
               'p-2 rounded-lg ' +
               (scheduleMode === 'scheduled'
-                ? 'bg-gray-200 text-black'
-                : 'bg-zinc-800 text-gray-400')
+                ? 'bg-white/20 text-white dark:bg-gray-200 dark:text-black'
+                : 'bg-[var(--ds-bg-surface)] text-[var(--ds-text-secondary)]')
             }
           >
             <Calendar size={18} />
@@ -107,7 +107,7 @@ export function SchedulingOptions({
             <p
               className={
                 'text-xs mt-1 ' +
-                (scheduleMode === 'scheduled' ? 'text-gray-600' : 'text-gray-500')
+                (scheduleMode === 'scheduled' ? 'text-white/70 dark:text-gray-600' : 'text-[var(--ds-text-muted)]')
               }
             >
               Escolher data e hora
@@ -118,25 +118,25 @@ export function SchedulingOptions({
 
       {/* Date/Time Picker (shown when scheduled) */}
       {scheduleMode === 'scheduled' && (
-        <div className="bg-zinc-900/50 border border-white/10 rounded-xl p-4 mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
+        <div className="bg-[var(--ds-bg-elevated)] border border-[var(--ds-border-default)] rounded-xl p-4 mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-gray-500 mb-2">Data</label>
+              <label className="block text-xs text-[var(--ds-text-muted)] mb-2">Data</label>
               <input
                 type="date"
                 value={scheduledDate}
                 onChange={(e) => setScheduledDate(e.target.value)}
                 min={new Date().toLocaleDateString('en-CA')}
-                className="w-full px-4 py-3 bg-zinc-800 border border-white/10 rounded-lg text-white text-sm focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500/50 outline-none"
+                className="w-full px-4 py-3 bg-[var(--ds-bg-surface)] border border-[var(--ds-border-default)] rounded-lg text-[var(--ds-text-primary)] text-sm focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500/50 outline-none"
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-500 mb-2">Horário</label>
+              <label className="block text-xs text-[var(--ds-text-muted)] mb-2">Horário</label>
               <input
                 type="time"
                 value={scheduledTime}
                 onChange={(e) => setScheduledTime(e.target.value)}
-                className="w-full px-4 py-3 bg-zinc-800 border border-white/10 rounded-lg text-white text-sm focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500/50 outline-none"
+                className="w-full px-4 py-3 bg-[var(--ds-bg-surface)] border border-[var(--ds-border-default)] rounded-lg text-[var(--ds-text-primary)] text-sm focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500/50 outline-none"
               />
             </div>
           </div>
@@ -145,7 +145,7 @@ export function SchedulingOptions({
               <p className="text-xs text-primary-400 flex items-center gap-2">
                 <Calendar size={14} />
                 Campanha será enviada em{' '}
-                <span className="font-bold text-white">
+                <span className="font-bold text-[var(--ds-text-primary)]">
                   {formatScheduledDateTime()}
                 </span>
               </p>

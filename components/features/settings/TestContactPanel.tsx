@@ -81,14 +81,14 @@ export function TestContactPanel({
 
       {testContact && !isEditing ? (
         // Show saved test contact
-        <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-center justify-between">
+        <div className="bg-[var(--ds-status-warning-bg)] border border-[var(--ds-status-warning)]/20 rounded-xl p-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-amber-500/20 rounded-xl">
-              <UserCheck size={24} className="text-amber-400" />
+            <div className="p-3 bg-[var(--ds-status-warning)]/20 rounded-xl">
+              <UserCheck size={24} className="text-[var(--ds-status-warning-text)]" />
             </div>
             <div>
               <p className="font-medium text-[var(--ds-text-primary)]">{testContact.name || 'Contato de Teste'}</p>
-              <p className="text-sm text-amber-400 font-mono">
+              <p className="text-sm text-[var(--ds-status-warning-text)] font-mono">
                 {formatPhoneNumberDisplay(testContact.phone, 'international')}
               </p>
             </div>
@@ -121,7 +121,7 @@ export function TestContactPanel({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Ex: Meu Teste"
-                className="w-full px-4 py-3 bg-[var(--ds-bg-elevated)] border border-[var(--ds-border-default)] rounded-xl focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 outline-none text-sm text-[var(--ds-text-primary)] transition-all"
+                className="w-full px-4 py-3 bg-[var(--ds-bg-elevated)] border border-[var(--ds-border-default)] rounded-xl focus:ring-2 focus:ring-[var(--ds-status-warning)]/50 focus:border-[var(--ds-status-warning)]/50 outline-none text-sm text-[var(--ds-text-primary)] transition-all"
               />
             </div>
             <div>
@@ -133,7 +133,7 @@ export function TestContactPanel({
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="Ex: +5511999999999"
-                className="w-full px-4 py-3 bg-[var(--ds-bg-elevated)] border border-[var(--ds-border-default)] rounded-xl focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 outline-none text-sm text-[var(--ds-text-primary)] font-mono transition-all"
+                className="w-full px-4 py-3 bg-[var(--ds-bg-elevated)] border border-[var(--ds-border-default)] rounded-xl focus:ring-2 focus:ring-[var(--ds-status-warning)]/50 focus:border-[var(--ds-status-warning)]/50 outline-none text-sm text-[var(--ds-text-primary)] font-mono transition-all"
               />
             </div>
           </div>
@@ -149,7 +149,7 @@ export function TestContactPanel({
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="h-10 px-4 bg-amber-500 hover:bg-amber-400 text-black font-medium rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
+              className="h-10 px-4 bg-[var(--ds-status-warning)] hover:opacity-90 text-white dark:text-black font-medium rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
             >
               <Smartphone size={16} />
               Salvar Contato de Teste

@@ -1,22 +1,25 @@
 'use client'
 
 /**
- * T038: ConversationHeader - Contact info, mode badge, actions
- * Mode toggle button, close/reopen, priority selector
+ * ConversationHeader - Compact Inline Header
+ *
+ * Design Philosophy:
+ * - Minimal height, maximum utility
+ * - No heavy borders (subtle bottom line only)
+ * - Compact action buttons
+ * - Mode toggle integrated naturally
  */
 
 import React, { useState } from 'react'
 import {
   Bot,
   User,
-  Phone,
   MoreVertical,
   X,
   RotateCcw,
   Tag,
   AlertCircle,
   UserCheck,
-  ArrowLeftRight,
   PauseCircle,
   PlayCircle,
   Clock,
@@ -25,7 +28,6 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
   DropdownMenu,
@@ -170,99 +172,93 @@ export function ConversationHeader({
     conversationLabels?.some((l) => l.id === labelId) ?? false
 
   return (
-    <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--ds-border-default)] bg-[var(--ds-bg-elevated)]">
-      {/* Contact info */}
-      <div className="flex items-center gap-3">
-        <Avatar className="h-10 w-10">
-          <AvatarFallback className="bg-[var(--ds-bg-surface)] text-[var(--ds-text-primary)]">
-            {initials}
-          </AvatarFallback>
-        </Avatar>
-        <div>
-          <div className="flex items-center gap-2">
-            <h3 className="text-sm font-medium text-[var(--ds-text-primary)]">{displayName}</h3>
+    <div className="flex items-center justify-between px-4 py-2.5 border-b border-zinc-800/50 bg-zinc-950">
+      {/* Contact info - compact */}
+      <div className="flex items-center gap-2.5">
+        {/* Simple avatar */}
+        <div className="h-8 w-8 rounded-full bg-zinc-800 flex items-center justify-center shrink-0">
+          <span className="text-[11px] font-medium text-zinc-400">{initials}</span>
+        </div>
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5">
+            <h3 className="text-[13px] font-medium text-zinc-200 truncate">{displayName}</h3>
             {!isOpen && (
-              <Badge variant="secondary" className="text-[10px] h-4">
-                Fechada
-              </Badge>
+              <span className="text-[9px] text-zinc-500 bg-zinc-800 px-1.5 py-0.5 rounded">
+                fechada
+              </span>
             )}
-            {/* T067: Pause indicator */}
+            {/* Pause indicator - minimal */}
             {isPaused && (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Badge variant="outline" className="text-[10px] h-4 gap-1 border-orange-500/50 text-orange-400">
-                    <PauseCircle className="h-3 w-3" />
-                    Pausado
-                  </Badge>
+                  <span className="flex items-center gap-1 text-[9px] text-orange-400/80 bg-orange-500/10 px-1.5 py-0.5 rounded">
+                    <PauseCircle className="h-2.5 w-2.5" />
+                    pausa
+                  </span>
                 </TooltipTrigger>
-                <TooltipContent>
-                  Bot pausado • {formatPauseRemaining()}
+                <TooltipContent className="text-xs">
+                  {formatPauseRemaining()}
                 </TooltipContent>
               </Tooltip>
             )}
+            {/* Priority indicator - just icon */}
             {currentPriority !== 'normal' && (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <AlertCircle
-                    className={cn('h-4 w-4', priorityConfig.color)}
+                    className={cn('h-3 w-3', priorityConfig.color)}
                   />
                 </TooltipTrigger>
-                <TooltipContent>
-                  Prioridade: {priorityConfig.label}
+                <TooltipContent className="text-xs">
+                  {priorityConfig.label}
                 </TooltipContent>
               </Tooltip>
             )}
           </div>
-          <div className="flex items-center gap-1.5 text-xs text-[var(--ds-text-muted)]">
-            <Phone className="h-3 w-3" />
-            <span>{phone}</span>
-          </div>
+          <span className="text-[10px] text-zinc-500">{phone}</span>
         </div>
       </div>
 
-      {/* Actions */}
-      <div className="flex items-center gap-2">
-        {/* Mode toggle button */}
+      {/* Actions - compact */}
+      <div className="flex items-center gap-1">
+        {/* Mode toggle - minimal pill */}
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
+            <button
               onClick={onModeToggle}
               disabled={isUpdating || !isOpen}
               className={cn(
-                'h-8 gap-1.5',
+                'h-6 px-2 rounded-full text-[10px] font-medium flex items-center gap-1 transition-all',
+                isUpdating || !isOpen ? 'opacity-50 cursor-not-allowed' : '',
                 isBotMode
-                  ? 'border-blue-500/50 text-blue-400 hover:bg-blue-500/10'
-                  : 'border-amber-500/50 text-amber-400 hover:bg-amber-500/10'
+                  ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/15'
+                  : 'bg-amber-500/10 text-amber-400 hover:bg-amber-500/15'
               )}
             >
               {isBotMode ? (
                 <>
-                  <Bot className="h-3.5 w-3.5" />
-                  <span className="text-xs max-w-[80px] truncate">{agentName || 'Bot'}</span>
+                  <Bot className="h-2.5 w-2.5" />
+                  <span className="max-w-[50px] truncate">{agentName || 'Bot'}</span>
                 </>
               ) : (
                 <>
-                  <User className="h-3.5 w-3.5" />
-                  <span className="text-xs">Humano</span>
+                  <User className="h-2.5 w-2.5" />
+                  <span>Humano</span>
                 </>
               )}
-            </Button>
+            </button>
           </TooltipTrigger>
-          <TooltipContent>
-            {isBotMode
-              ? 'Clique para assumir manualmente'
-              : 'Clique para ativar o bot'}
+          <TooltipContent side="bottom" className="text-xs">
+            {isBotMode ? 'Assumir controle' : 'Ativar bot'}
           </TooltipContent>
         </Tooltip>
 
         {/* More actions menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <button className="h-7 w-7 flex items-center justify-center text-zinc-500 hover:text-zinc-300 rounded-lg hover:bg-zinc-800/50 transition-colors">
               <MoreVertical className="h-4 w-4" />
-            </Button>
+            </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             {/* Priority submenu */}

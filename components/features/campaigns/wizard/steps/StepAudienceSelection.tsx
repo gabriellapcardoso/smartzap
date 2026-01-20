@@ -105,8 +105,8 @@ export function StepAudienceSelection(props: StepAudienceSelectionProps) {
     <div className="flex-1 min-h-0 flex flex-col space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-auto p-6 pb-8">
       {/* Header */}
       <div className="text-center mb-4 shrink-0">
-        <h2 className="text-2xl font-bold text-white mb-2">Escolha seu Público</h2>
-        <p className="text-gray-400">Quem deve receber esta campanha?</p>
+        <h2 className="text-2xl font-bold text-[var(--ds-text-primary)] mb-2">Escolha seu Público</h2>
+        <p className="text-[var(--ds-text-secondary)]">Quem deve receber esta campanha?</p>
       </div>
 
       {isJobsAudienceMode ? (
@@ -182,7 +182,7 @@ export function StepAudienceSelection(props: StepAudienceSelectionProps) {
               type="button"
               variant="outline"
               size="sm"
-              className="border-white/10 bg-zinc-900 hover:bg-zinc-800 text-white"
+              className="border-[var(--ds-border-default)] bg-[var(--ds-bg-elevated)] hover:bg-[var(--ds-bg-surface)] text-[var(--ds-text-primary)]"
               onClick={() => selectAudiencePreset?.('manual')}
               disabled={recipientSource === 'test'}
             >

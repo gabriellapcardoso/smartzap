@@ -1,9 +1,13 @@
 'use client'
 
 /**
- * T032: InboxView - Main layout with sidebar + panel split
- * Uses ResizablePanels for adjustable layout
- * T074: Added granular error boundaries for each panel
+ * InboxView - Seamless Split Layout
+ *
+ * Design Philosophy:
+ * - No visible borders between panels (seamless feel)
+ * - Subtle shadows for depth instead of hard lines
+ * - Unified dark background with micro-variations
+ * - Invisible resize handle (functional, not visual)
  */
 
 import React, { useCallback } from 'react'
@@ -16,7 +20,7 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
 import { ConversationList } from './ConversationList'
 import { MessagePanel } from './MessagePanel'
-import { AlertTriangle, RefreshCw, MessageSquare, Users } from 'lucide-react'
+import { RefreshCw, MessageSquare, Users } from 'lucide-react'
 import type {
   InboxConversation,
   InboxMessage,
@@ -135,16 +139,16 @@ export function InboxView({
     [onSelectConversation]
   )
 
-  // T074: Panel-specific error fallbacks
+  // Panel-specific error fallbacks - matching seamless background
   const ConversationListFallback = (
-    <div className="h-full flex flex-col items-center justify-center p-4 text-center bg-[var(--ds-bg-base)]">
-      <div className="w-12 h-12 mb-4 rounded-full bg-red-500/10 flex items-center justify-center">
-        <Users className="w-6 h-6 text-red-400" />
+    <div className="h-full flex flex-col items-center justify-center p-4 text-center bg-zinc-900">
+      <div className="w-10 h-10 mb-3 rounded-full bg-zinc-800 flex items-center justify-center">
+        <Users className="w-5 h-5 text-zinc-500" />
       </div>
-      <p className="text-sm text-[var(--ds-text-secondary)] mb-3">Erro ao carregar conversas</p>
+      <p className="text-sm text-zinc-400 mb-3">Erro ao carregar</p>
       <button
         onClick={() => window.location.reload()}
-        className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-[var(--ds-bg-elevated)] text-[var(--ds-text-primary)] rounded-lg hover:bg-zinc-700 transition-colors"
+        className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-zinc-800 text-zinc-300 rounded-lg hover:bg-zinc-700 transition-colors"
       >
         <RefreshCw className="w-3 h-3" />
         Recarregar
@@ -153,14 +157,14 @@ export function InboxView({
   )
 
   const MessagePanelFallback = (
-    <div className="h-full flex flex-col items-center justify-center p-4 text-center bg-[var(--ds-bg-base)]">
-      <div className="w-12 h-12 mb-4 rounded-full bg-red-500/10 flex items-center justify-center">
-        <MessageSquare className="w-6 h-6 text-red-400" />
+    <div className="h-full flex flex-col items-center justify-center p-4 text-center bg-zinc-950">
+      <div className="w-10 h-10 mb-3 rounded-full bg-zinc-800 flex items-center justify-center">
+        <MessageSquare className="w-5 h-5 text-zinc-500" />
       </div>
-      <p className="text-sm text-[var(--ds-text-secondary)] mb-3">Erro ao carregar mensagens</p>
+      <p className="text-sm text-zinc-400 mb-3">Erro ao carregar</p>
       <button
         onClick={() => window.location.reload()}
-        className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-[var(--ds-bg-elevated)] text-[var(--ds-text-primary)] rounded-lg hover:bg-zinc-700 transition-colors"
+        className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-zinc-800 text-zinc-300 rounded-lg hover:bg-zinc-700 transition-colors"
       >
         <RefreshCw className="w-3 h-3" />
         Recarregar
@@ -170,39 +174,44 @@ export function InboxView({
 
   return (
     <TooltipProvider delayDuration={300}>
-      <div className="h-[calc(100vh-64px)] bg-[var(--ds-bg-base)]">
-        <ResizablePanelGroup direction="horizontal">
-          {/* Conversation list sidebar - T074: wrapped with ErrorBoundary */}
+      {/* Full height container - uses parent height from PageLayoutScope */}
+      <div className="h-full bg-zinc-950">
+        <ResizablePanelGroup direction="horizontal" className="h-full">
+          {/* Conversation list sidebar - subtle shadow instead of border */}
           <ResizablePanel
-            defaultSize={30}
-            minSize={20}
-            maxSize={40}
-            className="border-r border-[var(--ds-border-default)]"
+            defaultSize={28}
+            minSize={22}
+            maxSize={38}
+            className="relative"
           >
-            <ErrorBoundary fallback={ConversationListFallback}>
-              <ConversationList
-                conversations={conversations}
-                selectedId={selectedConversationId}
-                onSelect={handleSelectConversation}
-                isLoading={isLoadingConversations}
-                totalUnread={totalUnread}
-                labels={labels}
-                search={search}
-                onSearchChange={onSearchChange}
-                statusFilter={statusFilter}
-                onStatusFilterChange={onStatusFilterChange}
-                modeFilter={modeFilter}
-                onModeFilterChange={onModeFilterChange}
-                labelFilter={labelFilter}
-                onLabelFilterChange={onLabelFilterChange}
-              />
-            </ErrorBoundary>
+            {/* Sidebar with subtle right shadow for depth */}
+            <div className="h-full shadow-[1px_0_8px_-2px_rgba(0,0,0,0.3)]">
+              <ErrorBoundary fallback={ConversationListFallback}>
+                <ConversationList
+                  conversations={conversations}
+                  selectedId={selectedConversationId}
+                  onSelect={handleSelectConversation}
+                  isLoading={isLoadingConversations}
+                  totalUnread={totalUnread}
+                  labels={labels}
+                  search={search}
+                  onSearchChange={onSearchChange}
+                  statusFilter={statusFilter}
+                  onStatusFilterChange={onStatusFilterChange}
+                  modeFilter={modeFilter}
+                  onModeFilterChange={onModeFilterChange}
+                  labelFilter={labelFilter}
+                  onLabelFilterChange={onLabelFilterChange}
+                />
+              </ErrorBoundary>
+            </div>
           </ResizablePanel>
 
-          <ResizableHandle withHandle />
+          {/* Invisible resize handle - functional but not visual */}
+          <ResizableHandle className="w-px bg-transparent hover:bg-zinc-700/50 transition-colors" />
 
-          {/* Message panel - T074: wrapped with ErrorBoundary */}
-          <ResizablePanel defaultSize={70} minSize={50}>
+          {/* Message panel - main content area */}
+          <ResizablePanel defaultSize={72} minSize={50}>
             <ErrorBoundary fallback={MessagePanelFallback}>
               <MessagePanel
                 conversation={selectedConversation}

@@ -1,17 +1,19 @@
 'use client'
 
 /**
- * T034: ConversationItem - Preview card with avatar, name, last message, time, badges
- * Memoized for performance in virtual lists
+ * ConversationItem - Clean List Item
+ *
+ * Design Philosophy:
+ * - No borders between items (uses spacing + hover states)
+ * - Compact, scannable layout
+ * - Subtle mode indicator (dot instead of badge)
+ * - Rounded selection state
  */
 
 import React, { memo } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { Bot, User, MessageSquare } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import type { InboxConversation } from '@/types'
 
 export interface ConversationItemProps {
@@ -61,92 +63,86 @@ export const ConversationItem = memo(function ConversationItem({
     <button
       onClick={onClick}
       className={cn(
-        'w-full p-3 flex items-start gap-3 text-left',
-        'hover:bg-[var(--ds-bg-hover)] transition-colors',
-        'border-b border-[var(--ds-border-default)]',
-        isSelected && 'bg-[var(--ds-bg-elevated)] border-l-2 border-l-primary-500',
-        unread_count > 0 && !isSelected && 'bg-[var(--ds-bg-surface)]'
+        'w-full px-2 py-2 flex items-start gap-2.5 text-left rounded-lg',
+        'transition-all duration-150',
+        // Default state
+        'hover:bg-zinc-800/50',
+        // Selected state - subtle background, no border
+        isSelected && 'bg-zinc-800/80',
+        // Unread state - slightly different bg
+        unread_count > 0 && !isSelected && 'bg-zinc-800/30'
       )}
     >
-      {/* Avatar */}
-      <Avatar className="h-10 w-10 shrink-0">
-        <AvatarFallback className="bg-[var(--ds-bg-surface)] text-[var(--ds-text-primary)] text-sm">
-          {initials}
-        </AvatarFallback>
-      </Avatar>
+      {/* Avatar - smaller, cleaner */}
+      <div className="relative shrink-0">
+        <div className="h-9 w-9 rounded-full bg-zinc-800 flex items-center justify-center">
+          <span className="text-xs font-medium text-zinc-300">{initials}</span>
+        </div>
+        {/* Mode indicator dot */}
+        <span
+          className={cn(
+            'absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-zinc-900',
+            mode === 'bot' ? 'bg-emerald-500' : 'bg-amber-500'
+          )}
+        />
+      </div>
 
-      {/* Content */}
-      <div className="flex-1 min-w-0">
-        {/* Header row: name + time */}
+      {/* Content - tighter layout */}
+      <div className="flex-1 min-w-0 py-0.5">
+        {/* Header row: name + unread/time */}
         <div className="flex items-center justify-between gap-2">
           <span
             className={cn(
-              'truncate text-sm',
-              unread_count > 0 ? 'font-semibold text-[var(--ds-text-primary)]' : 'text-[var(--ds-text-primary)]'
+              'truncate text-[13px]',
+              unread_count > 0 ? 'font-medium text-zinc-100' : 'text-zinc-300'
             )}
           >
             {displayName}
           </span>
-          <span className="text-xs text-[var(--ds-text-muted)] shrink-0">{timeAgo}</span>
+          <div className="flex items-center gap-1.5 shrink-0">
+            {unread_count > 0 && (
+              <span className="min-w-[18px] h-[18px] rounded-full bg-emerald-500 text-[10px] font-medium text-white flex items-center justify-center px-1">
+                {unread_count > 99 ? '99' : unread_count}
+              </span>
+            )}
+            <span className="text-[10px] text-zinc-500">{timeAgo}</span>
+          </div>
         </div>
 
-        {/* Message preview */}
-        <p
-          className={cn(
-            'text-xs truncate mt-0.5',
-            unread_count > 0 ? 'text-[var(--ds-text-primary)]' : 'text-[var(--ds-text-muted)]'
-          )}
-        >
-          {last_message_preview || 'Sem mensagens'}
-        </p>
-
-        {/* Footer: badges */}
-        <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-          {/* Mode badge - shows agent name when in bot mode */}
-          {mode === 'bot' ? (
-            <Badge variant="outline" className="h-5 text-[10px] px-1.5 gap-1 border-blue-500/50 text-blue-400 max-w-[120px]">
-              <Bot className="h-3 w-3 shrink-0" />
-              <span className="truncate">{agentName || 'Bot'}</span>
-            </Badge>
-          ) : (
-            <Badge variant="outline" className="h-5 text-[10px] px-1.5 gap-1 border-amber-500/50 text-amber-400">
-              <User className="h-3 w-3" />
-              Humano
-            </Badge>
-          )}
-
-          {/* Status badge if closed */}
+        {/* Message preview + status */}
+        <div className="flex items-center gap-1.5 mt-0.5">
+          {/* Closed indicator */}
           {status === 'closed' && (
-            <Badge variant="secondary" className="h-5 text-[10px] px-1.5">
-              Fechada
-            </Badge>
+            <span className="text-[9px] text-zinc-500 bg-zinc-800 px-1 py-0.5 rounded">
+              fechada
+            </span>
           )}
-
-          {/* Unread badge */}
-          {unread_count > 0 && (
-            <Badge className="h-5 text-[10px] px-1.5 bg-primary-500">
-              {unread_count > 99 ? '99+' : unread_count}
-            </Badge>
-          )}
-
-          {/* Labels (show first 2) */}
-          {labels?.slice(0, 2).map((label) => (
-            <Badge
-              key={label.id}
-              variant="outline"
-              className="h-5 text-[10px] px-1.5"
-              style={{
-                borderColor: label.color,
-                color: label.color,
-              }}
-            >
-              {label.name}
-            </Badge>
-          ))}
-          {labels && labels.length > 2 && (
-            <span className="text-[10px] text-[var(--ds-text-muted)]">+{labels.length - 2}</span>
-          )}
+          <p
+            className={cn(
+              'text-[11px] truncate',
+              unread_count > 0 ? 'text-zinc-400' : 'text-zinc-500'
+            )}
+          >
+            {last_message_preview || 'Sem mensagens'}
+          </p>
         </div>
+
+        {/* Labels - minimal dots */}
+        {labels && labels.length > 0 && (
+          <div className="flex items-center gap-1 mt-1">
+            {labels.slice(0, 3).map((label) => (
+              <span
+                key={label.id}
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: label.color }}
+                title={label.name}
+              />
+            ))}
+            {labels.length > 3 && (
+              <span className="text-[9px] text-zinc-600">+{labels.length - 3}</span>
+            )}
+          </div>
+        )}
       </div>
     </button>
   )

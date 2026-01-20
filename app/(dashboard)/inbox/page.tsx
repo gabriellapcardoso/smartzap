@@ -3,6 +3,8 @@
 /**
  * T040: Inbox Page - Wires hook to view
  * Thin page component following the Page → Hook → View pattern
+ *
+ * Layout: Full-bleed (no padding, full height) to feel native to the app
  */
 
 import { Suspense } from 'react'
@@ -10,7 +12,17 @@ import { InboxView } from '@/components/features/inbox'
 import { AIAgentForm } from '@/components/features/settings/ai-agents'
 import { useInbox } from '@/hooks/useInbox'
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
+import { PageLayoutScope } from '@/components/providers/PageLayoutProvider'
 import { Loader2, MessageSquare, RefreshCw } from 'lucide-react'
+
+/** Full-bleed layout for inbox - no padding, fills available space */
+const INBOX_LAYOUT = {
+  padded: false,
+  width: 'full' as const,
+  height: 'full' as const,
+  overflow: 'hidden' as const,
+  showAccountAlerts: false,
+}
 
 function InboxPageContent() {
   const inbox = useInbox()
@@ -82,7 +94,7 @@ function InboxPageContent() {
 
 function LoadingFallback() {
   return (
-    <div className="h-[calc(100vh-64px)] flex items-center justify-center bg-zinc-950">
+    <div className="h-full flex items-center justify-center bg-zinc-950">
       <div className="flex flex-col items-center gap-3">
         <Loader2 className="h-8 w-8 animate-spin text-primary-500" />
         <p className="text-sm text-zinc-500">Carregando inbox...</p>
@@ -98,7 +110,7 @@ function InboxErrorFallback() {
   const handleReload = () => window.location.reload()
 
   return (
-    <div className="h-[calc(100vh-64px)] flex items-center justify-center bg-zinc-950">
+    <div className="h-full flex items-center justify-center bg-zinc-950">
       <div className="max-w-md text-center px-4">
         {/* Icon */}
         <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-red-500/10 flex items-center justify-center">
@@ -135,10 +147,12 @@ function InboxErrorFallback() {
 
 export default function InboxPage() {
   return (
-    <ErrorBoundary fallback={<InboxErrorFallback />}>
-      <Suspense fallback={<LoadingFallback />}>
-        <InboxPageContent />
-      </Suspense>
-    </ErrorBoundary>
+    <PageLayoutScope value={INBOX_LAYOUT}>
+      <ErrorBoundary fallback={<InboxErrorFallback />}>
+        <Suspense fallback={<LoadingFallback />}>
+          <InboxPageContent />
+        </Suspense>
+      </ErrorBoundary>
+    </PageLayoutScope>
   )
 }

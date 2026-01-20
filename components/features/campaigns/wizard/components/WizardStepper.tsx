@@ -14,8 +14,8 @@ export const WizardStepper: React.FC<WizardStepperProps> = ({
 }) => {
   return (
     <div className="flex items-center justify-between relative">
-      <div 
-        className="absolute left-0 top-4 transform -translate-y-1/2 w-full h-0.5 bg-zinc-800 -z-10" 
+      <div
+        className="absolute left-0 top-4 transform -translate-y-1/2 w-full h-0.5 bg-[var(--ds-border-default)] -z-10"
         aria-hidden="true"
       >
         <div
@@ -35,14 +35,14 @@ export const WizardStepper: React.FC<WizardStepperProps> = ({
         >
           <div
             className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm mb-2 transition-all duration-300 border-2 ${currentStep >= s.number
-              ? 'bg-zinc-950 text-primary-400 border-primary-500 shadow-[0_0_15px_rgba(16,185,129,0.4)] scale-110'
-              : 'bg-zinc-950 text-gray-600 border-zinc-800 group-hover:border-zinc-700'
+              ? 'bg-[var(--ds-bg-base)] text-primary-400 border-primary-500 shadow-[0_0_15px_rgba(16,185,129,0.4)] scale-110'
+              : 'bg-[var(--ds-bg-base)] text-[var(--ds-text-muted)] border-[var(--ds-border-default)] group-hover:border-[var(--ds-border-strong)]'
               }`}
             aria-hidden="true"
           >
             {currentStep > s.number ? <Check size={14} strokeWidth={3} /> : s.number}
           </div>
-          <span className={`text-[10px] font-bold uppercase tracking-widest transition-colors ${currentStep >= s.number ? 'text-white' : 'text-gray-600'}`}>
+          <span className={`text-[10px] font-bold uppercase tracking-widest transition-colors ${currentStep >= s.number ? 'text-[var(--ds-text-primary)]' : 'text-[var(--ds-text-muted)]'}`}>
             {s.title}
           </span>
         </button>

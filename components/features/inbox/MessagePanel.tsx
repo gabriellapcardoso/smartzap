@@ -1,15 +1,18 @@
 'use client'
 
 /**
- * T035: MessagePanel - Message list + input area
- * Stick to bottom behavior for chat experience
+ * MessagePanel - Seamless Chat Area
+ *
+ * Design Philosophy:
+ * - Unified background with message container
+ * - Floating scroll-to-bottom button
+ * - Minimal chrome, maximum content
+ * - Header blends into content area
  */
 
-import React, { useRef, useEffect, useCallback } from 'react'
-import { Loader2, ArrowDown } from 'lucide-react'
+import React, { useRef, useEffect, useCallback, useState } from 'react'
+import { Loader2, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { MessageBubble } from './MessageBubble'
 import { MessageInput } from './MessageInput'
 import { ConversationHeader } from './ConversationHeader'
@@ -90,6 +93,7 @@ export function MessagePanel({
   const scrollRef = useRef<HTMLDivElement>(null)
   const isAtBottomRef = useRef(true)
   const prevMessagesLengthRef = useRef(messages.length)
+  const [showScrollButton, setShowScrollButton] = useState(false)
 
   // Check if user is at bottom
   const checkIfAtBottom = useCallback(() => {
@@ -111,14 +115,16 @@ export function MessagePanel({
 
   // Handle scroll event
   const handleScroll = useCallback(() => {
-    isAtBottomRef.current = checkIfAtBottom()
+    const atBottom = checkIfAtBottom()
+    isAtBottomRef.current = atBottom
+    setShowScrollButton(!atBottom && messages.length > 5)
 
     // Load more when scrolled to top
     const el = scrollRef.current
     if (el && el.scrollTop < 100 && hasMoreMessages && !isLoadingMore) {
       onLoadMore()
     }
-  }, [checkIfAtBottom, hasMoreMessages, isLoadingMore, onLoadMore])
+  }, [checkIfAtBottom, hasMoreMessages, isLoadingMore, onLoadMore, messages.length])
 
   // Auto-scroll when new messages arrive
   useEffect(() => {
@@ -141,10 +147,10 @@ export function MessagePanel({
   // No conversation selected
   if (!conversation && !isLoadingConversation) {
     return (
-      <div className="flex flex-col h-full bg-[var(--ds-bg-base)] items-center justify-center">
-        <div className="w-16 h-16 rounded-full bg-[var(--ds-bg-elevated)] flex items-center justify-center mb-4">
+      <div className="flex flex-col h-full bg-zinc-950 items-center justify-center">
+        <div className="w-14 h-14 rounded-2xl bg-zinc-900 flex items-center justify-center mb-4">
           <svg
-            className="h-8 w-8 text-[var(--ds-text-muted)]"
+            className="h-7 w-7 text-zinc-600"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -157,11 +163,8 @@ export function MessagePanel({
             />
           </svg>
         </div>
-        <h3 className="text-lg font-medium text-[var(--ds-text-primary)]">
+        <p className="text-sm text-zinc-500">
           Selecione uma conversa
-        </h3>
-        <p className="text-sm text-[var(--ds-text-muted)] mt-1">
-          Escolha uma conversa à esquerda para ver as mensagens
         </p>
       </div>
     )
@@ -170,9 +173,8 @@ export function MessagePanel({
   // Loading state
   if (isLoadingConversation) {
     return (
-      <div className="flex flex-col h-full bg-[var(--ds-bg-base)] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary-500" />
-        <p className="text-sm text-[var(--ds-text-muted)] mt-2">Carregando...</p>
+      <div className="flex flex-col h-full bg-zinc-950 items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-zinc-600" />
       </div>
     )
   }
@@ -180,8 +182,8 @@ export function MessagePanel({
   const isOpen = conversation?.status === 'open'
 
   return (
-    <div className="flex flex-col h-full bg-[var(--ds-bg-base)]">
-      {/* Header */}
+    <div className="flex flex-col h-full bg-zinc-950 relative">
+      {/* Header - integrated with content */}
       {conversation && (
         <ConversationHeader
           conversation={conversation}
@@ -202,78 +204,81 @@ export function MessagePanel({
         />
       )}
 
-      {/* Messages area */}
+      {/* Messages area - clean scrollable container */}
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto px-4 py-4"
+        className="flex-1 overflow-y-auto px-4 py-3"
       >
         {/* Load more indicator */}
         {isLoadingMore && (
-          <div className="flex justify-center py-2 mb-2">
-            <Loader2 className="h-5 w-5 animate-spin text-[var(--ds-text-muted)]" />
+          <div className="flex justify-center py-3">
+            <Loader2 className="h-4 w-4 animate-spin text-zinc-600" />
           </div>
         )}
 
-        {/* Load more button */}
+        {/* Load more button - minimal */}
         {hasMoreMessages && !isLoadingMore && (
-          <div className="flex justify-center py-2 mb-2">
-            <Button
-              variant="ghost"
-              size="sm"
+          <div className="flex justify-center py-3">
+            <button
               onClick={onLoadMore}
-              className="text-xs text-[var(--ds-text-muted)]"
+              className="text-[10px] text-zinc-500 hover:text-zinc-400 transition-colors"
             >
-              Carregar mensagens anteriores
-            </Button>
+              Carregar anteriores
+            </button>
           </div>
         )}
 
         {/* Messages list */}
         {isLoadingMessages ? (
-          <div className="flex flex-col gap-3">
-            {[1, 2, 3].map((i) => (
+          <div className="flex flex-col gap-1.5 py-4">
+            {[1, 2, 3, 4].map((i) => (
               <div
                 key={i}
                 className={cn(
-                  'animate-pulse rounded-2xl h-12 w-2/3',
-                  i % 2 === 0 ? 'self-end bg-primary-600/20' : 'self-start bg-[var(--ds-bg-elevated)]'
+                  'animate-pulse rounded-2xl h-9',
+                  i % 2 === 0
+                    ? 'self-end w-2/5 bg-zinc-800/40'
+                    : 'self-start w-1/2 bg-zinc-800/60'
                 )}
               />
             ))}
           </div>
         ) : messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <p className="text-sm text-[var(--ds-text-muted)]">Nenhuma mensagem ainda</p>
-            <p className="text-xs text-[var(--ds-text-muted)] mt-1">
-              Envie a primeira mensagem para iniciar a conversa
-            </p>
+            <p className="text-xs text-zinc-600">Nenhuma mensagem ainda</p>
           </div>
         ) : (
-          <div className="flex flex-col gap-2">
-            {messages.map((message) => (
-              <MessageBubble
-                key={message.id}
-                message={message}
-                agentName={conversation?.ai_agent?.name}
-              />
-            ))}
+          <div className="flex flex-col">
+            {messages.map((message, index) => {
+              // Determine grouping
+              const prevMessage = messages[index - 1]
+              const nextMessage = messages[index + 1]
+              const isFirstInGroup = !prevMessage || prevMessage.direction !== message.direction
+              const isLastInGroup = !nextMessage || nextMessage.direction !== message.direction
+
+              return (
+                <MessageBubble
+                  key={message.id}
+                  message={message}
+                  agentName={conversation?.ai_agent?.name}
+                  isFirstInGroup={isFirstInGroup}
+                  isLastInGroup={isLastInGroup}
+                />
+              )
+            })}
           </div>
         )}
       </div>
 
-      {/* Scroll to bottom button */}
-      {!isAtBottomRef.current && messages.length > 5 && (
-        <div className="absolute bottom-20 right-6">
-          <Button
-            variant="secondary"
-            size="icon"
-            onClick={() => scrollToBottom()}
-            className="h-10 w-10 rounded-full shadow-lg"
-          >
-            <ArrowDown className="h-4 w-4" />
-          </Button>
-        </div>
+      {/* Scroll to bottom button - floating, minimal */}
+      {showScrollButton && (
+        <button
+          onClick={() => scrollToBottom()}
+          className="absolute bottom-20 right-4 h-8 w-8 rounded-full bg-zinc-800 border border-zinc-700/50 flex items-center justify-center text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 transition-all shadow-lg"
+        >
+          <ChevronDown className="h-4 w-4" />
+        </button>
       )}
 
       {/* Input area */}
@@ -283,8 +288,8 @@ export function MessagePanel({
         disabled={!isOpen}
         placeholder={
           isOpen
-            ? 'Digite sua mensagem...'
-            : 'Conversa fechada. Reabra para enviar mensagens.'
+            ? 'Mensagem...'
+            : 'Conversa fechada'
         }
         quickReplies={quickReplies}
         quickRepliesLoading={quickRepliesLoading}

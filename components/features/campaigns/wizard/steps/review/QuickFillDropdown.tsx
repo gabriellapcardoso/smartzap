@@ -39,7 +39,7 @@ export function QuickFillDropdown({
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="px-3 py-1.5 rounded-md text-[11px] font-bold bg-white/10 hover:bg-white/15 border border-white/10 text-gray-200"
+          className="px-3 py-1.5 rounded-md text-[11px] font-bold bg-[var(--ds-bg-hover)] hover:bg-[var(--ds-bg-surface)] border border-[var(--ds-border-default)] text-[var(--ds-text-secondary)]"
           title="Preencher esta variável"
         >
           Preencher com...
@@ -47,15 +47,15 @@ export function QuickFillDropdown({
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="bg-zinc-900 border-zinc-800 text-white min-w-55"
+        className="bg-[var(--ds-bg-elevated)] border-[var(--ds-border-default)] text-[var(--ds-text-primary)] min-w-55"
       >
         {recipientSource !== 'test' && (
           <>
-            <DropdownMenuLabel className="text-xs text-gray-500 uppercase tracking-wider px-2 py-1.5">
+            <DropdownMenuLabel className="text-xs text-[var(--ds-text-muted)] uppercase tracking-wider px-2 py-1.5">
               Dados do Contato
             </DropdownMenuLabel>
             <DropdownMenuItem
-              className="text-sm cursor-pointer hover:bg-zinc-800 focus:bg-zinc-800 px-2 py-1.5 rounded-sm flex items-center gap-2 outline-none"
+              className="text-sm cursor-pointer hover:bg-[var(--ds-bg-hover)] focus:bg-[var(--ds-bg-hover)] px-2 py-1.5 rounded-sm flex items-center gap-2 outline-none"
               onClick={() => onApplyQuickFill(slot, '{{nome}}')}
             >
               <Users size={14} className="text-indigo-400" />
@@ -63,7 +63,7 @@ export function QuickFillDropdown({
             </DropdownMenuItem>
 
             <DropdownMenuItem
-              className="text-sm cursor-pointer hover:bg-zinc-800 focus:bg-zinc-800 px-2 py-1.5 rounded-sm flex items-center gap-2 outline-none"
+              className="text-sm cursor-pointer hover:bg-[var(--ds-bg-hover)] focus:bg-[var(--ds-bg-hover)] px-2 py-1.5 rounded-sm flex items-center gap-2 outline-none"
               onClick={() => onApplyQuickFill(slot, '{{telefone}}')}
             >
               <div className="text-green-400 font-mono text-[10px] w-3.5 text-center">
@@ -73,7 +73,7 @@ export function QuickFillDropdown({
             </DropdownMenuItem>
 
             <DropdownMenuItem
-              className="text-sm cursor-pointer hover:bg-zinc-800 focus:bg-zinc-800 px-2 py-1.5 rounded-sm flex items-center gap-2 outline-none"
+              className="text-sm cursor-pointer hover:bg-[var(--ds-bg-hover)] focus:bg-[var(--ds-bg-hover)] px-2 py-1.5 rounded-sm flex items-center gap-2 outline-none"
               onClick={() => onApplyQuickFill(slot, '{{email}}')}
             >
               <div className="text-blue-400 font-mono text-[10px] w-3.5 text-center">
@@ -82,20 +82,20 @@ export function QuickFillDropdown({
               <span>Email</span>
             </DropdownMenuItem>
 
-            <DropdownMenuSeparator className="bg-white/10 my-1" />
+            <DropdownMenuSeparator className="bg-[var(--ds-border-default)] my-1" />
           </>
         )}
 
-        <DropdownMenuLabel className="text-xs text-gray-500 uppercase tracking-wider px-2 py-1.5">
+        <DropdownMenuLabel className="text-xs text-[var(--ds-text-muted)] uppercase tracking-wider px-2 py-1.5">
           {recipientSource === 'test'
             ? 'Preencher manualmente (teste)'
             : 'Valor fixo (teste)'}
         </DropdownMenuLabel>
         <DropdownMenuItem
-          className="text-sm cursor-pointer hover:bg-zinc-800 focus:bg-zinc-800 px-2 py-1.5 rounded-sm flex items-center gap-2 outline-none"
+          className="text-sm cursor-pointer hover:bg-[var(--ds-bg-hover)] focus:bg-[var(--ds-bg-hover)] px-2 py-1.5 rounded-sm flex items-center gap-2 outline-none"
           onClick={() => onOpenFixedValueDialog(slot)}
         >
-          <div className="text-gray-300 font-mono text-[10px] w-3.5 text-center">
+          <div className="text-[var(--ds-text-secondary)] font-mono text-[10px] w-3.5 text-center">
             T
           </div>
           <span>Texto...</span>
@@ -103,17 +103,17 @@ export function QuickFillDropdown({
 
         {recipientSource !== 'test' && (
           <>
-            <DropdownMenuSeparator className="bg-white/10 my-1" />
+            <DropdownMenuSeparator className="bg-[var(--ds-border-default)] my-1" />
 
             {customFields.length > 0 && (
               <>
-                <DropdownMenuLabel className="text-xs text-gray-500 uppercase tracking-wider px-2 py-1.5 mt-2">
+                <DropdownMenuLabel className="text-xs text-[var(--ds-text-muted)] uppercase tracking-wider px-2 py-1.5 mt-2">
                   Campos Personalizados
                 </DropdownMenuLabel>
                 {customFields.slice(0, 10).map((field) => (
                   <DropdownMenuItem
                     key={field.id}
-                    className="text-sm cursor-pointer hover:bg-zinc-800 focus:bg-zinc-800 px-2 py-1.5 rounded-sm flex items-center gap-2 outline-none"
+                    className="text-sm cursor-pointer hover:bg-[var(--ds-bg-hover)] focus:bg-[var(--ds-bg-hover)] px-2 py-1.5 rounded-sm flex items-center gap-2 outline-none"
                     onClick={() =>
                       onApplyQuickFill(slot, '{{' + field.key + '}}')
                     }

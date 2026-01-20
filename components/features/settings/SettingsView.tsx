@@ -262,8 +262,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           <div className="rounded-xl border border-[var(--ds-border-subtle)] bg-[var(--ds-bg-elevated)] p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-500/10 border border-blue-500/20">
-                  <Bot className="h-6 w-6 text-blue-400" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--ds-bg-surface)] border border-[var(--ds-border-default)]">
+                  <Bot className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
                   <h3 className="text-base font-semibold text-[var(--ds-text-primary)]">Agentes de IA</h3>
@@ -274,7 +274,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </div>
               <Link
                 href="/settings/ai/agents"
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--ds-bg-surface)] border border-[var(--ds-border-default)] text-[var(--ds-text-secondary)] hover:bg-[var(--ds-bg-hover)] hover:text-[var(--ds-text-primary)] transition-colors"
               >
                 <span className="text-sm font-medium">Configurar</span>
                 <ChevronRight className="h-4 w-4" />

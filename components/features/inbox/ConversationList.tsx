@@ -1,17 +1,19 @@
 'use client'
 
 /**
- * T033: ConversationList - Filterable list with unread badges
- * Shows conversation previews with search and filter support
+ * ConversationList - Seamless Sidebar
+ *
+ * Design Philosophy:
+ * - Compact header integrated with search
+ * - No heavy borders between items
+ * - Smooth hover states
+ * - Clean filter UI
  */
 
 import React, { useState, useMemo } from 'react'
-import { Search, Filter, Bot, User, Tag, X } from 'lucide-react'
+import { Search, SlidersHorizontal, Bot, User, X, Inbox } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -78,85 +80,107 @@ export function ConversationList({
   }
 
   return (
-    <div className="flex flex-col h-full bg-[var(--ds-bg-base)]">
-      {/* Header */}
-      <div className="p-3 border-b border-[var(--ds-border-default)]">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <h2 className="text-sm font-semibold text-[var(--ds-text-primary)]">Conversas</h2>
-            {totalUnread > 0 && (
-              <Badge className="h-5 text-xs px-1.5 bg-primary-500">
-                {totalUnread > 99 ? '99+' : totalUnread}
-              </Badge>
+    <div className="flex flex-col h-full bg-zinc-900">
+      {/* Compact header - search integrated with filters */}
+      <div className="px-3 py-2.5">
+        {/* Search bar with integrated filter button */}
+        <div className="relative flex items-center gap-1.5">
+          <div className="relative flex-1">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-500" />
+            <Input
+              type="text"
+              placeholder="Buscar..."
+              value={search}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="pl-8 pr-8 h-8 text-xs bg-zinc-800/60 border-0 rounded-lg placeholder:text-zinc-500 focus:ring-1 focus:ring-zinc-700"
+            />
+            {search && (
+              <button
+                onClick={() => onSearchChange('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
             )}
           </div>
+
+          {/* Filter button */}
           <DropdownMenu open={showFilters} onOpenChange={setShowFilters}>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
+              <button
                 className={cn(
-                  'h-8 px-2',
-                  activeFilterCount > 0 && 'text-primary-400'
+                  'h-8 w-8 flex items-center justify-center rounded-lg transition-colors',
+                  activeFilterCount > 0
+                    ? 'bg-emerald-500/10 text-emerald-400'
+                    : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/60'
                 )}
               >
-                <Filter className="h-4 w-4" />
+                <SlidersHorizontal className="h-3.5 w-3.5" />
                 {activeFilterCount > 0 && (
-                  <span className="ml-1 text-xs">{activeFilterCount}</span>
+                  <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 text-[9px] text-white flex items-center justify-center">
+                    {activeFilterCount}
+                  </span>
                 )}
-              </Button>
+              </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuLabel>Status</DropdownMenuLabel>
+            <DropdownMenuContent align="end" className="w-44">
+              <DropdownMenuLabel className="text-[10px] text-zinc-500 uppercase tracking-wide">Status</DropdownMenuLabel>
               <DropdownMenuCheckboxItem
                 checked={statusFilter === null}
                 onCheckedChange={() => onStatusFilterChange(null)}
+                className="text-xs"
               >
                 Todas
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={statusFilter === 'open'}
                 onCheckedChange={() => onStatusFilterChange('open')}
+                className="text-xs"
               >
                 Abertas
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={statusFilter === 'closed'}
                 onCheckedChange={() => onStatusFilterChange('closed')}
+                className="text-xs"
               >
                 Fechadas
               </DropdownMenuCheckboxItem>
 
               <DropdownMenuSeparator />
-              <DropdownMenuLabel>Modo</DropdownMenuLabel>
+              <DropdownMenuLabel className="text-[10px] text-zinc-500 uppercase tracking-wide">Modo</DropdownMenuLabel>
               <DropdownMenuCheckboxItem
                 checked={modeFilter === null}
                 onCheckedChange={() => onModeFilterChange(null)}
+                className="text-xs"
               >
                 Todos
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={modeFilter === 'bot'}
                 onCheckedChange={() => onModeFilterChange('bot')}
+                className="text-xs"
               >
-                <Bot className="h-3 w-3 mr-2" />
+                <Bot className="h-3 w-3 mr-1.5" />
                 Bot
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={modeFilter === 'human'}
                 onCheckedChange={() => onModeFilterChange('human')}
+                className="text-xs"
               >
-                <User className="h-3 w-3 mr-2" />
+                <User className="h-3 w-3 mr-1.5" />
                 Humano
               </DropdownMenuCheckboxItem>
 
               {labels.length > 0 && (
                 <>
                   <DropdownMenuSeparator />
-                  <DropdownMenuLabel>Etiquetas</DropdownMenuLabel>
+                  <DropdownMenuLabel className="text-[10px] text-zinc-500 uppercase tracking-wide">Etiquetas</DropdownMenuLabel>
                   <DropdownMenuCheckboxItem
                     checked={labelFilter === null}
                     onCheckedChange={() => onLabelFilterChange(null)}
+                    className="text-xs"
                   >
                     Todas
                   </DropdownMenuCheckboxItem>
@@ -165,10 +189,11 @@ export function ConversationList({
                       key={label.id}
                       checked={labelFilter === label.id}
                       onCheckedChange={() => onLabelFilterChange(label.id)}
+                      className="text-xs"
                     >
-                      <Tag
-                        className="h-3 w-3 mr-2"
-                        style={{ color: label.color }}
+                      <span
+                        className="w-2 h-2 rounded-full mr-1.5"
+                        style={{ backgroundColor: label.color }}
                       />
                       {label.name}
                     </DropdownMenuCheckboxItem>
@@ -179,82 +204,68 @@ export function ConversationList({
               {activeFilterCount > 0 && (
                 <>
                   <DropdownMenuSeparator />
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-full justify-start text-xs text-[var(--ds-text-secondary)]"
+                  <button
                     onClick={clearFilters}
+                    className="w-full flex items-center gap-1.5 px-2 py-1.5 text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 rounded transition-colors"
                   >
-                    <X className="h-3 w-3 mr-2" />
+                    <X className="h-3 w-3" />
                     Limpar filtros
-                  </Button>
+                  </button>
                 </>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
 
-        {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--ds-text-muted)]" />
-          <Input
-            type="text"
-            placeholder="Buscar conversas..."
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-8 h-8 text-sm bg-[var(--ds-bg-elevated)] border-[var(--ds-border-default)]"
-          />
-          {search && (
-            <button
-              onClick={() => onSearchChange('')}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--ds-text-muted)] hover:text-zinc-300"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </div>
+        {/* Unread count - subtle, inline */}
+        {totalUnread > 0 && (
+          <div className="flex items-center gap-1.5 mt-2 px-0.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-[10px] text-zinc-500">
+              {totalUnread} {totalUnread === 1 ? 'não lida' : 'não lidas'}
+            </span>
+          </div>
+        )}
       </div>
 
-      {/* Conversation list */}
-      <ScrollArea className="flex-1">
+      {/* Conversation list - no ScrollArea wrapper for native feel */}
+      <div className="flex-1 overflow-y-auto">
         {isLoading ? (
-          // Skeleton loading
-          <div className="p-3 space-y-3">
+          // Skeleton loading - minimal
+          <div className="px-2 py-1 space-y-0.5">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="flex items-start gap-3 animate-pulse">
-                <div className="h-10 w-10 rounded-full bg-[var(--ds-bg-surface)]" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 w-3/4 bg-[var(--ds-bg-surface)] rounded" />
-                  <div className="h-3 w-1/2 bg-[var(--ds-bg-surface)] rounded" />
+              <div key={i} className="flex items-center gap-2.5 p-2.5 animate-pulse">
+                <div className="h-9 w-9 rounded-full bg-zinc-800" />
+                <div className="flex-1 space-y-1.5">
+                  <div className="h-3.5 w-3/4 bg-zinc-800 rounded" />
+                  <div className="h-2.5 w-1/2 bg-zinc-800/60 rounded" />
                 </div>
               </div>
             ))}
           </div>
         ) : conversations.length === 0 ? (
-          // Empty state
-          <div className="flex flex-col items-center justify-center h-[200px] text-center p-4">
-            <div className="w-12 h-12 rounded-full bg-[var(--ds-bg-surface)] flex items-center justify-center mb-3">
-              <Search className="h-6 w-6 text-[var(--ds-text-muted)]" />
+          // Empty state - minimal
+          <div className="flex flex-col items-center justify-center h-48 text-center px-6">
+            <div className="w-10 h-10 rounded-full bg-zinc-800/50 flex items-center justify-center mb-2.5">
+              <Inbox className="h-5 w-5 text-zinc-600" />
             </div>
-            <p className="text-sm text-[var(--ds-text-secondary)]">
+            <p className="text-xs text-zinc-500">
               {search || activeFilterCount > 0
-                ? 'Nenhuma conversa encontrada'
-                : 'Nenhuma conversa ainda'}
+                ? 'Nenhuma conversa'
+                : 'Inbox vazia'}
             </p>
             {(search || activeFilterCount > 0) && (
-              <Button
-                variant="link"
-                size="sm"
-                className="mt-2 text-primary-400"
+              <button
                 onClick={clearFilters}
+                className="mt-2 text-[10px] text-emerald-400/80 hover:text-emerald-400 transition-colors"
               >
                 Limpar filtros
-              </Button>
+              </button>
             )}
           </div>
         ) : (
           // Conversation items
-          <div>
+          <div className="px-1.5 py-0.5">
             {conversations.map((conversation) => (
               <ConversationItem
                 key={conversation.id}
@@ -265,7 +276,7 @@ export function ConversationList({
             ))}
           </div>
         )}
-      </ScrollArea>
+      </div>
     </div>
   )
 }

@@ -29,12 +29,12 @@ export function QuickAdjustments({
   }
 
   return (
-    <div className="bg-zinc-950/30 border border-white/5 rounded-lg p-3">
+    <div className="bg-[var(--ds-bg-surface)] border border-[var(--ds-border-subtle)] rounded-lg p-3">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="text-gray-200 font-medium">Ajustes rápidos</p>
-          <p className="text-[11px] text-gray-500">
-            A checagem roda <span className="text-white">automaticamente</span>.
+          <p className="text-[var(--ds-text-secondary)] font-medium">Ajustes rápidos</p>
+          <p className="text-[11px] text-[var(--ds-text-muted)]">
+            A checagem roda <span className="text-[var(--ds-text-primary)]">automaticamente</span>.
             Se algum contato estiver sendo ignorado por falta de dado, escolha o
             que usar em cada variável.
           </p>
@@ -54,18 +54,18 @@ export function QuickAdjustments({
           return (
             <div
               key={m.where + ':' + (m.buttonIndex ?? '') + ':' + m.key}
-              className="flex flex-col sm:flex-row sm:items-center gap-2 justify-between bg-zinc-900/40 border border-white/5 rounded-lg p-2"
+              className="flex flex-col sm:flex-row sm:items-center gap-2 justify-between bg-[var(--ds-bg-elevated)] border border-[var(--ds-border-subtle)] rounded-lg p-2"
             >
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-[11px] font-bold text-gray-200 truncate">
+                  <span className="text-[11px] font-bold text-[var(--ds-text-secondary)] truncate">
                     Precisa de: {primary}
                   </span>
                   <span className="text-[10px] text-amber-300">
                     afetou {m.count}
                   </span>
                 </div>
-                <p className="text-[10px] text-gray-500 truncate">{secondary}</p>
+                <p className="text-[10px] text-[var(--ds-text-muted)] truncate">{secondary}</p>
               </div>
 
               <div className="flex items-center gap-2 shrink-0">
@@ -82,7 +82,7 @@ export function QuickAdjustments({
         })}
 
         {missingSummary.length > 6 && (
-          <p className="text-[10px] text-gray-500">
+          <p className="text-[10px] text-[var(--ds-text-muted)]">
             Mostrando 6 de {missingSummary.length} pendências.
           </p>
         )}

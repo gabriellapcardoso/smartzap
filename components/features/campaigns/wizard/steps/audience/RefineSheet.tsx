@@ -44,18 +44,18 @@ export function RefineSheet({
   };
 
   return (
-    <div className="bg-zinc-900/50 border border-white/10 rounded-2xl p-5 mt-4 animate-in fade-in slide-in-from-bottom-2 duration-200">
+    <div className="bg-[var(--ds-bg-elevated)] border border-[var(--ds-border-default)] rounded-2xl p-5 mt-4 animate-in fade-in slide-in-from-bottom-2 duration-200">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-bold text-white">Ajustar status/recência</p>
-          <p className="text-xs text-gray-500">
+          <p className="text-sm font-bold text-[var(--ds-text-primary)]">Ajustar status/recência</p>
+          <p className="text-xs text-[var(--ds-text-muted)]">
             Ajuste fino (status, sem tags, recência). Para Tag/UF, use Segmentos.
           </p>
         </div>
         <button
           type="button"
           onClick={onClose}
-          className="p-2 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
+          className="p-2 rounded-lg hover:bg-[var(--ds-bg-hover)] text-[var(--ds-text-secondary)] hover:text-[var(--ds-text-primary)] transition-colors"
           aria-label="Fechar"
         >
           <X size={16} />
@@ -65,7 +65,7 @@ export function RefineSheet({
       <div className="mt-5 space-y-6">
         {/* Status */}
         <div className="space-y-2">
-          <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+          <p className="text-xs font-bold text-[var(--ds-text-muted)] uppercase tracking-wider">
             Status
           </p>
           <div className="grid grid-cols-2 gap-2">
@@ -75,7 +75,7 @@ export function RefineSheet({
               className={
                 audienceDraft.status === 'OPT_IN'
                   ? 'bg-primary-600 text-white hover:bg-primary-500'
-                  : 'border-white/10 bg-zinc-900 text-white hover:bg-zinc-800'
+                  : 'border-[var(--ds-border-default)] bg-[var(--ds-bg-elevated)] text-[var(--ds-text-primary)] hover:bg-[var(--ds-bg-hover)]'
               }
               onClick={() =>
                 setAudienceDraft((d) => ({ ...d, status: 'OPT_IN' }))
@@ -89,7 +89,7 @@ export function RefineSheet({
               className={
                 audienceDraft.status === 'ALL'
                   ? 'bg-primary-600 text-white hover:bg-primary-500'
-                  : 'border-white/10 bg-zinc-900 text-white hover:bg-zinc-800'
+                  : 'border-[var(--ds-border-default)] bg-[var(--ds-bg-elevated)] text-[var(--ds-text-primary)] hover:bg-[var(--ds-bg-hover)]'
               }
               onClick={() =>
                 setAudienceDraft((d) => ({ ...d, status: 'ALL' }))
@@ -98,12 +98,12 @@ export function RefineSheet({
               Todos
             </Button>
           </div>
-          <label className="flex items-center gap-2 text-sm text-gray-300">
+          <label className="flex items-center gap-2 text-sm text-[var(--ds-text-secondary)]">
             <input
               type="checkbox"
               checked
               disabled
-              className="w-4 h-4 text-primary-600 bg-zinc-800 border-white/10 rounded"
+              className="w-4 h-4 text-primary-600 bg-[var(--ds-bg-surface)] border-[var(--ds-border-default)] rounded"
             />
             Opt-out sempre excluído (regra do WhatsApp)
           </label>
@@ -112,39 +112,39 @@ export function RefineSheet({
         {/* Tags */}
         <div className="space-y-2">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+            <p className="text-xs font-bold text-[var(--ds-text-muted)] uppercase tracking-wider">
               Tags
             </p>
             <button
               type="button"
-              className="text-xs text-gray-400 hover:text-white transition-colors"
+              className="text-xs text-[var(--ds-text-secondary)] hover:text-[var(--ds-text-primary)] transition-colors"
               onClick={onOpenSegments}
               disabled={isDisabled}
             >
               Abrir Segmentos
             </button>
           </div>
-          <label className="flex items-center gap-2 text-sm text-gray-300">
+          <label className="flex items-center gap-2 text-sm text-[var(--ds-text-secondary)]">
             <input
               type="checkbox"
               checked={!!audienceDraft.noTags}
               onChange={(e) =>
                 setAudienceDraft((d) => ({ ...d, noTags: e.target.checked }))
               }
-              className="w-4 h-4 text-primary-600 bg-zinc-800 border-white/10 rounded"
+              className="w-4 h-4 text-primary-600 bg-[var(--ds-bg-surface)] border-[var(--ds-border-default)] rounded"
             />
             Somente contatos sem tags
           </label>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-[var(--ds-text-muted)]">
             Escolha Tag/UF em{' '}
-            <span className="text-gray-300">Segmentos</span> (com contagem por
+            <span className="text-[var(--ds-text-secondary)]">Segmentos</span> (com contagem por
             opção).
           </p>
         </div>
 
         {/* Criados nos últimos */}
         <div className="space-y-2">
-          <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+          <p className="text-xs font-bold text-[var(--ds-text-muted)] uppercase tracking-wider">
             Criados nos últimos
           </p>
           <div className="grid grid-cols-3 gap-2">
@@ -154,7 +154,7 @@ export function RefineSheet({
               className={
                 audienceDraft.createdWithinDays === 7
                   ? 'bg-primary-600 text-white hover:bg-primary-500'
-                  : 'border-white/10 bg-zinc-900 text-white hover:bg-zinc-800'
+                  : 'border-[var(--ds-border-default)] bg-[var(--ds-bg-elevated)] text-[var(--ds-text-primary)] hover:bg-[var(--ds-bg-hover)]'
               }
               onClick={() =>
                 setAudienceDraft((d) => ({ ...d, createdWithinDays: 7 }))
@@ -168,7 +168,7 @@ export function RefineSheet({
               className={
                 audienceDraft.createdWithinDays === 30
                   ? 'bg-primary-600 text-white hover:bg-primary-500'
-                  : 'border-white/10 bg-zinc-900 text-white hover:bg-zinc-800'
+                  : 'border-[var(--ds-border-default)] bg-[var(--ds-bg-elevated)] text-[var(--ds-text-primary)] hover:bg-[var(--ds-bg-hover)]'
               }
               onClick={() =>
                 setAudienceDraft((d) => ({ ...d, createdWithinDays: 30 }))
@@ -182,7 +182,7 @@ export function RefineSheet({
               className={
                 !audienceDraft.createdWithinDays
                   ? 'bg-primary-600 text-white hover:bg-primary-500'
-                  : 'border-white/10 bg-zinc-900 text-white hover:bg-zinc-800'
+                  : 'border-[var(--ds-border-default)] bg-[var(--ds-bg-elevated)] text-[var(--ds-text-primary)] hover:bg-[var(--ds-bg-hover)]'
               }
               onClick={() =>
                 setAudienceDraft((d) => ({ ...d, createdWithinDays: null }))
@@ -198,7 +198,7 @@ export function RefineSheet({
         <Button
           type="button"
           variant="outline"
-          className="border-white/10 bg-zinc-900 text-white hover:bg-zinc-800"
+          className="border-[var(--ds-border-default)] bg-[var(--ds-bg-elevated)] text-[var(--ds-text-primary)] hover:bg-[var(--ds-bg-hover)]"
           onClick={handleClear}
         >
           Limpar

@@ -957,26 +957,10 @@ textarea:focus-visible {
 }
 
 /* ================================
-   CHAT / INBOX MESSAGE ANIMATIONS
+   CHAT / INBOX ANIMATIONS
    ================================ */
 
-/* Fade in from bottom (for new messages) */
-@keyframes message-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-message-in {
-  animation: message-in 0.2s ease-out forwards;
-}
-
-/* Subtle scale for AI typing indicator */
+/* Typing indicator animation */
 @keyframes typing-dot {
   0%, 60%, 100% {
     transform: translateY(0);
@@ -998,35 +982,7 @@ textarea:focus-visible {
   animation-delay: 0.4s;
 }
 
-/* Chat bubble styles - Vercel/modern inspired */
-.chat-bubble {
-  @apply rounded-2xl px-4 py-2.5 max-w-[85%];
-  transition: var(--ds-transition-fast);
-}
-
-.chat-bubble-inbound {
-  @apply bg-[var(--ds-bg-surface)] text-[var(--ds-text-primary)];
-  border-radius: 1.25rem 1.25rem 1.25rem 0.375rem;
-}
-
-.chat-bubble-outbound {
-  @apply text-white;
-  background: linear-gradient(135deg, var(--color-primary-500), var(--color-primary-600));
-  border-radius: 1.25rem 1.25rem 0.375rem 1.25rem;
-}
-
-/* AI response bubble - subtle distinction */
-.chat-bubble-ai {
-  @apply bg-[var(--ds-bg-elevated)] border border-[var(--ds-border-subtle)];
-  border-radius: 1.25rem 1.25rem 1.25rem 0.375rem;
-}
-
-/* Avatar for AI responses */
-.chat-avatar {
-  @apply w-7 h-7 rounded-full flex items-center justify-center shrink-0;
-  background: linear-gradient(135deg, var(--color-primary-400), var(--color-primary-600));
-}
-
-.chat-avatar-icon {
-  @apply w-4 h-4 text-white;
-}
+/*
+ * Chat bubble styles are now inline Tailwind in MessageBubble.tsx
+ * Design: Editorial Minimal - clean, monochromatic, typography-focused
+ */

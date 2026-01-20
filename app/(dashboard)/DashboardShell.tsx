@@ -423,12 +423,15 @@ export function DashboardShell({
     const queryClient = useQueryClient()
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const [isLoggingOut, setIsLoggingOut] = useState(false)
-    const [isSidebarExpanded, setIsSidebarExpanded] = useState(false)
+    // Start as null to avoid flash - will be set on mount
+    const [isSidebarExpanded, setIsSidebarExpanded] = useState<boolean | null>(null)
 
+    // Sync sidebar state with localStorage on mount
     useEffect(() => {
         if (typeof window === 'undefined') return
-        setIsSidebarExpanded(true)
-        window.localStorage.setItem('app-sidebar-collapsed', 'false')
+        const stored = window.localStorage.getItem('app-sidebar-collapsed')
+        // Default to expanded if no preference saved
+        setIsSidebarExpanded(stored !== 'true')
     }, [])
 
     const updateSidebarExpanded = useCallback((value: boolean) => {
@@ -603,15 +606,16 @@ export function DashboardShell({
     }
 
     const isBuilderRoute = pathname?.startsWith('/builder') ?? false
+    const isInboxRoute = pathname?.startsWith('/inbox') ?? false
 
     // Sidebar props - memoized callbacks
     const handleCloseMobileMenu = useCallback(() => setIsMobileMenuOpen(false), [])
 
-    // Sidebar component props
+    // Sidebar component props - default to true (expanded) if state not yet loaded
     const sidebarProps = {
         pathname,
         navItems: navItems as NavItem[],
-        isSidebarExpanded,
+        isSidebarExpanded: isSidebarExpanded ?? true,
         isMobileMenuOpen,
         isLoggingOut,
         companyName: companyName || null,
@@ -636,6 +640,60 @@ export function DashboardShell({
                     <DashboardSidebar {...sidebarProps} />
                     <div className="flex-1 min-w-0 lg:pl-14">
                         {children}
+                    </div>
+                </div>
+            </PageLayoutProvider>
+        )
+    }
+
+    // Inbox route - full-bleed layout without header for native feel
+    if (isInboxRoute) {
+        return (
+            <PageLayoutProvider>
+                <div className="min-h-screen text-[var(--ds-text-primary)] flex font-sans selection:bg-primary-500/30">
+                    {/* Mobile Overlay */}
+                    {isMobileMenuOpen && (
+                        <div
+                            className="fixed inset-0 bg-[var(--ds-bg-overlay)] backdrop-blur-sm z-40 lg:hidden"
+                            onClick={handleCloseMobileMenu}
+                            role="button"
+                            aria-label="Fechar menu"
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Escape' || e.key === 'Enter') {
+                                    handleCloseMobileMenu()
+                                }
+                            }}
+                        />
+                    )}
+
+                    <DashboardSidebar {...sidebarProps} />
+
+                    {/* Main Content - no header on desktop, compact mobile header */}
+                    <div
+                        className={cn(
+                            "flex-1 flex flex-col min-w-0 h-screen overflow-hidden",
+                            // Use pl-14 (compact) as default until state is known to avoid flash
+                            isSidebarExpanded === true ? "lg:pl-56" : "lg:pl-14"
+                        )}
+                    >
+                        {/* Compact mobile header - only menu button */}
+                        <header className="lg:hidden h-12 flex items-center px-4 border-b border-zinc-800/50 bg-zinc-950 shrink-0">
+                            <button
+                                className="p-2 text-[var(--ds-text-secondary)] -ml-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-500 focus-visible:outline-offset-2 rounded-md"
+                                onClick={() => {
+                                    updateSidebarExpanded(true)
+                                    setIsMobileMenuOpen(true)
+                                }}
+                                aria-label="Abrir menu de navegação"
+                            >
+                                <Menu size={20} aria-hidden="true" />
+                            </button>
+                            <span className="ml-2 text-sm font-medium text-zinc-300">Inbox</span>
+                        </header>
+                        <PageContentShell>
+                            {children}
+                        </PageContentShell>
                     </div>
                 </div>
             </PageLayoutProvider>
@@ -668,7 +726,7 @@ export function DashboardShell({
             <div
                 className={cn(
                     "flex-1 flex flex-col min-w-0 h-screen overflow-hidden",
-                    isSidebarExpanded ? "lg:pl-56" : "lg:pl-14"
+                    isSidebarExpanded === true ? "lg:pl-56" : "lg:pl-14"
                 )}
             >
                 {/* Header */}

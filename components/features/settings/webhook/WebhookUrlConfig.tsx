@@ -32,22 +32,22 @@ export function WebhookUrlConfig({
   showTestUrl,
 }: WebhookUrlConfigProps) {
   return (
-    <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 mb-6">
-      <h4 className="font-medium text-blue-300 mb-3 flex items-center gap-2">
+    <div className="bg-[var(--ds-status-info-bg)] border border-[var(--ds-status-info)]/20 rounded-xl p-4 mb-6">
+      <h4 className="font-medium text-[var(--ds-status-info-text)] mb-3 flex items-center gap-2">
         <Zap size={16} />
         URL do Webhook SmartZap
       </h4>
 
       {/* Domain Selector - only show if multiple domains available */}
       {availableDomains && availableDomains.length > 1 && (
-        <div className="mb-4 p-3 bg-zinc-900/50 rounded-lg border border-white/5">
-          <label className="block text-xs font-medium text-gray-400 mb-2">
+        <div className="mb-4 p-3 bg-[var(--ds-bg-elevated)] rounded-lg border border-[var(--ds-border-subtle)]">
+          <label className="block text-xs font-medium text-[var(--ds-text-secondary)] mb-2">
             Selecione o domínio para o webhook:
           </label>
           <select
             value={selectedDomainUrl}
             onChange={(e) => onDomainChange(e.target.value)}
-            className="w-full px-3 py-2 bg-zinc-800 border border-white/10 rounded-lg text-sm text-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none"
+            className="w-full px-3 py-2 bg-[var(--ds-bg-surface)] border border-[var(--ds-border-default)] rounded-lg text-sm text-[var(--ds-text-primary)] focus:ring-2 focus:ring-[var(--ds-status-info)]/50 focus:border-[var(--ds-status-info)]/50 outline-none"
           >
             <option value="">Automático (recomendado)</option>
             {availableDomains.map((domain) => (
@@ -56,7 +56,7 @@ export function WebhookUrlConfig({
               </option>
             ))}
           </select>
-          <p className="text-[10px] text-gray-500 mt-1.5">
+          <p className="text-[10px] text-[var(--ds-text-muted)] mt-1.5">
             Escolha qual domínio usar na URL do webhook. O ★ indica o recomendado.
           </p>
         </div>
@@ -64,25 +64,25 @@ export function WebhookUrlConfig({
 
       <div className="space-y-3">
         <div className="flex gap-2">
-          <code className="flex-1 px-3 py-2 bg-zinc-900/50 border border-white/10 rounded-lg font-mono text-sm text-gray-300 break-all">
+          <code className="flex-1 px-3 py-2 bg-[var(--ds-bg-elevated)] border border-[var(--ds-border-default)] rounded-lg font-mono text-sm text-[var(--ds-text-secondary)] break-all">
             {webhookUrl}
           </code>
           <button
             onClick={() => onCopy(webhookUrl || '', 'url')}
-            className="h-10 px-3 bg-zinc-800 hover:bg-zinc-700 border border-white/10 rounded-lg transition-colors shrink-0"
+            className="h-10 px-3 bg-[var(--ds-bg-surface)] hover:bg-[var(--ds-bg-hover)] border border-[var(--ds-border-default)] rounded-lg transition-colors shrink-0"
             title="Copiar URL"
           >
             {copiedField === 'url' ? (
-              <Check size={16} className="text-emerald-400" />
+              <Check size={16} className="text-[var(--ds-status-success-text)]" />
             ) : (
-              <Copy size={16} className="text-gray-400" />
+              <Copy size={16} className="text-[var(--ds-text-muted)]" />
             )}
           </button>
           {showTestUrl ? (
             <button
               onClick={onTestUrl}
               disabled={isTestingUrl}
-              className="h-10 px-3 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 rounded-lg transition-colors text-xs text-blue-200"
+              className="h-10 px-3 bg-[var(--ds-status-info)]/20 hover:bg-[var(--ds-status-info)]/30 border border-[var(--ds-status-info)]/30 rounded-lg transition-colors text-xs text-[var(--ds-status-info-text)]"
               title="Testar URL"
             >
               {isTestingUrl ? 'Testando...' : 'Testar URL'}
@@ -90,19 +90,19 @@ export function WebhookUrlConfig({
           ) : null}
         </div>
         <div className="flex gap-2 items-center">
-          <span className="text-xs text-gray-500">Token:</span>
-          <code className="px-2 py-1 bg-zinc-900/50 rounded text-xs font-mono text-gray-400">
+          <span className="text-xs text-[var(--ds-text-muted)]">Token:</span>
+          <code className="px-2 py-1 bg-[var(--ds-bg-elevated)] rounded text-xs font-mono text-[var(--ds-text-secondary)]">
             {webhookToken}
           </code>
           <button
             onClick={() => onCopy(webhookToken || '', 'token')}
-            className="p-1 hover:bg-white/5 rounded transition-colors"
+            className="p-1 hover:bg-[var(--ds-bg-hover)] rounded transition-colors"
             title="Copiar Token"
           >
             {copiedField === 'token' ? (
-              <Check size={12} className="text-emerald-400" />
+              <Check size={12} className="text-[var(--ds-status-success-text)]" />
             ) : (
-              <Copy size={12} className="text-gray-400" />
+              <Copy size={12} className="text-[var(--ds-text-muted)]" />
             )}
           </button>
         </div>
@@ -110,12 +110,12 @@ export function WebhookUrlConfig({
 
       {/* Webhook Status */}
       {webhookStats?.lastEventAt && (
-        <div className="mt-3 pt-3 border-t border-blue-500/20 flex items-center gap-2 text-xs text-blue-300/70">
-          <Check size={12} className="text-emerald-400" />
+        <div className="mt-3 pt-3 border-t border-[var(--ds-status-info)]/20 flex items-center gap-2 text-xs text-[var(--ds-status-info-text)]">
+          <Check size={12} className="text-[var(--ds-status-success-text)]" />
           Último evento: {new Date(webhookStats.lastEventAt).toLocaleString('pt-BR')}
-          <span className="text-gray-500">·</span>
+          <span className="text-[var(--ds-text-muted)]">·</span>
           <span>{webhookStats.todayDelivered || 0} delivered</span>
-          <span className="text-gray-500">·</span>
+          <span className="text-[var(--ds-text-muted)]">·</span>
           <span>{webhookStats.todayRead || 0} read</span>
         </div>
       )}

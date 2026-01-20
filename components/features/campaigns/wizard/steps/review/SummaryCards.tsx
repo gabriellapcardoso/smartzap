@@ -17,22 +17,22 @@ export function SummaryCards({
 }: SummaryCardsProps) {
   return (
     <div className="grid grid-cols-2 gap-4">
-      <div className="p-5 bg-zinc-900/50 border border-white/5 rounded-xl">
-        <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">
+      <div className="p-5 bg-[var(--ds-bg-elevated)] border border-[var(--ds-border-subtle)] rounded-xl">
+        <p className="text-xs text-[var(--ds-text-muted)] uppercase tracking-wider mb-1">
           Custo Total
         </p>
-        <p className="text-2xl font-bold text-white">{pricing.totalBRLFormatted}</p>
+        <p className="text-2xl font-bold text-[var(--ds-text-primary)]">{pricing.totalBRLFormatted}</p>
         {selectedTemplate && (
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-[var(--ds-text-muted)] mt-1">
             {pricing.pricePerMessageBRLFormatted} × {recipientCount} msgs
           </p>
         )}
       </div>
-      <div className="p-5 bg-zinc-900/50 border border-white/5 rounded-xl">
-        <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">
+      <div className="p-5 bg-[var(--ds-bg-elevated)] border border-[var(--ds-border-subtle)] rounded-xl">
+        <p className="text-xs text-[var(--ds-text-muted)] uppercase tracking-wider mb-1">
           Total Destinatários
         </p>
-        <p className="text-2xl font-bold text-white">{recipientCount}</p>
+        <p className="text-2xl font-bold text-[var(--ds-text-primary)]">{recipientCount}</p>
       </div>
     </div>
   );

@@ -422,6 +422,14 @@ export async function POST(req: Request) {
         }
       }
 
+      // Aguarda schema cache do Supabase atualizar após migrations
+      // O PostgREST mantém cache do schema que demora alguns segundos para invalidar
+      // Só precisa aguardar se as migrations realmente rodaram (não foram puladas)
+      if (!skippedSteps.includes('migrations')) {
+        console.log('[run-stream] Aguardando schema cache atualizar (5s)...');
+        await new Promise((r) => setTimeout(r, 5000));
+      }
+
       // Step: bootstrap
       if (!skippedSteps.includes('bootstrap')) {
         await sendPhase('bootstrap', 0);

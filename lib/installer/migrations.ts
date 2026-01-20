@@ -86,32 +86,6 @@ async function connectClientWithRetry(
 }
 
 /**
- * Aguarda storage do Supabase ficar pronto (necessário para RLS policies).
- */
-async function waitForStorageReady(client: Client, opts?: { timeoutMs?: number; pollMs?: number }) {
-  const timeoutMs = typeof opts?.timeoutMs === 'number' ? opts.timeoutMs : 210_000;
-  const pollMs = typeof opts?.pollMs === 'number' ? opts?.pollMs : 4_000;
-  const t0 = Date.now();
-
-  while (Date.now() - t0 < timeoutMs) {
-    try {
-      const r = await client.query<{ ready: boolean }>(
-        `select (to_regclass('storage.buckets') is not null) as ready`
-      );
-      const ready = Boolean(r?.rows?.[0]?.ready);
-      if (ready) return;
-    } catch {
-      // continua polling em erros transientes
-    }
-    await sleep(pollMs);
-  }
-
-  throw new Error(
-    'Supabase Storage ainda não está pronto. Aguarde o projeto terminar de provisionar e tente novamente.'
-  );
-}
-
-/**
  * Lista arquivos de migration em ordem.
  */
 function listMigrationFiles(): string[] {
@@ -126,7 +100,7 @@ function listMigrationFiles(): string[] {
 }
 
 export interface MigrationProgress {
-  stage: 'connecting' | 'waiting_storage' | 'applying' | 'done';
+  stage: 'connecting' | 'applying' | 'done';
   message: string;
   current?: number;
   total?: number;
@@ -159,9 +133,7 @@ export async function runSchemaMigration(
   const client = await connectClientWithRetry(createClient, { maxAttempts: 5, initialDelayMs: 3000 });
 
   try {
-    // Aguarda storage ficar pronto antes de rodar migrations
-    onProgress?.({ stage: 'waiting_storage', message: 'Aguardando Supabase Storage...' });
-    await waitForStorageReady(client);
+    // Storage check removido - SmartZap não usa storage.buckets
 
     // Cria tabela de tracking de migrations se não existir
     await client.query(`

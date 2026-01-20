@@ -62,9 +62,9 @@ export const DEFAULT_MODEL_ID = 'gemini-3-flash-preview'
  * File Search API compatible models:
  * - gemini-3-pro-preview
  * - gemini-3-flash-preview
- * - gemini-3-flash-preview-lite
  * - gemini-2.5-pro
- * - gemini-2.5-flash (legacy)
+ * - gemini-2.5-flash
+ * - gemini-2.0-flash
  */
 export const AI_AGENT_MODELS = [
   // Gemini 3 - Latest generation (recommended for File Search)
@@ -82,26 +82,27 @@ export const AI_AGENT_MODELS = [
     generation: 3,
     supportsFileSearch: true,
   },
-  {
-    id: 'gemini-3-flash-preview-lite',
-    name: 'Gemini 3 Flash Lite',
-    description: 'Ultra-rápido, menor custo',
-    generation: 3,
-    supportsFileSearch: true,
-  },
-  // Gemini 2.5 - Previous generation (still supported)
+  // Gemini 2.5 - Current stable generation
   {
     id: 'gemini-2.5-pro',
     name: 'Gemini 2.5 Pro',
-    description: 'Alta qualidade, geração anterior',
+    description: 'Alta qualidade, raciocínio avançado',
     generation: 2.5,
     supportsFileSearch: true,
   },
   {
     id: 'gemini-2.5-flash',
     name: 'Gemini 2.5 Flash',
-    description: 'Rápido e eficiente, geração anterior',
+    description: 'Rápido e eficiente, bom custo-benefício',
     generation: 2.5,
+    supportsFileSearch: true,
+  },
+  // Gemini 2.0 - Previous generation
+  {
+    id: 'gemini-2.0-flash',
+    name: 'Gemini 2.0 Flash',
+    description: 'Geração anterior, estável',
+    generation: 2.0,
     supportsFileSearch: true,
   },
 ] as const

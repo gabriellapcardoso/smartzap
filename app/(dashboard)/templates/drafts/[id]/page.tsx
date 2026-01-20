@@ -120,7 +120,7 @@ export default function ManualDraftEditorPage({
           <Button
             variant="outline"
             onClick={() => router.back()}
-            className="border-white/10 bg-zinc-950/40 text-gray-200 hover:text-white hover:bg-white/5"
+            className="border-[var(--ds-border-default)] bg-[var(--ds-bg-elevated)] text-[var(--ds-text-secondary)] hover:text-[var(--ds-text-primary)] hover:bg-[var(--ds-bg-hover)]"
           >
             <ArrowLeft className="w-4 h-4" />
             Voltar
@@ -136,26 +136,26 @@ export default function ManualDraftEditorPage({
 
       <div>
         {shouldShowLoading ? (
-        <div className="rounded-2xl border border-white/10 bg-zinc-900/60 p-6 shadow-[0_12px_30px_rgba(0,0,0,0.35)] text-gray-300 flex items-center gap-3">
+        <div className="rounded-2xl border border-[var(--ds-border-default)] bg-[var(--ds-bg-surface)] p-6 shadow-[var(--ds-shadow-lg)] text-[var(--ds-text-secondary)] flex items-center gap-3">
           <Loader2 className="w-5 h-5 animate-spin" />
           Carregando rascunho...
         </div>
       ) : draftQuery.isError ? (
-        <div className="rounded-2xl border border-amber-400/30 bg-amber-500/10 p-6 shadow-[0_12px_30px_rgba(0,0,0,0.35)] text-amber-200 space-y-3">
+        <div className="rounded-2xl border border-amber-400 dark:border-amber-400/30 bg-amber-100 dark:bg-amber-500/10 p-6 shadow-[var(--ds-shadow-lg)] text-amber-700 dark:text-amber-200 space-y-3">
           <div className="font-medium">Falha ao carregar rascunho.</div>
-          <div className="text-sm text-amber-200/90 whitespace-pre-wrap">{loadErrorMessage}</div>
+          <div className="text-sm text-amber-600 dark:text-amber-200/90 whitespace-pre-wrap">{loadErrorMessage}</div>
           <div>
             <Button
               variant="outline"
               onClick={() => draftQuery.refetch()}
-              className="border-white/10 bg-zinc-950/40 text-gray-200 hover:text-white hover:bg-white/5"
+              className="border-[var(--ds-border-default)] bg-[var(--ds-bg-elevated)] text-[var(--ds-text-secondary)] hover:text-[var(--ds-text-primary)] hover:bg-[var(--ds-bg-hover)]"
             >
               Tentar novamente
             </Button>
           </div>
         </div>
       ) : !draft ? (
-        <div className="rounded-2xl border border-white/10 bg-zinc-900/60 p-6 shadow-[0_12px_30px_rgba(0,0,0,0.35)] text-gray-300">
+        <div className="rounded-2xl border border-[var(--ds-border-default)] bg-[var(--ds-bg-surface)] p-6 shadow-[var(--ds-shadow-lg)] text-[var(--ds-text-secondary)]">
           Rascunho não encontrado.
         </div>
       ) : (

@@ -351,7 +351,6 @@ export async function POST(req: Request) {
                 // Envia progresso detalhado das migrations
                 const stageMessages: Record<string, string> = {
                   connecting: 'Conectando ao banco...',
-                  waiting_storage: 'Aguardando Storage...',
                   applying: migrationProgress.current
                     ? `Migration ${migrationProgress.current}/${migrationProgress.total}`
                     : 'Aplicando migrations...',
@@ -365,10 +364,9 @@ export async function POST(req: Request) {
                   subtitle: stageMessages[migrationProgress.stage] || migrationProgress.message,
                   progress: progress.partialProgress('migrations',
                     migrationProgress.stage === 'connecting' ? 0.1 :
-                    migrationProgress.stage === 'waiting_storage' ? 0.3 :
                     migrationProgress.stage === 'applying' && migrationProgress.current && migrationProgress.total
-                      ? 0.3 + (0.6 * (migrationProgress.current / migrationProgress.total))
-                      : 0.9
+                      ? 0.1 + (0.8 * (migrationProgress.current / migrationProgress.total))
+                      : 0.95
                   ),
                 });
               });

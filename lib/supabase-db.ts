@@ -1558,7 +1558,7 @@ export const templateDb = {
                         fetched_at: (r as any).fetched_at ?? null,
                         updated_at: now,
                     })),
-                    { onConflict: 'name' }
+                    { onConflict: 'name,language' }
                 )
             if (error) throw error
             return
@@ -1583,7 +1583,7 @@ export const templateDb = {
                 fetched_at: (template as any).fetchedAt ?? null,
                 created_at: now,
                 updated_at: now,
-            }, { onConflict: 'name' })
+            }, { onConflict: 'name,language' })
 
         if (error) throw error
     },

@@ -138,7 +138,7 @@ const OnboardingOverlay = ({
                 {/* Header */}
                 <div className="text-center mb-10">
                     <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-linear-to-br from-primary-500 to-emerald-600 mb-6 shadow-lg shadow-primary-500/20">
-                        <Sparkles size={40} className="text-[var(--ds-text-primary)]" />
+                        <Sparkles size={40} className="text-white" />
                     </div>
                     <h1 className="text-4xl font-bold text-[var(--ds-text-primary)] tracking-tight mb-3">
                         Configuração Necessária

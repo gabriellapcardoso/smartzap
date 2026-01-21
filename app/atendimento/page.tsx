@@ -13,10 +13,10 @@ import { Search, RefreshCw, LogOut, ShieldAlert, Loader2, Sparkles, User, AlertC
 import { useAttendant } from '@/components/attendant/AttendantProvider'
 import { useTheme } from './layout'
 import {
-  useTelegramConversations,
+  useAttendantConversations,
   formatRelativeTime,
-  type TelegramConversation,
-} from '@/hooks/telegram'
+  type AttendantConversation,
+} from '@/hooks/useAttendantConversations'
 
 // =============================================================================
 // TIPOS
@@ -104,7 +104,7 @@ function ConversationItem({
   conversation,
   onClick,
 }: {
-  conversation: TelegramConversation
+  conversation: AttendantConversation
   onClick: () => void
 }) {
   const isUrgent = conversation.status === 'handoff_requested'
@@ -355,7 +355,7 @@ export default function AtendimentoPage() {
     isLoading,
     isRefetching,
     refetch,
-  } = useTelegramConversations({
+  } = useAttendantConversations({
     status: 'open',
     search: searchQuery || undefined,
   })

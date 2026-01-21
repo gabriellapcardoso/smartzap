@@ -13,6 +13,7 @@ import {
 } from '@/services/inboxService'
 import type { InboxConversation, ConversationStatus, ConversationMode } from '@/types'
 import { CACHE, REALTIME } from '@/lib/constants'
+import { getConversationQueryKey } from './useConversation'
 
 const CONVERSATIONS_KEY = 'inbox-conversations'
 const CONVERSATIONS_LIST_KEY = [CONVERSATIONS_KEY, 'list']
@@ -188,8 +189,9 @@ export function useConversationMutations() {
       inboxService.updateConversation(id, { mode }),
     onMutate: async ({ id, mode }) => {
       await queryClient.cancelQueries({ queryKey: CONVERSATIONS_LIST_KEY })
+      await queryClient.cancelQueries({ queryKey: getConversationQueryKey(id) })
 
-      // Optimistic update
+      // Optimistic update - Lista de conversas
       queryClient.setQueriesData<ConversationListResult>(
         { queryKey: CONVERSATIONS_LIST_KEY },
         (old) => {
@@ -202,9 +204,16 @@ export function useConversationMutations() {
           }
         }
       )
+
+      // Optimistic update - Conversa individual (para o ConversationHeader)
+      queryClient.setQueryData<InboxConversation | null>(
+        getConversationQueryKey(id),
+        (old) => (old ? { ...old, mode } : old)
+      )
     },
-    onSuccess: () => {
+    onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: CONVERSATIONS_LIST_KEY })
+      queryClient.invalidateQueries({ queryKey: getConversationQueryKey(id) })
     },
   })
 
@@ -214,8 +223,9 @@ export function useConversationMutations() {
       inboxService.handoffToHuman(id, params),
     onMutate: async ({ id }) => {
       await queryClient.cancelQueries({ queryKey: CONVERSATIONS_LIST_KEY })
+      await queryClient.cancelQueries({ queryKey: getConversationQueryKey(id) })
 
-      // Optimistic update - switch to human mode
+      // Optimistic update - Lista de conversas
       queryClient.setQueriesData<ConversationListResult>(
         { queryKey: CONVERSATIONS_LIST_KEY },
         (old) => {
@@ -228,9 +238,16 @@ export function useConversationMutations() {
           }
         }
       )
+
+      // Optimistic update - Conversa individual
+      queryClient.setQueryData<InboxConversation | null>(
+        getConversationQueryKey(id),
+        (old) => (old ? { ...old, mode: 'human' as ConversationMode } : old)
+      )
     },
-    onSuccess: () => {
+    onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: CONVERSATIONS_LIST_KEY })
+      queryClient.invalidateQueries({ queryKey: getConversationQueryKey(id) })
     },
   })
 
@@ -239,8 +256,9 @@ export function useConversationMutations() {
     mutationFn: (id: string) => inboxService.returnToBot(id),
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: CONVERSATIONS_LIST_KEY })
+      await queryClient.cancelQueries({ queryKey: getConversationQueryKey(id) })
 
-      // Optimistic update - switch to bot mode
+      // Optimistic update - Lista de conversas
       queryClient.setQueriesData<ConversationListResult>(
         { queryKey: CONVERSATIONS_LIST_KEY },
         (old) => {
@@ -253,9 +271,16 @@ export function useConversationMutations() {
           }
         }
       )
+
+      // Optimistic update - Conversa individual
+      queryClient.setQueryData<InboxConversation | null>(
+        getConversationQueryKey(id),
+        (old) => (old ? { ...old, mode: 'bot' as ConversationMode } : old)
+      )
     },
-    onSuccess: () => {
+    onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: CONVERSATIONS_LIST_KEY })
+      queryClient.invalidateQueries({ queryKey: getConversationQueryKey(id) })
     },
   })
 

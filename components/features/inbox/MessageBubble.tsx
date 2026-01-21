@@ -22,6 +22,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import type { InboxMessage, DeliveryStatus, Sentiment } from '@/types'
+import { WhatsAppFormattedText } from '@/lib/whatsapp-text-formatter'
 
 export interface MessageBubbleProps {
   message: InboxMessage
@@ -187,7 +188,7 @@ export const MessageBubble = memo(function MessageBubble({
       )}
     >
       <div className={cn(
-        'flex flex-col max-w-[75%]',
+        'flex flex-col max-w-[85%]',
         isInbound ? 'items-start' : 'items-end'
       )}>
         {/* Bubble - subtle colors */}
@@ -203,9 +204,9 @@ export const MessageBubble = memo(function MessageBubble({
             isAIResponse && 'bg-emerald-700/70 text-emerald-50'
           )}
         >
-          {/* Message content */}
+          {/* Message content with WhatsApp formatting */}
           <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
-            {content}
+            <WhatsAppFormattedText text={content} />
           </p>
 
           {/* AI Sources - inline, minimal */}

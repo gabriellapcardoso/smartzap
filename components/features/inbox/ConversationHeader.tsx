@@ -11,6 +11,7 @@
  */
 
 import React, { useState } from 'react'
+import { useAIAgentsGlobalToggle } from '@/hooks/useAIAgents'
 import {
   Bot,
   User,
@@ -137,6 +138,9 @@ export function ConversationHeader({
   // Delete confirmation dialog state
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
+  // Check if AI agents are globally enabled
+  const { enabled: aiGlobalEnabled } = useAIAgentsGlobalToggle()
+
   const displayName = contact?.name || phone
   const agentName = ai_agent?.name
   const initials = displayName
@@ -231,14 +235,18 @@ export function ConversationHeader({
                 'h-6 px-2 rounded-full text-[10px] font-medium flex items-center gap-1 transition-all',
                 isUpdating || !isOpen ? 'opacity-50 cursor-not-allowed' : '',
                 isBotMode
-                  ? 'bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25'
+                  ? aiGlobalEnabled
+                    ? 'bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25'
+                    : 'bg-zinc-500/15 text-zinc-400 hover:bg-zinc-500/25'
                   : 'bg-amber-500/15 text-amber-400 hover:bg-amber-500/25'
               )}
             >
               {isBotMode ? (
                 <>
                   <Bot className="h-2.5 w-2.5" />
-                  <span className="max-w-[60px] truncate">{agentName || 'Bot'}</span>
+                  <span className="max-w-[60px] truncate">
+                    {aiGlobalEnabled ? (agentName || 'Bot') : 'IA off'}
+                  </span>
                 </>
               ) : (
                 <>
@@ -249,7 +257,13 @@ export function ConversationHeader({
             </button>
           </TooltipTrigger>
           <TooltipContent side="bottom" className="text-xs">
-            {isBotMode ? 'Assumir controle' : 'Ativar bot'}
+            {isBotMode
+              ? aiGlobalEnabled
+                ? 'Assumir controle'
+                : 'IA desativada globalmente - Assumir controle'
+              : aiGlobalEnabled
+                ? 'Ativar bot'
+                : 'IA desativada globalmente'}
           </TooltipContent>
         </Tooltip>
 

@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { ConversationItem } from './ConversationItem'
 import { AttendantsPopover } from './AttendantsPopover'
+import { InboxSettingsPopover } from './InboxSettingsPopover'
 import type { InboxConversation, InboxLabel, ConversationStatus, ConversationMode } from '@/types'
 
 export interface ConversationListProps {
@@ -107,6 +108,9 @@ export function ConversationList({
 
           {/* Attendants button */}
           <AttendantsPopover />
+
+          {/* Settings button */}
+          <InboxSettingsPopover />
 
           {/* Filter button */}
           <DropdownMenu open={showFilters} onOpenChange={setShowFilters}>

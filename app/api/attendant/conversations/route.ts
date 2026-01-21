@@ -1,8 +1,8 @@
 /**
- * API para o Telegram Mini App - Conversas
+ * API para Atendimento - Conversas
  *
- * Retorna conversas no formato otimizado para mobile.
- * Mapeia InboxConversation → TelegramConversation
+ * Retorna conversas no formato otimizado para a página de atendimento.
+ * Mapeia InboxConversation → AttendantConversation
  */
 
 import { NextResponse } from 'next/server'
@@ -10,17 +10,17 @@ import { getSupabaseAdmin } from '@/lib/supabase'
 import type { InboxConversation, Contact } from '@/types'
 
 // =============================================================================
-// TIPOS DO MINI APP
+// TIPOS
 // =============================================================================
 
-export type TelegramConversationStatus = 'ai_active' | 'human_active' | 'handoff_requested' | 'resolved'
+export type AttendantConversationStatus = 'ai_active' | 'human_active' | 'handoff_requested' | 'resolved'
 
-export interface TelegramConversation {
+export interface AttendantConversation {
   id: string
   contactName: string
   contactPhone: string
   contactAvatar?: string
-  status: TelegramConversationStatus
+  status: AttendantConversationStatus
   lastMessage: string
   lastMessageAt: string // ISO string para serialização
   unreadCount: number
@@ -33,9 +33,9 @@ export interface TelegramConversation {
 // =============================================================================
 
 /**
- * Mapeia status do inbox para status do Mini App
+ * Mapeia status do inbox para status do atendimento
  */
-function mapStatus(conversation: InboxConversation): TelegramConversationStatus {
+function mapStatus(conversation: InboxConversation): AttendantConversationStatus {
   // Conversa fechada = resolvida
   if (conversation.status === 'closed') {
     return 'resolved'
@@ -60,11 +60,11 @@ function mapStatus(conversation: InboxConversation): TelegramConversationStatus 
 }
 
 /**
- * Transforma InboxConversation em TelegramConversation
+ * Transforma InboxConversation em AttendantConversation
  */
 function transformConversation(
   conv: InboxConversation & { contact?: Contact | null }
-): TelegramConversation {
+): AttendantConversation {
   return {
     id: conv.id,
     contactName: conv.contact?.name || formatPhoneForDisplay(conv.phone),
@@ -92,7 +92,7 @@ function formatPhoneForDisplay(phone: string): string {
 }
 
 // =============================================================================
-// GET - Lista conversas para o Mini App
+// GET - Lista conversas para o atendimento
 // =============================================================================
 
 export async function GET(request: Request) {
@@ -133,29 +133,29 @@ export async function GET(request: Request) {
     const { data: conversations, error } = await query
 
     if (error) {
-      console.error('[telegram-api] Error fetching conversations:', error)
+      console.error('[attendant-api] Error fetching conversations:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    // Transformar para formato do Mini App
-    const telegramConversations = (conversations || []).map(transformConversation)
+    // Transformar para formato do atendimento
+    const attendantConversations = (conversations || []).map(transformConversation)
 
     // Calcular contadores
     const counts = {
-      total: telegramConversations.length,
-      urgent: telegramConversations.filter(c => c.status === 'handoff_requested').length,
-      ai: telegramConversations.filter(c => c.status === 'ai_active').length,
-      human: telegramConversations.filter(c => c.status === 'human_active').length,
-      resolved: telegramConversations.filter(c => c.status === 'resolved').length,
+      total: attendantConversations.length,
+      urgent: attendantConversations.filter(c => c.status === 'handoff_requested').length,
+      ai: attendantConversations.filter(c => c.status === 'ai_active').length,
+      human: attendantConversations.filter(c => c.status === 'human_active').length,
+      resolved: attendantConversations.filter(c => c.status === 'resolved').length,
     }
 
     return NextResponse.json({
-      conversations: telegramConversations,
+      conversations: attendantConversations,
       counts,
     })
 
   } catch (error) {
-    console.error('[telegram-api] Unexpected error:', error)
+    console.error('[attendant-api] Unexpected error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

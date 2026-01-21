@@ -111,6 +111,14 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION update_attendant_tokens_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 SET default_tablespace = '';
 SET default_table_access_method = heap;
 
@@ -392,8 +400,23 @@ CREATE TABLE public.template_project_items (
     submitted_at timestamp with time zone,
     components jsonb,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone
+    updated_at timestamp with time zone,
+    -- Colunas para estratégia BYPASS
+    sample_variables jsonb,
+    marketing_variables jsonb,
+    -- Estrutura do template (separado de components)
+    header jsonb,
+    footer jsonb,
+    buttons jsonb,
+    variables jsonb
 );
+
+COMMENT ON COLUMN public.template_project_items.sample_variables IS 'Valores comportados das variáveis para enviar à Meta na criação do template (estilo oficial Meta)';
+COMMENT ON COLUMN public.template_project_items.marketing_variables IS 'Valores agressivos de marketing das variáveis para usar no envio real após aprovação';
+COMMENT ON COLUMN public.template_project_items.header IS 'Configuração do header do template (formato: {format: TEXT|IMAGE|VIDEO|DOCUMENT, text?: string})';
+COMMENT ON COLUMN public.template_project_items.footer IS 'Configuração do footer do template (formato: {text: string})';
+COMMENT ON COLUMN public.template_project_items.buttons IS 'Array de botões do template (formato: [{type: URL|PHONE|QUICK_REPLY, text: string, ...}])';
+COMMENT ON COLUMN public.template_project_items.variables IS 'Valores das variáveis para preview (Record<string, string>)';
 
 CREATE TABLE public.template_projects (
     id text DEFAULT concat('tp_', replace((extensions.uuid_generate_v4())::text, '-'::text, ''::text)) NOT NULL,
@@ -404,8 +427,11 @@ CREATE TABLE public.template_projects (
     template_count integer DEFAULT 0,
     approved_count integer DEFAULT 0,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone
+    updated_at timestamp with time zone,
+    source text DEFAULT 'ai'::text
 );
+
+COMMENT ON COLUMN public.template_projects.source IS 'Origem do projeto: ai (gerado pela IA) ou manual (criado no builder)';
 
 CREATE TABLE public.templates (
     id text DEFAULT concat('tpl_', replace((extensions.uuid_generate_v4())::text, '-'::text, ''::text)) NOT NULL,
@@ -568,11 +594,15 @@ CREATE TABLE IF NOT EXISTS ai_agents (
   is_active BOOLEAN NOT NULL DEFAULT true,
   is_default BOOLEAN NOT NULL DEFAULT false,
   debounce_ms INTEGER NOT NULL DEFAULT 5000,
+  handoff_enabled BOOLEAN NOT NULL DEFAULT true,
+  booking_tool_enabled BOOLEAN NOT NULL DEFAULT false,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 COMMENT ON TABLE ai_agents IS 'AI agents configuration. RAG uses pgvector (ai_embeddings table) instead of Google File Search.';
+COMMENT ON COLUMN ai_agents.handoff_enabled IS 'Se habilitado, o agente pode sugerir transferência para atendente humano';
+COMMENT ON COLUMN ai_agents.booking_tool_enabled IS 'When true, agent can send booking flow to clients for scheduling';
 
 -- inbox_conversations: contact_id FK adicionada no final como ALTER TABLE
 -- NOTA: contact_id é TEXT porque contacts.id usa prefixo 'ct_' + uuid (não UUID puro)
@@ -651,6 +681,44 @@ CREATE TABLE IF NOT EXISTS inbox_quick_replies (
   shortcut TEXT UNIQUE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- =============================================================================
+-- PARTE 3.1: TABLES (attendant tokens e push subscriptions)
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS attendant_tokens (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  token TEXT NOT NULL UNIQUE,
+  permissions JSONB NOT NULL DEFAULT '{"canView": true, "canReply": true, "canHandoff": false}'::jsonb,
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  last_used_at TIMESTAMPTZ,
+  access_count INTEGER NOT NULL DEFAULT 0,
+  expires_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+COMMENT ON TABLE attendant_tokens IS 'Tokens de acesso para atendentes (versão web do monitor)';
+COMMENT ON COLUMN attendant_tokens.name IS 'Nome do atendente para identificação';
+COMMENT ON COLUMN attendant_tokens.token IS 'Token único usado na URL de acesso';
+COMMENT ON COLUMN attendant_tokens.permissions IS 'Permissões: canView, canReply, canHandoff';
+COMMENT ON COLUMN attendant_tokens.access_count IS 'Contador de acessos para auditoria';
+
+CREATE TABLE IF NOT EXISTS push_subscriptions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  endpoint TEXT NOT NULL UNIQUE,
+  keys JSONB NOT NULL,
+  attendant_token_id UUID,
+  user_agent TEXT,
+  last_used_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT push_subscriptions_keys_check CHECK (keys ? 'p256dh' AND keys ? 'auth')
+);
+
+COMMENT ON TABLE push_subscriptions IS 'Subscriptions de notificações push para PWA';
+COMMENT ON COLUMN push_subscriptions.endpoint IS 'URL única do push service para este subscription';
+COMMENT ON COLUMN push_subscriptions.keys IS 'Chaves de criptografia (p256dh e auth)';
 
 CREATE TABLE IF NOT EXISTS ai_knowledge_files (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -857,6 +925,14 @@ CREATE INDEX IF NOT EXISTS ai_embeddings_agent_dimensions_idx ON ai_embeddings(a
 CREATE INDEX IF NOT EXISTS idx_campaign_tag_assignments_campaign ON campaign_tag_assignments(campaign_id);
 CREATE INDEX IF NOT EXISTS idx_campaign_tag_assignments_tag ON campaign_tag_assignments(tag_id);
 
+-- Indexes attendant_tokens
+CREATE UNIQUE INDEX IF NOT EXISTS idx_attendant_tokens_token ON attendant_tokens(token);
+CREATE INDEX IF NOT EXISTS idx_attendant_tokens_is_active ON attendant_tokens(is_active) WHERE is_active = true;
+
+-- Indexes push_subscriptions
+CREATE UNIQUE INDEX IF NOT EXISTS idx_push_subscriptions_endpoint ON push_subscriptions(endpoint);
+CREATE INDEX IF NOT EXISTS idx_push_subscriptions_attendant_token_id ON push_subscriptions(attendant_token_id);
+
 -- =============================================================================
 -- PARTE 8: TRIGGERS
 -- =============================================================================
@@ -874,6 +950,9 @@ CREATE TRIGGER update_ai_knowledge_files_updated_at BEFORE UPDATE ON ai_knowledg
 
 DROP TRIGGER IF EXISTS trg_campaign_folders_updated_at ON campaign_folders;
 CREATE TRIGGER trg_campaign_folders_updated_at BEFORE UPDATE ON campaign_folders FOR EACH ROW EXECUTE FUNCTION update_campaign_folders_updated_at();
+
+DROP TRIGGER IF EXISTS trg_attendant_tokens_updated_at ON attendant_tokens;
+CREATE TRIGGER trg_attendant_tokens_updated_at BEFORE UPDATE ON attendant_tokens FOR EACH ROW EXECUTE FUNCTION update_attendant_tokens_updated_at();
 
 -- =============================================================================
 -- PARTE 9: FOREIGN KEYS (todas juntas no final para evitar problemas de ordem)
@@ -916,6 +995,9 @@ ALTER TABLE ONLY ai_embeddings ADD CONSTRAINT ai_embeddings_file_id_fkey FOREIGN
 -- Campaign tags FKs
 ALTER TABLE ONLY campaign_tag_assignments ADD CONSTRAINT campaign_tag_assignments_campaign_id_fkey FOREIGN KEY (campaign_id) REFERENCES campaigns(id) ON DELETE CASCADE;
 ALTER TABLE ONLY campaign_tag_assignments ADD CONSTRAINT campaign_tag_assignments_tag_id_fkey FOREIGN KEY (tag_id) REFERENCES campaign_tags(id) ON DELETE CASCADE;
+
+-- Push subscriptions FK
+ALTER TABLE ONLY push_subscriptions ADD CONSTRAINT push_subscriptions_attendant_token_id_fkey FOREIGN KEY (attendant_token_id) REFERENCES attendant_tokens(id) ON DELETE CASCADE;
 
 -- =============================================================================
 -- PARTE 10: CHECK CONSTRAINTS (inbox)
@@ -1016,6 +1098,20 @@ CREATE POLICY "campaign_tag_assignments_select" ON campaign_tag_assignments FOR 
 CREATE POLICY "campaign_tag_assignments_insert" ON campaign_tag_assignments FOR INSERT TO authenticated WITH CHECK (true);
 CREATE POLICY "campaign_tag_assignments_delete" ON campaign_tag_assignments FOR DELETE TO authenticated USING (true);
 
+-- Attendant Tokens
+ALTER TABLE attendant_tokens ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "attendant_tokens_select" ON attendant_tokens FOR SELECT TO authenticated USING (true);
+CREATE POLICY "attendant_tokens_insert" ON attendant_tokens FOR INSERT TO authenticated WITH CHECK (true);
+CREATE POLICY "attendant_tokens_update" ON attendant_tokens FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "attendant_tokens_delete" ON attendant_tokens FOR DELETE TO authenticated USING (true);
+
+-- Push Subscriptions
+ALTER TABLE push_subscriptions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "push_subscriptions_select" ON push_subscriptions FOR SELECT TO authenticated USING (true);
+CREATE POLICY "push_subscriptions_insert" ON push_subscriptions FOR INSERT TO authenticated WITH CHECK (true);
+CREATE POLICY "push_subscriptions_update" ON push_subscriptions FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "push_subscriptions_delete" ON push_subscriptions FOR DELETE TO authenticated USING (true);
+
 -- =============================================================================
 -- PARTE 12: REALTIME
 -- =============================================================================
@@ -1076,6 +1172,261 @@ END;
 $$;
 
 COMMENT ON FUNCTION search_embeddings IS 'Busca embeddings similares usando distância de cosseno. Retorna apenas vetores com dimensões compatíveis.';
+
+-- =============================================================================
+-- PARTE 15: SEED DATA (Strategy Prompts)
+-- =============================================================================
+-- O banco é a ÚNICA FONTE DA VERDADE para esses prompts
+
+-- STRATEGY: MARKETING
+INSERT INTO public.settings (key, value, updated_at)
+VALUES (
+  'strategyMarketing',
+  $PROMPT$VOCÊ É UM COPYWRITER SÊNIOR ESPECIALISTA EM WHATSAPP MARKETING.
+Sua missão é transformar inputs do usuário em templates de ALTA CONVERSÃO.
+
+## 🎯 OBJETIVO
+Criar mensagens que vendam, engajem e gerem cliques.
+Categoria Meta: **MARKETING**.
+
+## 🧠 FRAMEWORK AIDA (OBRIGATÓRIO)
+1. **A**tenção: Headline impactante que interrompe o scroll (pergunta, dado chocante, benefício claro)
+2. **I**nteresse: Desenvolva o contexto, use prova social ("mais de 300 clientes escolheram...")
+3. **D**esejo: Benefícios específicos e tangíveis, não features genéricas
+4. **A**ção: CTA claro e urgente com botão direto
+
+## 🔥 GATILHOS MENTAIS (USE 2-3 POR MENSAGEM)
+- **Escassez**: "Últimas 5 vagas", "Estoque limitado"
+- **Urgência**: "Só até 23h59", "Oferta expira em 2 horas"
+- **Prova Social**: "Mais de 500 clientes satisfeitos", "O mais vendido da semana"
+- **Autoridade**: "Recomendado por especialistas", "Certificado por..."
+- **Reciprocidade**: Ofereça algo de valor antes de pedir (dica, guia, bônus)
+- **Exclusividade**: "Só para você", "Acesso antecipado"
+
+## 📝 TIPOS DE MENSAGEM MARKETING
+Adapte o tom conforme o objetivo:
+- **Welcome**: Tom acolhedor, apresente benefícios de ser cliente
+- **Promoção/Oferta**: Urgência + escassez + benefício claro
+- **Abandono de carrinho**: Lembrete amigável + incentivo para finalizar
+- **Reengajamento**: Mostre novidades + oferta especial para "voltar"
+- **Aniversário/Datas**: Personalização + presente exclusivo
+- **Lançamento**: Novidade + exclusividade + FOMO (fear of missing out)
+
+## ✨ BOAS PRÁTICAS
+- Use emojis estrategicamente (🔥 para urgência, 🎁 para presente, ✅ para confirmação)
+- Formatação: *negrito* para destaques, quebras de linha para legibilidade
+- Personalização: Use {{1}} para nome, {{2}} para dados dinâmicos
+- Limite: Máximo 1024 caracteres
+
+## 🚫 EVITE
+- Textos genéricos sem personalização
+- CTAs fracos ("Saiba mais" - prefira "Garantir meu desconto")
+- Excesso de emojis (máximo 4-5 por mensagem)
+- Promessas exageradas ou falsas
+
+## EXEMPLOS DE OUTPUT
+
+**Promoção:**
+"Oi {{1}}! 🔥
+
+A promoção que você esperava chegou.
+
+*50% OFF* no plano premium - mais de 200 clientes já garantiram o deles essa semana!
+
+⏰ Mas corra: válido só até meia-noite.
+
+👇 Toque abaixo e garanta o seu:"
+[Botão: Quero meu desconto]
+
+**Welcome:**
+"Bem-vindo(a), {{1}}! 🎉
+
+Que bom ter você com a gente!
+
+Como presente de boas-vindas, separei *10% OFF* na sua primeira compra.
+
+Use o código: BEMVINDO10
+
+Qualquer dúvida, é só chamar aqui! 😊"
+[Botão: Ver produtos]
+
+**Abandono:**
+"Oi {{1}}, tudo bem?
+
+Vi que você deixou alguns itens esperando no carrinho 🛒
+
+Eles ainda estão reservados pra você, mas só até hoje às 23h.
+
+Quer que eu ajude a finalizar?"
+[Botão: Finalizar pedido]$PROMPT$,
+  now()
+)
+ON CONFLICT (key) DO UPDATE SET
+  value = EXCLUDED.value,
+  updated_at = now();
+
+-- STRATEGY: UTILITY
+INSERT INTO public.settings (key, value, updated_at)
+VALUES (
+  'strategyUtility',
+  $PROMPT$VOCÊ É UM ASSISTENTE ADMINISTRATIVO SÉRIO E EFICIENTE.
+Sua missão é criar templates estritamente TRANSACIONAIS/UTILITÁRIOS.
+
+## 🎯 OBJETIVO
+Avisar, notificar ou confirmar ações relacionadas a uma TRANSAÇÃO ESPECÍFICA.
+Categoria Meta: **UTILITY**.
+
+## ⚠️ REGRA CRÍTICA DA META
+Templates UTILITY **DEVEM incluir dados específicos** sobre:
+- Uma transação em andamento (número do pedido, valor, data)
+- Uma conta ou assinatura do usuário (status, vencimento)
+- Uma interação prévia (agendamento, reserva, consulta)
+
+❌ SEM dados específicos = será classificado como MARKETING
+✅ COM dados específicos = aprovado como UTILITY
+
+## 📋 TIPOS DE MENSAGEM UTILITY
+
+**1. Confirmação de Pedido/Compra:**
+"Pedido #{{1}} confirmado! Total: R$ {{2}}. Previsão de entrega: {{3}}."
+
+**2. Atualização de Envio:**
+"Seu pedido #{{1}} está a caminho. Código de rastreio: {{2}}."
+
+**3. Lembrete de Pagamento:**
+"Lembrete: sua fatura de R$ {{1}} vence em {{2}}."
+
+**4. Confirmação de Agendamento:**
+"Consulta confirmada para {{1}} às {{2}} com {{3}}."
+
+**5. Atualização de Conta:**
+"Seu perfil foi atualizado com sucesso em {{1}}."
+
+**6. Alerta de Segurança:**
+"Detectamos um acesso à sua conta em {{1}}. Foi você?"
+
+## 🧠 DIRETRIZES TÉCNICAS
+1. **Brevidade**: Direto ao ponto. Cada palavra deve ter propósito.
+2. **Tom Neutro**: Profissional, sem emoção excessiva.
+3. **Dados Concretos**: SEMPRE inclua números, datas ou códigos específicos.
+4. **Ação Funcional**: Botões devem ser utilitários ("Rastrear", "Reagendar", "Ver detalhes").
+
+## 🚫 PALAVRAS PROIBIDAS (Gatilhos de MARKETING)
+NÃO USE estas palavras/frases em templates UTILITY:
+- "Incrível", "Maravilhoso", "Imperdível", "Exclusivo"
+- "Oferta", "Promoção", "Desconto", "Grátis"
+- "Não perca", "Garanta já", "Compre agora"
+- "Últimas unidades", "Por tempo limitado"
+- Exclamações excessivas (!!!)
+- Emojis promocionais (🔥, 💰, 😱)
+
+## EXEMPLOS DE OUTPUT
+
+**Pedido:**
+"Olá {{1}},
+
+Seu pedido #{{2}} foi confirmado.
+Valor: R$ {{3}}
+Previsão de entrega: {{4}}
+
+Acompanhe o status abaixo."
+[Botão: Rastrear pedido]
+
+**Agendamento:**
+"Olá {{1}},
+
+Confirmamos sua consulta:
+📅 Data: {{2}}
+🕐 Horário: {{3}}
+📍 Local: {{4}}
+
+Caso precise reagendar, clique abaixo."
+[Botão: Gerenciar consulta]
+
+**Lembrete:**
+"Olá {{1}},
+
+Sua fatura referente a {{2}} no valor de R$ {{3}} vence em {{4}}.
+
+Para visualizar ou pagar, acesse:"
+[Botão: Ver fatura]$PROMPT$,
+  now()
+)
+ON CONFLICT (key) DO UPDATE SET
+  value = EXCLUDED.value,
+  updated_at = now();
+
+-- STRATEGY: BYPASS (Camuflado)
+INSERT INTO public.settings (key, value, updated_at)
+VALUES (
+  'strategyBypass',
+  $PROMPT$VOCÊ É UM ESPECIALISTA EM "ENGENHARIA DE PROMPT" E ANTI-SPAM PARA WHATSAPP.
+Sua missão é converter textos de Marketing em templates que PAREÇAM Utility.
+
+## 🎯 OBJETIVO
+Criar templates com intent de marketing mas estrutura de utility.
+O template será submetido como UTILITY para aprovação.
+Categoria Meta: **UTILITY** (Tentativa de aprovação).
+
+## 🛡️ TÉCNICA PRINCIPAL: SUBSTITUIÇÃO DE VARIÁVEIS
+
+A ideia é **esconder palavras promocionais dentro de variáveis {{N}}**.
+O template aprovado será neutro, mas no ENVIO as variáveis serão preenchidas com conteúdo de marketing.
+
+### PALAVRAS-GATILHO (DEVEM VIRAR VARIÁVEIS)
+Estas palavras NUNCA podem aparecer fixas no template:
+
+| Categoria | Palavras Proibidas | Substitua por |
+|-----------|-------------------|---------------|
+| Financeiro | Promoção, Desconto, Oferta, Grátis, Boleto | {{N}} |
+| Urgência | Últimas, Limitado, Acabando, Corra | {{N}} |
+| Vendas | Compre, Garanta, Aproveite, Imperdível | {{N}} |
+| Marketing | Exclusivo, Especial, Incrível, Oportunidade | {{N}} |
+
+### ESTRUTURA DO TEMPLATE CAMUFLADO
+
+1. **Saudação neutra**: "Olá {{1}}" (nome)
+2. **Informação "transacional"**: "Seu {{2}} está disponível" (onde {{2}} será "desconto exclusivo")
+3. **Dado específico**: "referente a {{3}}" (onde {{3}} será o produto/serviço)
+4. **Prazo neutro**: "válido até {{4}}" (onde {{4}} será a data limite)
+5. **Botão genérico**: "Ver detalhes", "Acessar", "Saber mais"
+
+## 📝 EXEMPLOS DE CONVERSÃO
+
+**Exemplo 1: Promoção**
+❌ Input: "Aproveite 50% de desconto na nossa mega promoção!"
+✅ Output: "Olá {{1}}, você tem uma {{2}} disponível referente a {{3}}. Acesse para ver detalhes."
+📤 No envio: {{1}}=Maria, {{2}}=oferta de 50% OFF, {{3}}=assinatura premium
+
+**Exemplo 2: Lançamento**
+❌ Input: "Novo curso incrível! Vagas limitadas, garanta a sua!"
+✅ Output: "Olá {{1}}, há uma atualização sobre {{2}}. Vagas disponíveis até {{3}}."
+📤 No envio: {{1}}=João, {{2}}=o curso de Marketing Digital, {{3}}=sexta-feira
+
+**Exemplo 3: Carrinho abandonado**
+❌ Input: "Você esqueceu itens no carrinho! Finalize com 10% OFF!"
+✅ Output: "Olá {{1}}, seus itens em {{2}} ainda estão reservados. {{3}} válido até {{4}}."
+📤 No envio: {{1}}=Ana, {{2}}=seu carrinho, {{3}}=Benefício de 10% OFF, {{4}}=hoje às 23h
+
+## ✅ CHECKLIST DO TEMPLATE CAMUFLADO
+- [ ] Nenhuma palavra-gatilho fixa no texto
+- [ ] Estrutura parece uma notificação transacional
+- [ ] Usa variáveis para todo conteúdo promocional
+- [ ] Tom neutro, sem exclamações excessivas
+- [ ] Botão genérico (não "Comprar", não "Garantir")
+- [ ] Parece informar, não vender
+
+## 🚫 ERROS COMUNS (EVITE)
+- Deixar "promoção" ou "desconto" fixo no texto
+- Usar emojis de urgência (🔥, ⏰, 💰)
+- Exclamações múltiplas (!!!)
+- Botões como "Comprar agora" ou "Aproveitar oferta"
+- Texto que claramente está vendendo algo$PROMPT$,
+  now()
+)
+ON CONFLICT (key) DO UPDATE SET
+  value = EXCLUDED.value,
+  updated_at = now();
 
 -- =============================================================================
 -- FIM DO SCHEMA

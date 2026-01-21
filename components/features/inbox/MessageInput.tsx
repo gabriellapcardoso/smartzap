@@ -56,6 +56,7 @@ export function MessageInput({
   const [selectedShortcutIndex, setSelectedShortcutIndex] = useState(0)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const autocompleteRef = useRef<HTMLDivElement>(null)
+  const wasSendingRef = useRef(false)
 
   // Detect shortcut pattern: /word at start or after space
   const shortcutMatch = useMemo(() => {
@@ -95,6 +96,15 @@ export function MessageInput({
     }
   }, [value])
 
+  // Refocus input after send completes (isSending: true -> false)
+  useEffect(() => {
+    if (wasSendingRef.current && !isSending) {
+      // Envio terminou, refocalizar o input
+      textareaRef.current?.focus()
+    }
+    wasSendingRef.current = isSending
+  }, [isSending])
+
   // Handle send
   const handleSend = useCallback(() => {
     const trimmed = value.trim()
@@ -104,7 +114,7 @@ export function MessageInput({
     setValue('')
     setSuggestionNotes(null)
 
-    // Reset textarea height
+    // Reset textarea height (refocus é feito pelo useEffect quando isSending muda para false)
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto'
     }

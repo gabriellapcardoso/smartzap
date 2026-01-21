@@ -184,17 +184,35 @@ const DEFAULT_MODEL_ID = 'gemini-3-flash-preview'
 const DEFAULT_TEMPERATURE = 0.7
 const DEFAULT_MAX_TOKENS = 2048
 
-// Instruções de formatação WhatsApp (adicionadas automaticamente ao system prompt)
-const WHATSAPP_FORMATTING_INSTRUCTIONS = `
-## Formatação de Mensagens (WhatsApp)
-Use APENAS a formatação do WhatsApp, NÃO use Markdown:
-- Negrito: *texto* (NÃO use **texto**)
-- Itálico: _texto_ (NÃO use *texto*)
-- Riscado: ~texto~
-- Monoespaçado: \`\`\`texto\`\`\`
-- Citação: > texto
-- Lista: use - ou números (1. 2. 3.)
-`
+/**
+ * Converte formatação Markdown para WhatsApp.
+ * Executado após a resposta do LLM (zero tokens extras).
+ *
+ * Markdown → WhatsApp:
+ * - **texto** → *texto* (negrito)
+ * - __texto__ → *texto* (negrito alternativo)
+ * - ~~texto~~ → ~texto~ (riscado)
+ * - [texto](url) → texto (url) ou só url se forem iguais
+ */
+function convertMarkdownToWhatsApp(text: string): string {
+  return text
+    // **texto** ou __texto__ → *texto* (negrito)
+    .replace(/\*\*(.+?)\*\*/g, '*$1*')
+    .replace(/__(.+?)__/g, '*$1*')
+    // ~~texto~~ → ~texto~ (riscado)
+    .replace(/~~(.+?)~~/g, '~$1~')
+    // [texto](url) → converte links Markdown
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, linkText, url) => {
+      // Se o texto é basicamente a URL (com ou sem protocolo), só retorna a URL
+      const cleanText = linkText.replace(/^https?:\/\//, '').replace(/\/$/, '')
+      const cleanUrl = url.replace(/^https?:\/\//, '').replace(/\/$/, '')
+      if (cleanText === cleanUrl || linkText === url) {
+        return url
+      }
+      // Senão, retorna "texto: url"
+      return `${linkText}: ${url}`
+    })
+}
 
 // =============================================================================
 // Helpers
@@ -327,8 +345,8 @@ export async function processChatAgent(
     // TOOL-BASED RAG: LLM decides when to search
     // =======================================================================
 
-    // Use agent's system prompt + instruções de formatação WhatsApp
-    const systemPrompt = `${agent.system_prompt}\n${WHATSAPP_FORMATTING_INSTRUCTIONS}`
+    // Use agent's system prompt as-is
+    const systemPrompt = agent.system_prompt
 
     // Define respond tool (required for structured output)
     // Schema é dinâmico baseado em handoff_enabled
@@ -345,13 +363,16 @@ export async function processChatAgent(
       inputSchema: responseSchema,
       execute: async (params) => {
         const handoffParams = params as { shouldHandoff?: boolean }
+        // Converte Markdown → WhatsApp (zero tokens extras, só post-processing)
+        const formattedMessage = convertMarkdownToWhatsApp(params.message)
         response = {
           ...params,
+          message: formattedMessage,
           shouldHandoff: handoffParams.shouldHandoff ?? false,
           sources: sources || params.sources,
         }
         hasResponded = true // Marca que já respondeu
-        return { success: true, message: params.message }
+        return { success: true, message: formattedMessage }
       },
     })
 

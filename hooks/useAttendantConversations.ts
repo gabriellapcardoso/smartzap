@@ -1,22 +1,33 @@
 /**
- * Hook para buscar conversas no Telegram Mini App
+ * Hook para buscar conversas na página de atendimento
  *
  * Usa React Query para cache e refetch automático.
- * Formata dados especificamente para a UI mobile.
+ * Formata dados especificamente para a UI de atendimento.
  */
 
 import { useQuery } from '@tanstack/react-query'
-import type { TelegramConversation, TelegramConversationStatus } from '@/app/api/telegram/conversations/route'
-
-// Re-export types
-export type { TelegramConversation, TelegramConversationStatus }
 
 // =============================================================================
 // TIPOS
 // =============================================================================
 
+export type AttendantConversationStatus = 'ai_active' | 'human_active' | 'handoff_requested' | 'resolved'
+
+export interface AttendantConversation {
+  id: string
+  contactName: string
+  contactPhone: string
+  contactAvatar?: string
+  status: AttendantConversationStatus
+  lastMessage: string
+  lastMessageAt: string // ISO string para serialização
+  unreadCount: number
+  isTyping?: boolean
+  aiAgentName?: string
+}
+
 interface ConversationsResponse {
-  conversations: TelegramConversation[]
+  conversations: AttendantConversation[]
   counts: {
     total: number
     urgent: number
@@ -26,7 +37,7 @@ interface ConversationsResponse {
   }
 }
 
-interface UseTelegramConversationsOptions {
+interface UseAttendantConversationsOptions {
   status?: 'open' | 'closed'
   search?: string
   enabled?: boolean
@@ -45,7 +56,7 @@ async function fetchConversations(
   if (status) params.set('status', status)
   if (search) params.set('search', search)
 
-  const url = `/api/telegram/conversations${params.toString() ? `?${params}` : ''}`
+  const url = `/api/attendant/conversations${params.toString() ? `?${params}` : ''}`
   const response = await fetch(url)
 
   if (!response.ok) {
@@ -59,7 +70,7 @@ async function fetchConversations(
 // HOOK
 // =============================================================================
 
-export function useTelegramConversations(options: UseTelegramConversationsOptions = {}) {
+export function useAttendantConversations(options: UseAttendantConversationsOptions = {}) {
   const {
     status,
     search,
@@ -68,7 +79,7 @@ export function useTelegramConversations(options: UseTelegramConversationsOption
   } = options
 
   const query = useQuery({
-    queryKey: ['telegram-conversations', status, search],
+    queryKey: ['attendant-conversations', status, search],
     queryFn: () => fetchConversations(status, search),
     enabled,
     refetchInterval,
@@ -86,7 +97,7 @@ export function useTelegramConversations(options: UseTelegramConversationsOption
 }
 
 // =============================================================================
-// HELPERS (re-exportados do mock-data para manter compatibilidade)
+// HELPERS
 // =============================================================================
 
 export function formatRelativeTime(dateString: string | Date): string {
@@ -105,8 +116,8 @@ export function formatRelativeTime(dateString: string | Date): string {
   return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
 }
 
-export function getStatusEmoji(status: TelegramConversationStatus): string {
-  const emojis: Record<TelegramConversationStatus, string> = {
+export function getStatusEmoji(status: AttendantConversationStatus): string {
+  const emojis: Record<AttendantConversationStatus, string> = {
     ai_active: '🤖',
     human_active: '👤',
     handoff_requested: '🚨',
@@ -115,8 +126,8 @@ export function getStatusEmoji(status: TelegramConversationStatus): string {
   return emojis[status]
 }
 
-export function getStatusLabel(status: TelegramConversationStatus): string {
-  const labels: Record<TelegramConversationStatus, string> = {
+export function getStatusLabel(status: AttendantConversationStatus): string {
+  const labels: Record<AttendantConversationStatus, string> = {
     ai_active: 'IA Ativo',
     human_active: 'Humano',
     handoff_requested: 'Quer Humano',
@@ -125,8 +136,8 @@ export function getStatusLabel(status: TelegramConversationStatus): string {
   return labels[status]
 }
 
-export function getStatusColor(status: TelegramConversationStatus): string {
-  const colors: Record<TelegramConversationStatus, string> = {
+export function getStatusColor(status: AttendantConversationStatus): string {
+  const colors: Record<AttendantConversationStatus, string> = {
     ai_active: 'text-blue-500',
     human_active: 'text-green-500',
     handoff_requested: 'text-red-500',

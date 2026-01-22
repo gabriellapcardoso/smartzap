@@ -271,7 +271,6 @@ export const DYNAMIC_BOOKING_FLOW_JSON = {
 // #region agent log
 const _successScreenChildren = (DYNAMIC_BOOKING_FLOW_JSON as any).screens?.find?.((s:any)=>s.id==='SUCCESS')?.layout?.children
 if (typeof window !== 'undefined') {
-  fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'flow-templates-dynamic.ts:module-load',message:'T1-template-loaded',data:{successChildTypes:_successScreenChildren?.map?.((c:any)=>c?.type)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{})
 }
 // #endregion
 export const dynamicBookingTemplate = {

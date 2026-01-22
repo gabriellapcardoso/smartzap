@@ -127,7 +127,6 @@ export const flowsService = {
   ): Promise<FlowRow> {
     const flowJsonObj = patch.flowJson && typeof patch.flowJson === 'object' ? (patch.flowJson as Record<string, unknown>) : null
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H1',location:'services/flowsService.ts:126',message:'flowsService.update called',data:{flowId:id,hasFlowJson:Boolean(patch.flowJson),flowJsonVersion:flowJsonObj?.version ?? null,flowJsonDataApiVersion:flowJsonObj?.data_api_version ?? null,hasSpec:Boolean(patch.spec),hasTemplateKey:Boolean(patch.templateKey)},timestamp:Date.now()})}).catch(()=>{});
     // #endregion agent log
     const res = await fetch(`/api/flows/${encodeURIComponent(id)}`, {
       method: 'PATCH',
@@ -139,7 +138,6 @@ export const flowsService = {
       throw new Error(await readErrorMessage(res, 'Falha ao atualizar MiniApp'))
     }
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H2',location:'services/flowsService.ts:135',message:'flowsService.update response',data:{flowId:id,ok:res.ok,status:res.status,hasError:!res.ok},timestamp:Date.now()})}).catch(()=>{});
     // #endregion agent log
     const data = await res.json()
     const parsed = FlowRowSchema.safeParse(data)
@@ -174,7 +172,6 @@ export const flowsService = {
 
     const data = await res.json().catch(() => null)
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H8',location:'services/flowsService.ts:165',message:'publishToMeta response',data:{flowId:id,ok:res.ok,status:res.status,hasError:!res.ok,hasDebug:Boolean(data?.debug),error:data?.error ?? null,metaError:((data?.debug && (data.debug as any)?.graphError) ? true : false)},timestamp:Date.now()})}).catch(()=>{});
     // #endregion agent log
     if (!res.ok) {
       if (data?.debug?.graphError) {
@@ -208,7 +205,6 @@ export const flowsService = {
     flowMessageVersion?: string
   }): Promise<unknown> {
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H1',location:'services/flowsService.ts:186',message:'flowsService.send called',data:{hasTo:Boolean(payload?.to?.trim()),flowIdLength:(payload?.flowId || '').length,flowTokenLength:(payload?.flowToken || '').length,action:payload?.action ?? 'navigate',hasActionPayload:Boolean(payload?.actionPayload),flowMessageVersion:payload?.flowMessageVersion ?? '3'},timestamp:Date.now()})}).catch(()=>{});
     // #endregion agent log
     const res = await fetch('/api/flows/send', {
       method: 'POST',
@@ -219,7 +215,6 @@ export const flowsService = {
 
     const data = await res.json().catch(() => null)
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H2',location:'services/flowsService.ts:197',message:'flowsService.send response',data:{ok:res.ok,status:res.status,hasError:!res.ok,hasData:Boolean(data)},timestamp:Date.now()})}).catch(()=>{});
     // #endregion agent log
     if (!res.ok) {
       const msg = data?.error || 'Falha ao enviar MiniApp'

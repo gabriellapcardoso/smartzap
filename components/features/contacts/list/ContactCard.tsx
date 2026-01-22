@@ -7,6 +7,7 @@ import { StatusBadge } from '@/components/ui/status-badge'
 import { Button } from '@/components/ui/button'
 import { Contact, ContactStatus } from './types'
 import { calculateRelativeTime, getContactInitials } from './utils'
+import { formatPhoneNumberDisplay } from '@/lib/phone-formatter'
 
 // =============================================================================
 // CONTACT CARD
@@ -69,7 +70,7 @@ export const ContactCard = React.memo(
           {/* Name + Phone */}
           <div className="flex-1 min-w-0">
             <p className="font-medium text-[var(--ds-text-primary)] truncate">{displayName}</p>
-            <p className="text-xs text-[var(--ds-text-muted)] font-mono">{contact.phone}</p>
+            <p className="text-xs text-[var(--ds-text-muted)] font-mono">{formatPhoneNumberDisplay(contact.phone, 'e164')}</p>
           </div>
 
           {/* Status */}

@@ -3,6 +3,7 @@
 import React from 'react';
 import { FlaskConical } from 'lucide-react';
 import { getPricingBreakdown } from '@/lib/whatsapp-pricing';
+import { formatPhoneNumberDisplay } from '@/lib/phone-formatter';
 import { CheckCircleFilled } from '@/components/ui/icons/CheckCircleFilled';
 import { TestContactCardProps } from './types';
 
@@ -53,7 +54,7 @@ export function TestContactCard({
               isSelected ? 'text-black/70' : 'text-amber-400/70'
             }`}
           >
-            {testContact.name || 'Contato de Teste'} • +{testContact.phone}
+            {testContact.name || 'Contato de Teste'} • {formatPhoneNumberDisplay(testContact.phone, 'e164')}
           </p>
         </div>
         {isSelected && selectedTemplate && (

@@ -142,13 +142,6 @@ function DesktopOverlayContainer() {
   const renderStack = frozenStackRef.current;
   const currentIndex = renderStack.length - 1;
 
-  // DEBUG
-  console.log("[DesktopOverlay]", {
-    isOpen,
-    stackLength: stack.length,
-    frozenStackLength: frozenStackRef.current.length,
-    renderStackLength: renderStack.length,
-  });
 
   // Measure content height when it changes, reset on fresh open
   useLayoutEffect(() => {
@@ -196,11 +189,9 @@ function DesktopOverlayContainer() {
   }, [isOpen, handleEscapeKey]);
 
   const handleExitComplete = useCallback(() => {
-    console.log("[DesktopOverlay] handleExitComplete called");
     frozenStackRef.current = [];
   }, []);
 
-  console.log("[DesktopOverlay] Rendering, isOpen:", isOpen);
 
   // Don't render Dialog at all when closed - this ensures clean unmount
   if (!isOpen && frozenStackRef.current.length === 0) {

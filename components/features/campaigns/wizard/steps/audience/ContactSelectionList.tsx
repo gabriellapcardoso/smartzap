@@ -3,6 +3,7 @@
 import React from 'react';
 import { Search, X, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { formatPhoneNumberDisplay } from '@/lib/phone-formatter';
 import { ContactSelectionListProps } from './types';
 
 export function ContactSelectionList({
@@ -105,7 +106,7 @@ export function ContactSelectionList({
                   <p className="text-sm font-medium text-[var(--ds-text-primary)] truncate">
                     {contact.name || contact.phone}
                   </p>
-                  <p className="text-xs text-[var(--ds-text-muted)] font-mono">{contact.phone}</p>
+                  <p className="text-xs text-[var(--ds-text-muted)] font-mono">{formatPhoneNumberDisplay(contact.phone, 'e164')}</p>
                 </div>
                 {isSelected && (
                   <Check size={16} className="text-primary-400 shrink-0" />

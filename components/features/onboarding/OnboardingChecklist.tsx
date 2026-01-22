@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   CheckCircle2,
   Circle,
@@ -8,14 +8,24 @@ import {
   Minimize2,
   X,
   AlertTriangle,
-  Clock,
+  ExternalLink,
+  Key,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import { useOnboardingProgress } from './hooks/useOnboardingProgress';
 import { cn } from '@/lib/utils';
+import type { HealthStatus } from '@/lib/health-check';
 
 interface ChecklistItem {
-  id: keyof ReturnType<typeof useOnboardingProgress>['progress']['checklistItems'];
+  id: string;
   label: string;
   description?: string;
   actionLabel?: string;
@@ -24,45 +34,55 @@ interface ChecklistItem {
 }
 
 interface OnboardingChecklistProps {
+  /** Health status do sistema (fonte da verdade para credentials e webhook) */
+  healthStatus: HealthStatus;
+  /** Token expira em X dias (null = permanente ou desconhecido) */
   tokenExpiresIn?: string | null;
   onNavigate?: (path: string) => void;
 }
 
-export function OnboardingChecklist({ tokenExpiresIn, onNavigate }: OnboardingChecklistProps) {
+export function OnboardingChecklist({
+  healthStatus,
+  tokenExpiresIn,
+  onNavigate
+}: OnboardingChecklistProps) {
   const {
     progress,
-    checklistProgress,
     shouldShowChecklist,
     minimizeChecklist,
     dismissChecklist,
-    updateChecklistItem,
+    confirmPermanentToken,
+    goToStep,
+    isLoaded,
+    shouldShowOnboardingModal,
   } = useOnboardingProgress();
+
+  const [showTokenDialog, setShowTokenDialog] = useState(false);
+  const [tokenConfirmChecked, setTokenConfirmChecked] = useState(false);
 
   if (!shouldShowChecklist || progress.isChecklistMinimized) {
     return null;
   }
 
+  // Fonte da verdade: health check (DB)
+  const isCredentialsOk = healthStatus.services.whatsapp.status === 'ok';
+  const isWebhookOk = healthStatus.services.webhook?.status === 'ok';
+
+  // Token permanente: confirmação manual do usuário (não temos como verificar via API)
+  const isPermanentToken = progress.permanentTokenConfirmed;
+
   const items: ChecklistItem[] = [
     {
       id: 'credentials',
       label: 'Conectar credenciais do WhatsApp',
-      isComplete: progress.checklistItems.credentials,
-    },
-    {
-      id: 'testMessage',
-      label: 'Enviar mensagem de teste',
-      description: 'Verifique se o envio está funcionando',
-      actionLabel: 'Testar',
-      actionUrl: '/settings',
-      isComplete: progress.checklistItems.testMessage,
+      isComplete: isCredentialsOk,
     },
     {
       id: 'webhook',
       label: 'Configurar webhook',
       description: 'Receba notificações de entrega e leitura',
       actionLabel: 'Configurar',
-      actionUrl: '/settings',
-      isComplete: progress.checklistItems.webhook,
+      isComplete: isWebhookOk,
     },
     {
       id: 'permanentToken',
@@ -70,11 +90,24 @@ export function OnboardingChecklist({ tokenExpiresIn, onNavigate }: OnboardingCh
       description: 'Evite interrupções quando o token expirar',
       actionLabel: 'Criar',
       actionUrl: 'https://business.facebook.com/settings/system-users',
-      isComplete: progress.checklistItems.permanentToken,
+      isComplete: isPermanentToken,
     },
   ];
 
-  const showTokenWarning = tokenExpiresIn && !progress.checklistItems.permanentToken;
+  // Calcula progresso baseado nos items
+  const completedCount = items.filter(item => item.isComplete).length;
+  const checklistProgress = {
+    completed: completedCount,
+    total: items.length,
+    percentage: Math.round((completedCount / items.length) * 100),
+  };
+
+  // Se tudo completo, não mostra checklist
+  if (checklistProgress.percentage === 100) {
+    return null;
+  }
+
+  const showTokenWarning = tokenExpiresIn && !isPermanentToken;
 
   return (
     <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 space-y-4">
@@ -149,6 +182,16 @@ export function OnboardingChecklist({ tokenExpiresIn, onNavigate }: OnboardingCh
                 size="sm"
                 className="text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10"
                 onClick={() => {
+                  // Webhook abre o wizard no step de configuração
+                  if (item.id === 'webhook') {
+                    goToStep('configure-webhook');
+                    return;
+                  }
+                  // Token permanente abre dialog de confirmação
+                  if (item.id === 'permanentToken') {
+                    setShowTokenDialog(true);
+                    return;
+                  }
                   if (item.actionUrl?.startsWith('http')) {
                     window.open(item.actionUrl, '_blank');
                   } else if (item.actionUrl && onNavigate) {
@@ -179,15 +222,105 @@ export function OnboardingChecklist({ tokenExpiresIn, onNavigate }: OnboardingCh
               variant="outline"
               size="sm"
               className="border-amber-500/30 text-amber-200 hover:bg-amber-500/10 flex-shrink-0"
-              onClick={() => {
-                window.open('https://business.facebook.com/settings/system-users', '_blank');
-              }}
+              onClick={() => setShowTokenDialog(true)}
             >
               Criar agora
             </Button>
           </div>
         </div>
       )}
+
+      {/* Dialog de confirmação - Token Permanente */}
+      <Dialog open={showTokenDialog} onOpenChange={setShowTokenDialog}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <div className="flex justify-center mb-4">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center">
+                <Key className="w-7 h-7 text-amber-400" />
+              </div>
+            </div>
+            <DialogTitle className="text-center">Criar Token Permanente</DialogTitle>
+            <DialogDescription className="text-center">
+              Tokens de System User não expiram e garantem funcionamento contínuo.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 mt-4">
+            {/* Instruções */}
+            <div className="space-y-3">
+              <h4 className="text-sm font-medium text-zinc-300">No Meta Business Suite:</h4>
+              <ol className="space-y-2 text-sm text-zinc-400">
+                <li className="flex items-start gap-2">
+                  <span className="w-5 h-5 rounded-full bg-zinc-700 text-zinc-300 flex items-center justify-center text-xs flex-shrink-0 mt-0.5">1</span>
+                  <span>Vá em <strong className="text-white">System Users</strong></span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-5 h-5 rounded-full bg-zinc-700 text-zinc-300 flex items-center justify-center text-xs flex-shrink-0 mt-0.5">2</span>
+                  <span>Clique em <strong className="text-white">Add</strong> para criar um novo System User</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-5 h-5 rounded-full bg-zinc-700 text-zinc-300 flex items-center justify-center text-xs flex-shrink-0 mt-0.5">3</span>
+                  <span>Dê permissão de <strong className="text-white">WhatsApp Business</strong></span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-5 h-5 rounded-full bg-zinc-700 text-zinc-300 flex items-center justify-center text-xs flex-shrink-0 mt-0.5">4</span>
+                  <span>Gere o token e <strong className="text-white">atualize nas configurações</strong> do SmartZap</span>
+                </li>
+              </ol>
+            </div>
+
+            {/* Link externo */}
+            <a
+              href="https://business.facebook.com/settings/system-users"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full p-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
+            >
+              <ExternalLink className="w-4 h-4" />
+              Abrir Meta Business Suite
+            </a>
+
+            {/* Confirmação */}
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-zinc-800/50 border border-zinc-700">
+              <Checkbox
+                id="confirm-token"
+                checked={tokenConfirmChecked}
+                onCheckedChange={(checked) => setTokenConfirmChecked(checked === true)}
+                className="mt-0.5 border-emerald-500 data-[state=checked]:bg-emerald-500"
+              />
+              <label
+                htmlFor="confirm-token"
+                className="text-sm text-zinc-300 cursor-pointer select-none leading-relaxed"
+              >
+                Confirmo que criei um <strong className="text-white">System User</strong> e atualizei o token nas configurações
+              </label>
+            </div>
+
+            {/* Ações */}
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowTokenDialog(false);
+                  setTokenConfirmChecked(false);
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button
+                disabled={!tokenConfirmChecked}
+                onClick={() => {
+                  confirmPermanentToken();
+                  setShowTokenDialog(false);
+                  setTokenConfirmChecked(false);
+                }}
+              >
+                Confirmar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

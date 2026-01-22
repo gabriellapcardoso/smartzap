@@ -1,12 +1,44 @@
 /**
  * API Validation Schemas
- * 
+ *
  * Zod schemas for validating API request bodies
  * Used by API routes to ensure data integrity
  */
 
 import { z } from 'zod'
 import { CampaignStatus, ContactStatus } from '@/types'
+import { normalizePhoneNumber } from '@/lib/phone-formatter'
+
+// ============================================================================
+// Shared Phone Schema (normalizes to E.164)
+// ============================================================================
+
+/**
+ * Schema de telefone que normaliza automaticamente para E.164.
+ * Aceita formatos como: +5511999999999, 5511999999999, (11) 99999-9999
+ * Retorna: +5511999999999
+ */
+const phoneSchema = z.string()
+  .min(10, 'Telefone deve ter pelo menos 10 dígitos')
+  .max(25, 'Telefone muito longo')
+  .transform((val) => {
+    const normalized = normalizePhoneNumber(val)
+    if (!normalized) {
+      throw new Error('Formato de telefone inválido')
+    }
+    return normalized
+  })
+
+/**
+ * Schema de telefone para importação (mais permissivo, mas ainda normaliza).
+ */
+const phoneSchemaImport = z.string()
+  .min(1, 'Telefone é obrigatório')
+  .transform((val) => {
+    const normalized = normalizePhoneNumber(val)
+    // Se não conseguir normalizar, mantém o original (será tratado depois)
+    return normalized || val.replace(/\D/g, '')
+  })
 
 // ============================================================================
 // Contact Schemas
@@ -14,10 +46,7 @@ import { CampaignStatus, ContactStatus } from '@/types'
 
 export const CreateContactSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório').max(100, 'Nome muito longo'),
-  phone: z.string()
-    .min(10, 'Telefone deve ter pelo menos 10 dígitos')
-    .max(20, 'Telefone muito longo')
-    .regex(/^[\d+\-\s()]+$/, 'Formato de telefone inválido'),
+  phone: phoneSchema,
   email: z.string().email('Email inválido').optional().nullable(),
   status: z.nativeEnum(ContactStatus).optional().default(ContactStatus.OPT_IN),
   tags: z.array(z.string().max(50)).max(20, 'Máximo de 20 tags').optional().default([]),
@@ -31,7 +60,7 @@ export const ImportContactsSchema = z.object({
   contacts: z.array(
     z.object({
       name: z.string().max(100).optional().default(''),
-      phone: z.string().min(1, 'Telefone é obrigatório'),
+      phone: phoneSchemaImport,
       email: z.string().email().optional().nullable(),
       tags: z.array(z.string()).optional(),
       custom_fields: z.record(z.string(), z.any()).optional(),

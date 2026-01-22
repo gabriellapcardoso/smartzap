@@ -5,6 +5,7 @@ import {
   Bot,
   ChevronDown,
   ChevronUp,
+  ExternalLink,
   FileImage,
   FileText,
   FormInput,
@@ -22,6 +23,7 @@ import { HeliconePanel } from '@/components/features/settings/HeliconePanel'
 import { Mem0Panel } from '@/components/features/settings/Mem0Panel'
 import { Page, PageActions, PageDescription, PageHeader, PageTitle } from '@/components/ui/page'
 import { AI_PROVIDERS, type AIProvider } from '@/lib/ai/providers'
+import { DEFAULT_MODEL_ID } from '@/lib/ai/model'
 import {
   DEFAULT_AI_FALLBACK,
   DEFAULT_AI_PROMPTS,
@@ -356,11 +358,37 @@ function StrategyCard({
 const getProviderConfig = (providerId: AIProvider) =>
   AI_PROVIDERS.find((provider) => provider.id === providerId)
 
+// URLs para criação de chaves de API de cada provider
+const API_KEY_URLS: Record<AIProvider | 'mistral', { url: string; label: string }> = {
+  google: {
+    url: 'https://aistudio.google.com/apikey',
+    label: 'Google AI Studio',
+  },
+  openai: {
+    url: 'https://platform.openai.com/api-keys',
+    label: 'OpenAI Platform',
+  },
+  anthropic: {
+    url: 'https://console.anthropic.com/settings/keys',
+    label: 'Anthropic Console',
+  },
+  mistral: {
+    url: 'https://console.mistral.ai/api-keys/',
+    label: 'Mistral Console',
+  },
+}
+
 const getProviderLabel = (providerId: AIProvider) =>
   getProviderConfig(providerId)?.name ?? providerId
 
-const getDefaultModelId = (providerId: AIProvider) =>
-  getProviderConfig(providerId)?.models[0]?.id ?? ''
+const getDefaultModelId = (providerId: AIProvider) => {
+  // Para Google, usa a constante DEFAULT_MODEL_ID (Flash)
+  // Para outros providers, usa o primeiro modelo da lista
+  if (providerId === 'google') {
+    return DEFAULT_MODEL_ID
+  }
+  return getProviderConfig(providerId)?.models[0]?.id ?? ''
+}
 
 const getModelLabel = (providerId: AIProvider, modelId: string) => {
   const provider = getProviderConfig(providerId)
@@ -574,6 +602,10 @@ export default function AICenterPage() {
     () => normalizeProviderOrder(fallback.order),
     [fallback.order]
   )
+  const configuredProvidersCount = useMemo(() => {
+    return Object.values(providerStatuses).filter(s => s.isConfigured).length
+  }, [providerStatuses])
+  const hasAnyKey = configuredProvidersCount > 0
   const hasSecondaryKey = useMemo(() => {
     return Object.entries(providerStatuses).some(([providerId, status]) => {
       return providerId !== provider && status.isConfigured
@@ -850,22 +882,21 @@ export default function AICenterPage() {
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="space-y-1">
               <h3 className="text-lg font-semibold text-[var(--ds-text-primary)]">Modelo principal</h3>
-              <p className="text-sm text-[var(--ds-text-secondary)]">Escolha o modelo para produção.</p>
+              <p className="text-sm text-[var(--ds-text-secondary)]">
+                {hasAnyKey ? 'Escolha o modelo para produção.' : 'Adicione uma chave de API para começar.'}
+              </p>
             </div>
-            <div className="flex items-center gap-3 text-xs text-[var(--ds-text-muted)]">
-              <span>Fallback automático: {fallbackSummary}</span>
-              <MockSwitch
-                on={fallback.enabled}
-                onToggle={(next) => setFallback((current) => ({ ...current, enabled: next }))}
-                disabled={!hasSecondaryKey}
-                label="Ativar fallback"
-              />
-              {!hasSecondaryKey && (
-                <span className="text-[11px] text-amber-300/80">
-                  Adicione outra chave para ativar.
-                </span>
-              )}
-            </div>
+            {/* Só mostra fallback quando tem 2+ chaves */}
+            {configuredProvidersCount >= 2 && (
+              <div className="flex items-center gap-3 text-xs text-[var(--ds-text-muted)]">
+                <span>Fallback automático: {fallbackSummary}</span>
+                <MockSwitch
+                  on={fallback.enabled}
+                  onToggle={(next) => setFallback((current) => ({ ...current, enabled: next }))}
+                  label="Ativar fallback"
+                />
+              </div>
+            )}
           </div>
 
           <div className="mt-5 space-y-2">
@@ -898,33 +929,38 @@ export default function AICenterPage() {
                   }`}
                 >
                   <div className="flex flex-wrap items-center gap-3">
-                    <div className="flex flex-col items-center gap-1 text-xs text-[var(--ds-text-muted)]">
-                      <button
-                        type="button"
-                        className="flex h-6 w-6 items-center justify-center rounded-md border border-[var(--ds-border-default)] text-[var(--ds-text-secondary)] transition hover:bg-[var(--ds-bg-hover)] hover:text-[var(--ds-text-primary)] disabled:opacity-40"
-                        onClick={() => handleFallbackMove(item.id, -1)}
-                        disabled={index === 0}
-                        aria-label="Mover para cima"
-                      >
-                        <ChevronUp className="size-3" />
-                      </button>
-                      <span className="text-[11px] font-medium text-[var(--ds-text-secondary)]">{index + 1}</span>
-                      <button
-                        type="button"
-                        className="flex h-6 w-6 items-center justify-center rounded-md border border-[var(--ds-border-default)] text-[var(--ds-text-secondary)] transition hover:bg-[var(--ds-bg-hover)] hover:text-[var(--ds-text-primary)] disabled:opacity-40"
-                        onClick={() => handleFallbackMove(item.id, 1)}
-                        disabled={index === orderedProviders.length - 1}
-                        aria-label="Mover para baixo"
-                      >
-                        <ChevronDown className="size-3" />
-                      </button>
-                    </div>
+                    {/* Só mostra controles de ordem quando tem 2+ chaves */}
+                    {configuredProvidersCount >= 2 && (
+                      <div className="flex flex-col items-center gap-1 text-xs text-[var(--ds-text-muted)]">
+                        <button
+                          type="button"
+                          className="flex h-6 w-6 items-center justify-center rounded-md border border-[var(--ds-border-default)] text-[var(--ds-text-secondary)] transition hover:bg-[var(--ds-bg-hover)] hover:text-[var(--ds-text-primary)] disabled:opacity-40"
+                          onClick={() => handleFallbackMove(item.id, -1)}
+                          disabled={index === 0}
+                          aria-label="Mover para cima"
+                        >
+                          <ChevronUp className="size-3" />
+                        </button>
+                        <span className="text-[11px] font-medium text-[var(--ds-text-secondary)]">{index + 1}</span>
+                        <button
+                          type="button"
+                          className="flex h-6 w-6 items-center justify-center rounded-md border border-[var(--ds-border-default)] text-[var(--ds-text-secondary)] transition hover:bg-[var(--ds-bg-hover)] hover:text-[var(--ds-text-primary)] disabled:opacity-40"
+                          onClick={() => handleFallbackMove(item.id, 1)}
+                          disabled={index === orderedProviders.length - 1}
+                          aria-label="Mover para baixo"
+                        >
+                          <ChevronDown className="size-3" />
+                        </button>
+                      </div>
+                    )}
                     <div className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-3">
                       <div>
                         <div className="text-sm font-semibold text-[var(--ds-text-primary)]">{item.name}</div>
-                        <div className="text-xs text-[var(--ds-text-secondary)]">
-                          Modelo: {isActive ? primaryModelLabel : item.models[0]?.name ?? '—'}
-                        </div>
+                        {status.isConfigured && (
+                          <div className="text-xs text-[var(--ds-text-secondary)]">
+                            Modelo: {isActive ? primaryModelLabel : item.models[0]?.name ?? '—'}
+                          </div>
+                        )}
                       </div>
                       <div className="flex flex-wrap items-center gap-2">
                         <StatusPill label={statusLabel} tone={statusTone} />
@@ -965,7 +1001,7 @@ export default function AICenterPage() {
                     </div>
                   </div>
 
-                  {isActive && (
+                  {isActive && status.isConfigured && (
                     <div className="mt-4">
                       <label className="text-xs text-[var(--ds-text-muted)]">Selecionar modelo</label>
                       <div className="relative mt-2">
@@ -1023,6 +1059,22 @@ export default function AICenterPage() {
               )
             })}
           </div>
+
+          {/* Nota de ajuda unificada */}
+          <div className="mt-4 flex items-center gap-3 rounded-lg border border-[var(--ds-border-subtle)] bg-[var(--ds-bg-tertiary)] px-4 py-2.5 text-xs">
+            <span className="text-[var(--ds-text-secondary)]">Obter chaves:</span>
+            <a href={API_KEY_URLS.google.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 hover:underline">
+              Google <ExternalLink className="size-3" />
+            </a>
+            <span className="text-[var(--ds-text-muted)]">•</span>
+            <a href={API_KEY_URLS.openai.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 hover:underline">
+              OpenAI <ExternalLink className="size-3" />
+            </a>
+            <span className="text-[var(--ds-text-muted)]">•</span>
+            <a href={API_KEY_URLS.anthropic.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 hover:underline">
+              Anthropic <ExternalLink className="size-3" />
+            </a>
+          </div>
         </section>
 
         {/* OCR Configuration Section */}
@@ -1056,12 +1108,14 @@ export default function AICenterPage() {
                   <div>
                     <div className="text-sm font-semibold text-[var(--ds-text-primary)]">Gemini</div>
                     <div className="text-xs text-[var(--ds-text-secondary)]">
-                      Usa sua chave Gemini já configurada
+                      {providerStatuses.google.isConfigured
+                        ? 'Usa sua chave Gemini já configurada'
+                        : 'Requer chave Gemini configurada acima'}
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  {ocrConfig.provider === 'gemini' ? (
+                  {ocrConfig.provider === 'gemini' && providerStatuses.google.isConfigured ? (
                     <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 text-xs font-medium text-emerald-300">
                       Em uso
                     </span>
@@ -1165,48 +1219,54 @@ export default function AICenterPage() {
 
               {/* Mistral Key Input - shown when adding/updating key */}
               {showMistralKeyInput && (
-                <div className="mt-4 border-t border-[var(--ds-border-subtle)] pt-4">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <input
-                      type="password"
-                      placeholder="Chave de API do Mistral"
-                      value={mistralKeyDraft}
-                      onChange={(e) => setMistralKeyDraft(e.target.value)}
-                      className="min-w-[220px] flex-1 rounded-lg border border-[var(--ds-border-default)] bg-[var(--ds-bg-surface)] px-3 py-2 text-sm text-[var(--ds-text-primary)] outline-none transition focus:border-emerald-500/40"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleSaveMistralKey}
-                      disabled={isSavingOcr || !mistralKeyDraft.trim()}
-                      className="rounded-lg bg-primary-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-primary-500 dark:bg-white dark:text-zinc-900 dark:hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      {isSavingOcr ? 'Salvando...' : 'Salvar chave'}
-                    </button>
-                    {ocrConfig.mistralStatus.isConfigured &&
-                      ocrConfig.mistralStatus.source === 'database' && (
-                        <button
-                          type="button"
-                          onClick={handleRemoveMistralKey}
-                          disabled={isSavingOcr}
-                          className="flex items-center gap-1 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-medium text-red-300 transition hover:bg-red-500/20 disabled:opacity-50"
-                        >
-                          <Trash2 className="size-3" />
-                          Remover
-                        </button>
-                      )}
-                  </div>
+                <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-[var(--ds-border-subtle)] pt-4">
+                  <input
+                    type="password"
+                    placeholder="Chave de API do Mistral"
+                    value={mistralKeyDraft}
+                    onChange={(e) => setMistralKeyDraft(e.target.value)}
+                    className="min-w-[220px] flex-1 rounded-lg border border-[var(--ds-border-default)] bg-[var(--ds-bg-surface)] px-3 py-2 text-sm text-[var(--ds-text-primary)] outline-none transition focus:border-emerald-500/40"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSaveMistralKey}
+                    disabled={isSavingOcr || !mistralKeyDraft.trim()}
+                    className="rounded-lg bg-primary-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-primary-500 dark:bg-white dark:text-zinc-900 dark:hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isSavingOcr ? 'Salvando...' : 'Salvar chave'}
+                  </button>
+                  {ocrConfig.mistralStatus.isConfigured &&
+                    ocrConfig.mistralStatus.source === 'database' && (
+                      <button
+                        type="button"
+                        onClick={handleRemoveMistralKey}
+                        disabled={isSavingOcr}
+                        className="flex items-center gap-1 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-medium text-red-300 transition hover:bg-red-500/20 disabled:opacity-50"
+                      >
+                        <Trash2 className="size-3" />
+                        Remover
+                      </button>
+                    )}
                 </div>
               )}
             </div>
 
             {/* Info note */}
             <div className="flex items-start gap-2 rounded-lg border border-[var(--ds-border-subtle)] bg-[var(--ds-bg-tertiary)] p-3 text-xs text-[var(--ds-text-secondary)]">
-              <Info className="mt-0.5 size-4 shrink-0 text-emerald-300/60" />
-              <span>
-                O OCR converte PDFs e imagens em texto antes de indexar na base de conhecimento
-                dos agentes. Escolha Gemini para custo-benefício ou Mistral para melhor precisão
-                em tabelas complexas.
-              </span>
+              <Info className="mt-0.5 size-4 shrink-0 text-emerald-400" />
+              <div className="space-y-2">
+                <span>
+                  O OCR converte PDFs e imagens em texto antes de indexar na base de conhecimento
+                  dos agentes. Escolha Gemini para custo-benefício ou Mistral para melhor precisão
+                  em tabelas complexas.
+                </span>
+                <div className="flex items-center gap-2">
+                  <span>Obter chave:</span>
+                  <a href={API_KEY_URLS.mistral.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 hover:underline">
+                    Mistral <ExternalLink className="size-3" />
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </section>

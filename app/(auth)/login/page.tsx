@@ -32,35 +32,27 @@ function LoginForm() {
     }
 
     // Get company name from auth status
-    console.log('🔍 [LOGIN] Fetching auth status...')
     fetch('/api/auth/status')
       .then(res => {
-        console.log('🔍 [LOGIN] Auth status response:', res.status)
         return res.json()
       })
       .then(async (data) => {
-        console.log('🔍 [LOGIN] Auth data:', JSON.stringify(data, null, 2))
         if (!data.isConfigured) {
           setIsConfigured(false)
 
           // Em localhost, não forçamos o fluxo da Vercel. Mostramos instrução para configurar .env.local.
           if (isLocalhost) {
-            console.log('🔍 [LOGIN] Not configured in localhost — showing local setup hint')
             setError('Configuração local incompleta: defina MASTER_PASSWORD no .env.local e reinicie o servidor (npm run dev).')
             return
           }
 
-          console.log('🔍 [LOGIN] Not configured, redirecting to /install/start')
           router.push('/install/start')
         } else if (!data.isSetup) {
           // Instalação incompleta - redireciona para o wizard
-          console.log('🔍 [LOGIN] Not setup, redirecting to /install/wizard')
           router.push('/install/wizard')
         } else if (data.isAuthenticated) {
-          console.log('🔍 [LOGIN] Already authenticated, redirecting to /')
           router.push('/')
         } else if (data.company) {
-          console.log('🔍 [LOGIN] Company found:', data.company.name)
           setCompanyName(data.company.name)
         }
       })

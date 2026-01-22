@@ -116,7 +116,6 @@ function getFooter(children: FlowComponent[], resolveText: (text: string) => str
   const label = resolved.trim() || 'Continue'
   if (resolved !== label) {
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H10',location:'components/ui/MetaFlowPreview.tsx:getFooter',message:'footer label trimmed',data:{raw,resolved,trimmed:label,rawLen:raw.length,resolvedLen:resolved.length,trimmedLen:label.length},timestamp:Date.now()})}).catch(()=>{});
     // #endregion
   }
   return { label }
@@ -460,7 +459,6 @@ function renderDropdown(
     const ds = (comp as any)?.['data-source']
     const dsType = Array.isArray(ds) ? 'array' : typeof ds
     const dsCount = Array.isArray(ds) ? ds.length : null
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'options-edit',hypothesisId:'H8',location:'components/ui/MetaFlowPreview.tsx:renderDropdown',message:'preview dropdown options',data:{name,dsType,dsCount,optionsCount:options.length,firstTitle:options[0]?.title?String(options[0].title):'',firstId:options[0]?.id?String(options[0].id):''},timestamp:Date.now()})}).catch(()=>{});
   } catch {}
   // #endregion agent log
   return (
@@ -602,7 +600,6 @@ export function MetaFlowPreview(props: {
   React.useEffect(() => {
     try {
       // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'paths-preview',hypothesisId:'H4',location:'components/ui/MetaFlowPreview.tsx:effect',message:'currentScreenId changed',data:{currentScreenId,selectedScreenId:props.selectedScreenId ?? null,stackDepth:screenStack.length,completed},timestamp:Date.now()})}).catch(()=>{});
       // #endregion agent log
     } catch {}
   }, [currentScreenId, props.selectedScreenId, screenStack.length, completed])
@@ -610,7 +607,6 @@ export function MetaFlowPreview(props: {
   React.useEffect(() => {
     // #region agent log
     try {
-      fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'template-preview',hypothesisId:'H6',location:'components/ui/MetaFlowPreview.tsx:effect',message:'flowJson changed',data:{initialScreenId,selectedScreenId:props.selectedScreenId ?? null,screensCount:Array.isArray(screens)?screens.length:null,parsedVersion:parsed.version ?? null},timestamp:Date.now()})}).catch(()=>{});
     } catch {}
     // #endregion agent log
     setCurrentScreenId(initialScreenId)
@@ -625,7 +621,6 @@ export function MetaFlowPreview(props: {
     if (!screens.some((s) => s?.id === selected)) return
     try {
       // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'paths-preview',hypothesisId:'H2',location:'components/ui/MetaFlowPreview.tsx:effect',message:'selectedScreenId sync overrides preview screen',data:{selectedScreenId:selected,currentScreenIdBefore:currentScreenId,screensHasSelected:true},timestamp:Date.now()})}).catch(()=>{});
       // #endregion agent log
     } catch {}
     setCurrentScreenId(selected)
@@ -797,7 +792,6 @@ export function MetaFlowPreview(props: {
         const rules = props.paths.branchesByScreen?.[currentScreenId] || []
         const byPaths = resolveNextByPaths()
         // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'paths-preview',hypothesisId:'H1',location:'components/ui/MetaFlowPreview.tsx:handleFooterClick',message:'resolveNextByPaths debug',data:{currentScreenId,valuesKeys:Object.keys(valuesForScreen),valuesForScreenPreview:Object.fromEntries(Object.entries(valuesForScreen).slice(0,6)),rulesPreview:(rules||[]).slice(0,6).map((r:any)=>({field:r?.field,op:r?.op,value:r?.value,next:r?.next,currentValue:(valuesForScreen as any)?.[r?.field]})),resolvedByPaths:byPaths,fallback:props.paths.defaultNextByScreen?.[currentScreenId] ?? undefined},timestamp:Date.now()})}).catch(()=>{});
         // #endregion agent log
       }
     } catch {}
@@ -810,7 +804,6 @@ export function MetaFlowPreview(props: {
     if (!screens.some((s) => s?.id === nextId)) return
     try {
       // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'paths-preview',hypothesisId:'H3',location:'components/ui/MetaFlowPreview.tsx:handleFooterClick',message:'navigating preview to nextId',data:{clickId,currentScreenId,nextId,selectedScreenId:props.selectedScreenId ?? null,stackDepth:screenStack.length,actionName},timestamp:Date.now()})}).catch(()=>{});
       // #endregion agent log
     } catch {}
     setScreenStack((prev) => [...prev, currentScreenId])

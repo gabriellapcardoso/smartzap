@@ -9,6 +9,7 @@ import { Contact, ContactStatus } from './types';
 import { calculateRelativeTime, getContactInitials } from './utils';
 import { ContactCardList } from './ContactCard';
 import { useIsMobile } from '@/hooks/useMediaQuery';
+import { formatPhoneNumberDisplay } from '@/lib/phone-formatter';
 
 export interface ContactTableProps {
   contacts: Contact[];
@@ -155,7 +156,7 @@ const ContactTableRow = React.memo(
               <p className="font-medium text-[var(--ds-text-primary)] group-hover:text-primary-400 transition-colors">
                 {displayName}
               </p>
-              <p className="text-xs text-[var(--ds-text-muted)] font-mono">{contact.phone}</p>
+              <p className="text-xs text-[var(--ds-text-muted)] font-mono">{formatPhoneNumberDisplay(contact.phone, 'e164')}</p>
             </div>
           </div>
         </td>

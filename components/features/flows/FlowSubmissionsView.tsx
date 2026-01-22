@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { RefreshCw, Search, ChevronDown, ChevronUp } from 'lucide-react'
+import { formatPhoneNumberDisplay } from '@/lib/phone-formatter'
 import type { FlowSubmissionRow } from '@/services/flowSubmissionsService'
 import type { FlowRow } from '@/services/flowsService'
 
@@ -182,7 +183,7 @@ export function FlowSubmissionsView(props: {
                   <Fragment key={r.id}>
                     <tr className="border-t border-white/10 hover:bg-white/5">
                       <td className="px-4 py-3 text-gray-200">{formatDateTime(r.created_at)}</td>
-                      <td className="px-4 py-3 font-mono text-xs text-gray-300">{r.from_phone}</td>
+                      <td className="px-4 py-3 font-mono text-xs text-gray-300">{formatPhoneNumberDisplay(r.from_phone, 'e164')}</td>
                       <td className="px-4 py-3">
                         <div className="text-gray-200 font-medium">{r.flow_name || r.flow_id || '—'}</div>
                         {r.flow_id && r.flow_name && (

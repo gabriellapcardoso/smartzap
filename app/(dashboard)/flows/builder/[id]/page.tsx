@@ -89,7 +89,6 @@ export default function FlowBuilderEditorPage({
       try {
         const screens = Array.isArray((generatedJson as any)?.screens) ? (generatedJson as any).screens : []
         const firstScreenId = screens.length ? String(screens[0]?.id || '') : null
-        fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'template-preview',hypothesisId:'H4',location:'app/(dashboard)/flows/builder/[id]/page.tsx:UnifiedFlowEditor.onPreviewChange',message:'editor emitted preview',data:{step:stepNow,startMode:startModeNow,firstScreenId,activeScreenId},timestamp:Date.now()})}).catch(()=>{})
       } catch {}
       // #endregion agent log
       setFormPreviewJson(generatedJson)
@@ -98,7 +97,6 @@ export default function FlowBuilderEditorPage({
       try {
         const screens = Array.isArray((generatedJson as any)?.screens) ? (generatedJson as any).screens : []
         const firstScreenId = screens.length ? String(screens[0]?.id || '') : null
-        fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'max-depth',hypothesisId:'L2',location:'app/(dashboard)/flows/builder/[id]/page.tsx:onPreviewChange',message:'page applying editor preview (guarded editorSpecOverride)',data:{stepNow,startModeNow,activeScreenId,firstScreenId,hadOverride},timestamp:Date.now()})}).catch(()=>{})
       } catch {}
       // #endregion agent log
       setEditorSpecOverride((prev: unknown) => {
@@ -126,7 +124,6 @@ export default function FlowBuilderEditorPage({
   React.useEffect(() => {
     if (!showAdvancedPanel) return
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'advanced-panel',hypothesisId:'H11',location:'app/(dashboard)/flows/builder/[id]/page.tsx:effect',message:'showAdvancedPanel turned on',data:{step,startMode,hasJson:advancedGate.hasJson,hasRouting:advancedGate.hasRouting},timestamp:Date.now()})}).catch(()=>{});
     // #endregion agent log
   }, [advancedGate.hasJson, advancedGate.hasRouting, showAdvancedPanel, startMode, step])
 
@@ -135,7 +132,6 @@ export default function FlowBuilderEditorPage({
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return
       // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'advanced-panel',hypothesisId:'H15',location:'app/(dashboard)/flows/builder/[id]/page.tsx:keydown',message:'escape closes advanced panel',data:{},timestamp:Date.now()})}).catch(()=>{});
       // #endregion agent log
       setShowAdvancedPanel(false)
     }
@@ -145,13 +141,11 @@ export default function FlowBuilderEditorPage({
 
   React.useEffect(() => {
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'advanced-panel',hypothesisId:'H14',location:'app/(dashboard)/flows/builder/[id]/page.tsx:effect',message:'showAdvancedPanel state',data:{showAdvancedPanel},timestamp:Date.now()})}).catch(()=>{});
     // #endregion agent log
   }, [showAdvancedPanel])
 
   React.useEffect(() => {
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'start-mode',hypothesisId:'H10',location:'app/(dashboard)/flows/builder/[id]/page.tsx:effect',message:'startMode changed',data:{step,startMode},timestamp:Date.now()})}).catch(()=>{});
     // #endregion agent log
   }, [startMode, step])
 
@@ -202,7 +196,6 @@ export default function FlowBuilderEditorPage({
     if (!tpl) return
     try {
       // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'template-apply',hypothesisId:'T1',location:'app/(dashboard)/flows/builder/[id]/page.tsx:handleApplyTemplate',message:'apply template start',data:{step,startMode,selectedTemplateKey,tplKey:tpl.key,isDynamic:!!tpl.isDynamic,hasTplForm:!!tpl.form},timestamp:Date.now()})}).catch(()=>{});
       // #endregion agent log
     } catch {}
     // Usa tpl.form se disponível (para templates dinâmicos), senão converte do flowJson
@@ -218,7 +211,6 @@ export default function FlowBuilderEditorPage({
         const successScreen = screens.find((s:any) => s?.id === 'SUCCESS')
         const successChildren = successScreen?.layout?.children || []
         // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'template-apply',hypothesisId:'T2',location:'app/(dashboard)/flows/builder/[id]/page.tsx:handleApplyTemplate',message:'apply template computed json',data:{tplKey:tpl.key,screenCount:screens.length,firstScreenId:screens.length?String(screens[0]?.id||''):null,successChildTypes:successChildren.map((c:any)=>c?.type),successChildTexts:successChildren.filter((c:any)=>c?.text).map((c:any)=>c?.text?.substring?.(0,50))},timestamp:Date.now()})}).catch(()=>{});
         // #endregion agent log
       } catch {}
       setFormPreviewJson(dynamicJson)
@@ -231,7 +223,6 @@ export default function FlowBuilderEditorPage({
       })
       try {
         // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'template-apply',hypothesisId:'T3',location:'app/(dashboard)/flows/builder/[id]/page.tsx:handleApplyTemplate',message:'apply template saved',data:{tplKey:tpl.key,willSetStep2:true},timestamp:Date.now()})}).catch(()=>{});
         // #endregion agent log
       } catch {}
       setStep(2)
@@ -243,7 +234,6 @@ export default function FlowBuilderEditorPage({
     try {
       const screens = Array.isArray((dynamicJson as any)?.screens) ? (dynamicJson as any).screens : []
       // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'template-apply',hypothesisId:'T2',location:'app/(dashboard)/flows/builder/[id]/page.tsx:handleApplyTemplate',message:'apply template computed json',data:{tplKey:tpl.key,isDynamic:!!tpl.isDynamic,screenCount:screens.length,firstScreenId:screens.length?String(screens[0]?.id||''):null},timestamp:Date.now()})}).catch(()=>{});
       // #endregion agent log
     } catch {}
     setFormPreviewJson(dynamicJson)
@@ -256,7 +246,6 @@ export default function FlowBuilderEditorPage({
     })
     try {
       // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'template-apply',hypothesisId:'T3',location:'app/(dashboard)/flows/builder/[id]/page.tsx:handleApplyTemplate',message:'apply template saved',data:{tplKey:tpl.key,templateKeySent:true,willSetStep2:true},timestamp:Date.now()})}).catch(()=>{});
       // #endregion agent log
     } catch {}
     setStep(2)
@@ -287,7 +276,6 @@ export default function FlowBuilderEditorPage({
     try {
       const immediateJson = computeTemplatePreviewJson(tpl)
       // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'template-preview',hypothesisId:'H7',location:'app/(dashboard)/flows/builder/[id]/page.tsx:handleTemplateHover',message:'hover immediate preview applied',data:{tplKey:tpl.key ?? null,screenCount:Array.isArray((immediateJson as any)?.screens)?(immediateJson as any).screens.length:null,firstScreenId:Array.isArray((immediateJson as any)?.screens)?String((immediateJson as any).screens?.[0]?.id||''):null},timestamp:Date.now()})}).catch(()=>{});
       // #endregion agent log
       setTemplateHoverPreviewJson(immediateJson)
     } catch {
@@ -295,21 +283,17 @@ export default function FlowBuilderEditorPage({
     }
     if (hoverPreviewTimerRef.current) {
       // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'template-preview',hypothesisId:'H3',location:'app/(dashboard)/flows/builder/[id]/page.tsx:handleTemplateHover',message:'hover cancels previous timer',data:{step,startMode,newTplKey:tpl.key ?? null},timestamp:Date.now()})}).catch(()=>{});
       // #endregion agent log
       clearTimeout(hoverPreviewTimerRef.current)
     }
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'template-preview',hypothesisId:'H3',location:'app/(dashboard)/flows/builder/[id]/page.tsx:handleTemplateHover',message:'hover schedules timer',data:{step,startMode,tplKey:tpl.key ?? null},timestamp:Date.now()})}).catch(()=>{});
     // #endregion agent log
     hoverPreviewTimerRef.current = setTimeout(() => {
       try {
         // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'template-preview',hypothesisId:'H1',location:'app/(dashboard)/flows/builder/[id]/page.tsx:handleTemplateHover',message:'hover fired',data:{step, startMode, tplKey:tpl.key ?? null,selectedTemplateKey,hasTplForm:Boolean(tpl.form),isDynamic:Boolean(tpl.isDynamic)},timestamp:Date.now()})}).catch(()=>{});
         // #endregion agent log
         const nextJson = computeTemplatePreviewJson(tpl)
         // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'template-preview',hypothesisId:'H1',location:'app/(dashboard)/flows/builder/[id]/page.tsx:handleTemplateHover',message:'hover computed preview json',data:{tplKey:tpl.key ?? null,screenCount:Array.isArray((nextJson as any)?.screens)?(nextJson as any).screens.length:null,firstScreenId:Array.isArray((nextJson as any)?.screens)?String((nextJson as any).screens?.[0]?.id||''):null},timestamp:Date.now()})}).catch(()=>{});
         // #endregion agent log
         setTemplateHoverPreviewJson(nextJson)
       } catch {
@@ -326,13 +310,11 @@ export default function FlowBuilderEditorPage({
     const screens = Array.isArray((current as any).screens) ? (current as any).screens : []
     const firstScreenId = screens.length ? String(screens[0]?.id || '') : null
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'template-preview',hypothesisId:'H2',location:'app/(dashboard)/flows/builder/[id]/page.tsx:effect',message:'formPreviewJson updated',data:{step,startMode,selectedTemplateKey,firstScreenId,screenCount:screens.length,selectedScreenId:formPreviewSelectedScreenId ?? null},timestamp:Date.now()})}).catch(()=>{});
     // #endregion agent log
   }, [formPreviewJson, startMode, step, templateHoverPreviewJson, templateSelectedPreviewJson])
 
   React.useEffect(() => {
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'template-preview',hypothesisId:'H2',location:'app/(dashboard)/flows/builder/[id]/page.tsx:effect',message:'selectedTemplateKey changed',data:{step,startMode,selectedTemplateKey,hasPreviewJson:Boolean(formPreviewJson),selectedScreenId:formPreviewSelectedScreenId ?? null,previewFlowJsonSource:formPreviewJson ? 'state' : ((flow as any)?.flow_json ? 'db' : 'none')},timestamp:Date.now()})}).catch(()=>{});
     // #endregion agent log
   }, [selectedTemplateKey])
 
@@ -380,7 +362,6 @@ export default function FlowBuilderEditorPage({
     const screens = json && typeof json === 'object' && Array.isArray(json.screens) ? json.screens : []
     const firstScreenId = screens.length ? String(screens[0]?.id || '') : null
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'template-preview',hypothesisId:'H6',location:'app/(dashboard)/flows/builder/[id]/page.tsx:effect',message:'previewFlowJson computed',data:{step,startMode,source,firstScreenId,selectedScreenId:formPreviewSelectedScreenId ?? null,selectedTemplateKey},timestamp:Date.now()})}).catch(()=>{});
     // #endregion agent log
   }, [formPreviewJson, formPreviewSelectedScreenId, previewFlowJson, selectedTemplateKey, startMode, step, templateHoverPreviewJson, templateSelectedPreviewJson])
 
@@ -391,7 +372,6 @@ export default function FlowBuilderEditorPage({
     if (!tpl) return
     const nextJson = computeTemplatePreviewJson(tpl)
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'template-preview',hypothesisId:'H5',location:'app/(dashboard)/flows/builder/[id]/page.tsx:effect',message:'set selected template preview json',data:{selectedTemplateKey},timestamp:Date.now()})}).catch(()=>{});
     // #endregion agent log
     setTemplateSelectedPreviewJson(nextJson)
   }, [computeTemplatePreviewJson, selectedTemplateKey, startMode, step])
@@ -501,7 +481,6 @@ export default function FlowBuilderEditorPage({
     const resolvedTitle = rawTitle ? resolveConfirmationBinding(rawTitle, s) : ''
     const resolvedFooter = rawFooter ? resolveConfirmationBinding(rawFooter, s) : ''
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H1',location:'app/(dashboard)/flows/builder/[id]/page.tsx:confirmationState',message:'confirmation bindings resolved',data:{rawTitle,rawFooter,resolvedTitle,resolvedFooter,usesBindingTitle:/^\$\{data\./.test(rawTitle),usesBindingFooter:/^\$\{data\./.test(rawFooter)},timestamp:Date.now()})}).catch(()=>{});
     // #endregion
     const fields = Array.isArray(payload?.confirmation_fields) ? (payload.confirmation_fields as any[]).filter((x) => typeof x === 'string') : null
     const labels =
@@ -533,7 +512,6 @@ export default function FlowBuilderEditorPage({
             const v = raw
             const hasValue = raw.trim().length > 0
             // #region agent log
-            fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H2',location:'app/(dashboard)/flows/builder/[id]/page.tsx:applyConfirmationPatch:title',message:'confirmation title patch',data:{raw,rawLen:raw.length,hasValue},timestamp:Date.now()})}).catch(()=>{});
             // #endregion
             if (hasValue) (basePayload as any).confirmation_title = v
             else delete (basePayload as any).confirmation_title
@@ -543,7 +521,6 @@ export default function FlowBuilderEditorPage({
             const v = raw
             const hasValue = raw.trim().length > 0
             // #region agent log
-            fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H2',location:'app/(dashboard)/flows/builder/[id]/page.tsx:applyConfirmationPatch:footer',message:'confirmation footer patch',data:{raw,rawLen:raw.length,hasValue},timestamp:Date.now()})}).catch(()=>{});
             // #endregion
             if (hasValue) (basePayload as any).confirmation_footer = v
             else delete (basePayload as any).confirmation_footer
@@ -563,7 +540,6 @@ export default function FlowBuilderEditorPage({
               if (key && hasValue) cleaned[key] = rawVal
             }
             // #region agent log
-            fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H9',location:'app/(dashboard)/flows/builder/[id]/page.tsx:applyConfirmationPatch:labels',message:'confirmation labels cleaned',data:{rawKeys:Object.keys(labels),cleanedKeys:Object.keys(cleaned),rawSample:Object.entries(labels).slice(0,2),cleanedSample:Object.entries(cleaned).slice(0,2)},timestamp:Date.now()})}).catch(()=>{});
             // #endregion
             if (Object.keys(cleaned).length) (basePayload as any).confirmation_labels = cleaned
             else delete (basePayload as any).confirmation_labels
@@ -676,7 +652,6 @@ export default function FlowBuilderEditorPage({
                       aria-pressed={startMode === 'ai'}
                       onClick={() => {
                         // #region agent log
-                        fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'start-mode',hypothesisId:'H9',location:'app/(dashboard)/flows/builder/[id]/page.tsx:startMode',message:'start mode selected',data:{mode:'ai',prev:startMode},timestamp:Date.now()})}).catch(()=>{});
                         // #endregion agent log
                         setStartMode('ai')
                       }}
@@ -698,7 +673,6 @@ export default function FlowBuilderEditorPage({
                       aria-pressed={startMode === 'template'}
                       onClick={() => {
                         // #region agent log
-                        fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'start-mode',hypothesisId:'H9',location:'app/(dashboard)/flows/builder/[id]/page.tsx:startMode',message:'start mode selected',data:{mode:'template',prev:startMode},timestamp:Date.now()})}).catch(()=>{});
                         // #endregion agent log
                         setStartMode('template')
                       }}
@@ -720,7 +694,6 @@ export default function FlowBuilderEditorPage({
                       aria-pressed={startMode === 'zero'}
                       onClick={() => {
                         // #region agent log
-                        fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'start-mode',hypothesisId:'H9',location:'app/(dashboard)/flows/builder/[id]/page.tsx:startMode',message:'start mode selected',data:{mode:'zero',prev:startMode},timestamp:Date.now()})}).catch(()=>{});
                         // #endregion agent log
                         setStartMode('zero')
                         setStep(2)
@@ -777,7 +750,6 @@ export default function FlowBuilderEditorPage({
                             hoverPreviewTimerRef.current = null
                           }
                           // #region agent log
-                          fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'template-preview',hypothesisId:'H8',location:'app/(dashboard)/flows/builder/[id]/page.tsx:templateGrid',message:'grid mouse leave clears hover preview',data:{selectedTemplateKey},timestamp:Date.now()})}).catch(()=>{});
                           // #endregion agent log
                           setTemplateHoverPreviewJson(null)
                           setHoverTemplateKey(null)
@@ -790,11 +762,9 @@ export default function FlowBuilderEditorPage({
                             onMouseEnter={() => handleTemplateHover(tpl)}
                             onClick={() => {
                               // #region agent log
-                              fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'template-preview',hypothesisId:'H1',location:'app/(dashboard)/flows/builder/[id]/page.tsx:templateCard',message:'template card clicked',data:{step,startMode,clickedKey:tpl.key,previousSelectedTemplateKey:selectedTemplateKey,hoverKey:hoverTemplateKey ?? null},timestamp:Date.now()})}).catch(()=>{});
                               // #endregion agent log
                               if (hoverPreviewTimerRef.current) {
                                 // #region agent log
-                                fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'template-preview',hypothesisId:'H3',location:'app/(dashboard)/flows/builder/[id]/page.tsx:templateCard',message:'click cancels hover timer',data:{clickedKey:tpl.key},timestamp:Date.now()})}).catch(()=>{});
                                 // #endregion agent log
                                 clearTimeout(hoverPreviewTimerRef.current)
                                 hoverPreviewTimerRef.current = null
@@ -803,7 +773,6 @@ export default function FlowBuilderEditorPage({
                               try {
                                 const nextJson = computeTemplatePreviewJson(tpl)
                                 // #region agent log
-                                fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'template-preview',hypothesisId:'H1',location:'app/(dashboard)/flows/builder/[id]/page.tsx:templateCard',message:'template click computed preview json',data:{clickedKey:tpl.key,screenCount:Array.isArray((nextJson as any)?.screens)?(nextJson as any).screens.length:null,firstScreenId:Array.isArray((nextJson as any)?.screens)?String((nextJson as any).screens?.[0]?.id||''):null},timestamp:Date.now()})}).catch(()=>{});
                                 // #endregion agent log
                                 setFormPreviewSelectedScreenId(null)
                                 setTemplateHoverPreviewJson(null)
@@ -865,7 +834,6 @@ export default function FlowBuilderEditorPage({
                     selectedEditorKey={previewSelectedEditorKey}
                     onOpenAdvanced={() => {
                       // #region agent log
-                      fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'advanced-panel',hypothesisId:'H11',location:'app/(dashboard)/flows/builder/[id]/page.tsx:onOpenAdvanced',message:'open advanced clicked',data:{step,startMode,hasPreviewJson:!!formPreviewJson,hasRoutingModel:!!(formPreviewJson as any)?.routing_model},timestamp:Date.now()})}).catch(()=>{});
                       // #endregion agent log
                       setShowAdvancedPanel(true)
                     }}
@@ -938,7 +906,6 @@ export default function FlowBuilderEditorPage({
                             value={confirmationState?.title || ''}
                             onChange={(e) => {
                               // #region agent log
-                              fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H1',location:'app/(dashboard)/flows/builder/[id]/page.tsx:confirmTitleChange',message:'confirmation title input change',data:{rawValue:e.target.value},timestamp:Date.now()})}).catch(()=>{});
                               // #endregion
                               applyConfirmationPatch({ title: e.target.value })
                             }}
@@ -951,7 +918,6 @@ export default function FlowBuilderEditorPage({
                             value={confirmationState?.footer || ''}
                             onChange={(e) => {
                               // #region agent log
-                              fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H1',location:'app/(dashboard)/flows/builder/[id]/page.tsx:confirmFooterChange',message:'confirmation footer input change',data:{rawValue:e.target.value},timestamp:Date.now()})}).catch(()=>{});
                               // #endregion
                               applyConfirmationPatch({ footer: e.target.value })
                             }}
@@ -1000,7 +966,6 @@ export default function FlowBuilderEditorPage({
                                       const rawValue = e.target.value
                                       const nextValue = rawValue
                                       // #region agent log
-                                      fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H9',location:'app/(dashboard)/flows/builder/[id]/page.tsx:labelChange',message:'confirmation label input change',data:{field:f.name,rawValue,trimmedValue:nextValue,rawLen:rawValue.length,trimmedLen:nextValue.length,defaultLabel:f.label},timestamp:Date.now()})}).catch(()=>{});
                                       // #endregion
                                       const hasValue = rawValue.trim().length > 0
                                       if (!hasValue || rawValue === f.label) delete base[f.name]
@@ -1118,7 +1083,6 @@ export default function FlowBuilderEditorPage({
                       }
                       onSelectEditorKey={(key) => {
                         // #region agent log
-                        fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H11',location:'app/(dashboard)/flows/builder/[id]/page.tsx:onSelectEditorKey',message:'preview selected editor key change',data:{key},timestamp:Date.now()})}).catch(()=>{});
                         // #endregion
                         setPreviewSelectedEditorKey(key)
                       }}
@@ -1142,7 +1106,6 @@ export default function FlowBuilderEditorPage({
             className="fixed inset-0 z-40 bg-black/40"
             onClick={() => {
               // #region agent log
-              fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'advanced-panel',hypothesisId:'H15',location:'app/(dashboard)/flows/builder/[id]/page.tsx:overlay',message:'overlay click closes advanced panel',data:{},timestamp:Date.now()})}).catch(()=>{});
               // #endregion agent log
               setShowAdvancedPanel(false)
             }}

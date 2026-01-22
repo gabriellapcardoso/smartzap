@@ -320,7 +320,6 @@ export function TemplateBadgeTextarea({
     
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) {
-      console.log("[Textarea] saveCursorPosition: No selection");
       return null;
     }
     
@@ -329,7 +328,6 @@ export function TemplateBadgeTextarea({
     preCaretRange.selectNodeContents(contentRef.current);
     preCaretRange.setEnd(range.endContainer, range.endOffset);
     
-    console.log("[Textarea] saveCursorPosition: range.endContainer", range.endContainer, "endOffset", range.endOffset);
     
     // Calculate offset considering badges as single characters
     let offset = 0;
@@ -346,11 +344,9 @@ export function TemplateBadgeTextarea({
         if (node === range.endContainer) {
           offset += range.endOffset;
           found = true;
-          console.log("[Textarea] saveCursorPosition: Found cursor in text node, offset:", offset);
         } else {
           const textLength = (node.textContent || "").length;
           offset += textLength;
-          console.log("[Textarea] saveCursorPosition: Text node before cursor, length:", textLength);
         }
       } else if (node.nodeType === Node.ELEMENT_NODE) {
         const element = node as HTMLElement;
@@ -359,23 +355,19 @@ export function TemplateBadgeTextarea({
           if (element.contains(range.endContainer) || element === range.endContainer) {
             offset += template.length;
             found = true;
-            console.log("[Textarea] saveCursorPosition: Found cursor in badge, offset:", offset);
           } else {
             offset += template.length;
-            console.log("[Textarea] saveCursorPosition: Badge before cursor, length:", template.length);
           }
         } else if (element.tagName === "BR") {
           if (element === range.endContainer || element.contains(range.endContainer)) {
             found = true;
           } else {
             offset += 1; // Count line break as 1 character
-            console.log("[Textarea] saveCursorPosition: BR before cursor");
           }
         }
       }
     }
     
-    console.log("[Textarea] saveCursorPosition: Final offset:", offset);
     return { offset };
   };
   
@@ -567,24 +559,19 @@ export function TemplateBadgeTextarea({
         // Only add text if it's NOT inside a badge
         if (!isInsideBadge) {
           result += node.textContent;
-          console.log("[Textarea] extractValue: Adding text node:", node.textContent);
         } else {
-          console.log("[Textarea] extractValue: Skipping text inside badge:", node.textContent);
         }
       } else if (node.nodeType === Node.ELEMENT_NODE) {
         const element = node as HTMLElement;
         const template = element.getAttribute("data-template");
         if (template) {
           result += template;
-          console.log("[Textarea] extractValue: Adding template:", template);
         } else if (element.tagName === "BR") {
           result += "\n";
-          console.log("[Textarea] extractValue: Adding line break");
         }
       }
     }
 
-    console.log("[Textarea] extractValue: Final result:", result);
     return result;
   };
 
@@ -654,14 +641,10 @@ export function TemplateBadgeTextarea({
     // Extract the value from DOM
     const newValue = extractValue();
     
-    console.log("[Textarea] handleInput: newValue:", newValue);
-    console.log("[Textarea] handleInput: internalValue:", internalValue);
-    console.log("[Textarea] handleInput: DOM innerHTML:", contentRef.current?.innerHTML);
     
     // Check if the value has changed
     if (newValue === internalValue) {
       // No change, ignore (this can happen with badge clicks, etc)
-      console.log("[Textarea] handleInput: No change detected, ignoring");
       return;
     }
     
@@ -669,11 +652,9 @@ export function TemplateBadgeTextarea({
     const oldTemplates = (internalValue.match(/\{\{@([^:]+):([^}]+)\}\}/g) || []).length;
     const newTemplates = (newValue.match(/\{\{@([^:]+):([^}]+)\}\}/g) || []).length;
     
-    console.log("[Textarea] handleInput: oldTemplates:", oldTemplates, "newTemplates:", newTemplates);
     
     if (newTemplates > oldTemplates) {
       // A new template was added, update display to show badge
-      console.log("[Textarea] handleInput: New template added, rendering badge");
       setInternalValue(newValue);
       onChange?.(newValue);
       shouldUpdateDisplay.current = true;
@@ -690,7 +671,6 @@ export function TemplateBadgeTextarea({
     if (newTemplates === oldTemplates && newTemplates > 0) {
       // Same number of templates, just typing around existing badges
       // DON'T update display, just update the value
-      console.log("[Textarea] handleInput: Typing around existing badges, NOT updating display");
       setInternalValue(newValue);
       onChange?.(newValue);
       // Don't trigger display update - this prevents cursor reset!
@@ -701,7 +681,6 @@ export function TemplateBadgeTextarea({
     
     if (newTemplates < oldTemplates) {
       // A template was removed (e.g., user deleted a badge or part of template text)
-      console.log("[Textarea] handleInput: Template removed, updating display");
       setInternalValue(newValue);
       onChange?.(newValue);
       shouldUpdateDisplay.current = true;
@@ -713,7 +692,6 @@ export function TemplateBadgeTextarea({
     }
     
     // Normal typing (no badges present)
-    console.log("[Textarea] handleInput: Normal typing, no badges");
     setInternalValue(newValue);
     onChange?.(newValue);
     
@@ -733,18 +711,7 @@ export function TemplateBadgeTextarea({
     
     // Calculate where cursor should be after the template (right after the badge)
     const targetCursorPosition = beforeAt.length + template.length;
-    
-    console.log("[Textarea] Autocomplete select:", {
-      currentText,
-      atSignPosition,
-      filter: autocompleteFilter,
-      template,
-      beforeAt,
-      afterFilter,
-      newText,
-      targetCursorPosition
-    });
-    
+
     setInternalValue(newText);
     onChange?.(newText);
     shouldUpdateDisplay.current = true;

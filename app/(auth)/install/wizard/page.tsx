@@ -97,7 +97,6 @@ export default function InstallWizardPage() {
 
   // Hydration: check if all data is present
   useEffect(() => {
-    console.log('[WizardPage] useEffect de hidratação executando...');
 
     const vercelToken = localStorage.getItem(STORAGE_KEYS.VERCEL_TOKEN);
     const vercelProject = localStorage.getItem(STORAGE_KEYS.VERCEL_PROJECT);
@@ -127,7 +126,6 @@ export default function InstallWizardPage() {
     };
     const hasMissing = Object.values(missingData).some(v => v);
     if (hasMissing) {
-      console.log('[WizardPage] Dados faltando:', missingData);
     }
 
     // Missing data → go back to start
@@ -144,12 +142,10 @@ export default function InstallWizardPage() {
       !email ||
       !passwordHash
     ) {
-      console.log('[WizardPage] Redirecionando de volta para /install/start (dados faltando)');
       router.replace('/install/start');
       return;
     }
 
-    console.log('[WizardPage] Todos os dados presentes, continuando...');
 
     // Supabase URL: se não tiver, gerar baseado no ref
     let resolvedSupabaseUrl = supabaseUrl || '';
@@ -277,7 +273,6 @@ export default function InstallWizardPage() {
               skipBootstrap: healthData.skipBootstrap,
               estimatedSeconds: healthData.estimatedSeconds,
             };
-            console.log('[wizard] Health check result:', healthCheck);
 
             // Mensagem personalizada baseada no que foi detectado
             const skippedCount = [
@@ -296,7 +291,6 @@ export default function InstallWizardPage() {
         }
       } catch (healthErr) {
         // Health check é opcional - continua sem ele
-        console.log('[wizard] Health check falhou (continuando sem otimização):', healthErr);
       }
 
       const payload = {
@@ -340,7 +334,6 @@ export default function InstallWizardPage() {
       await handleStream(response);
     } catch (err) {
       if ((err as Error).name === 'AbortError') {
-        console.log('[wizard] Instalação cancelada');
         return;
       }
       setError(err instanceof Error ? err.message : 'Erro desconhecido');

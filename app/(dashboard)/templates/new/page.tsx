@@ -235,7 +235,6 @@ export default function NewTemplateProjectPage() {
     const handleGenerate = async () => {
         if (!prompt) return toast.error('Digite um comando para a IA');
 
-        console.log('[NewTemplateProjectPage] Generating with Strategy:', strategy);
 
         setStep('generating');
         try {

@@ -88,17 +88,8 @@ export function AIPrompt({ workflowId, onWorkflowCreated }: AIPromptProps) {
           ? { nodes: realNodes, edges, name: _currentWorkflowName }
           : undefined;
 
-        console.log("[AI Prompt] Generating workflow");
-        console.log("[AI Prompt] Has nodes:", hasNodes);
-        console.log("[AI Prompt] Sending existing workflow:", !!existingWorkflow);
         if (existingWorkflow) {
-          console.log(
-            "[AI Prompt] Existing workflow:",
-            existingWorkflow.nodes.length,
-            "nodes,",
-            existingWorkflow.edges.length,
-            "edges"
-          );
+          // Workflow exists with nodes and edges
         }
 
         // Use streaming API with incremental updates
@@ -149,9 +140,6 @@ export function AIPrompt({ workflowId, onWorkflowCreated }: AIPromptProps) {
           existingWorkflow
         );
 
-        console.log("[AI Prompt] Received final workflow data");
-        console.log("[AI Prompt] Nodes:", workflowData.nodes?.length || 0);
-        console.log("[AI Prompt] Edges:", workflowData.edges?.length || 0);
 
         // Use edges from workflow data with animated type
         const finalEdges = (workflowData.edges || []).map((edge) => ({
@@ -160,17 +148,9 @@ export function AIPrompt({ workflowId, onWorkflowCreated }: AIPromptProps) {
         }));
 
         // Validate: check for blank/incomplete nodes
-        console.log("[AI Prompt] Validating nodes:", workflowData.nodes);
         const incompleteNodes = (workflowData.nodes || []).filter((node) => {
           const nodeType = node.data?.type;
           const config = node.data?.config || {};
-
-          console.log(`[AI Prompt] Checking node ${node.id}:`, {
-            type: nodeType,
-            config,
-            hasActionType: !!config.actionType,
-            hasTriggerType: !!config.triggerType,
-          });
 
           // Check trigger nodes
           if (nodeType === "trigger") {
@@ -221,22 +201,9 @@ export function AIPrompt({ workflowId, onWorkflowCreated }: AIPromptProps) {
         } else {
           setCurrentWorkflowId(workflowId);
 
-          console.log("[AI Prompt] Updating existing workflow:", workflowId);
-          console.log("[AI Prompt] Has existingWorkflow context:", !!existingWorkflow);
 
           // State already updated by streaming callback
-          if (existingWorkflow) {
-            console.log("[AI Prompt] REPLACING workflow with AI response");
-            console.log(
-              "[AI Prompt] Replacing",
-              realNodes.length,
-              "nodes with",
-              workflowData.nodes?.length || 0,
-              "nodes"
-            );
-          } else {
-            console.log("[AI Prompt] Setting workflow for empty canvas");
-
+          if (!existingWorkflow) {
             toast.success("Generated workflow");
           }
 

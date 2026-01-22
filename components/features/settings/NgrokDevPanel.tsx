@@ -34,7 +34,6 @@ export function NgrokDevPanel() {
       const data = (await res.json()) as NgrokStatus
       // #region agent log
       try {
-        fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'ngrok-dev',hypothesisId:'N1',location:'components/features/settings/NgrokDevPanel.tsx:refresh',message:'ngrok status response',data:{running:!!data.running,publicUrl:data.publicUrl||null,hasApi:!!data.hasApi,port:data.port},timestamp:Date.now()})}).catch(()=>{})
       } catch {}
       // #endregion agent log
       setStatus(data)

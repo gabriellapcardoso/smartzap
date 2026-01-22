@@ -461,12 +461,9 @@ export function DashboardShell({
     // WhatsApp onboarding progress hook
     const {
         progress: onboardingProgress,
-        checklistProgress,
         shouldShowOnboardingModal,
         shouldShowChecklist,
         completeOnboarding,
-        updateChecklistItem,
-        minimizeChecklist,
     } = useOnboardingProgress()
 
     const { data: authStatus } = useQuery({
@@ -500,7 +497,6 @@ export function DashboardShell({
 
     // Prefetch data on hover for faster page loads
     const prefetchRoute = useCallback((path: string) => {
-        // console.log('Prefetching route:', path) // Debug
         switch (path) {
             case '/':
                 queryClient.prefetchQuery({
@@ -581,6 +577,12 @@ export function DashboardShell({
     // Determina se WhatsApp está conectado
     const isWhatsAppConnected = healthStatus?.services.whatsapp?.status === 'ok'
 
+    // Determina se webhook está configurado
+    const isWebhookConfigured = healthStatus?.services.webhook?.status === 'ok'
+
+    // Determina se precisa configurar webhook (WhatsApp conectado mas webhook não)
+    const needsWebhookSetup = isWhatsAppConnected && !isWebhookConfigured && healthStatus !== undefined
+
     // Handler para quando o onboarding for completado
     const handleOnboardingComplete = useCallback(async (credentials: {
         phoneNumberId: string
@@ -598,15 +600,16 @@ export function DashboardShell({
             testContact: undefined,
         })
 
-        // Marca o onboarding como completo e atualiza checklist
+        // Marca o onboarding como completo
         completeOnboarding()
-        updateChecklistItem('credentials', true)
-        updateChecklistItem('testMessage', true) // O teste foi feito no onboarding
 
-        // Revalida o health status
+        // Revalida o health status (fonte da verdade para o checklist)
         refetchHealth()
         queryClient.invalidateQueries({ queryKey: ['settings'] })
-    }, [completeOnboarding, updateChecklistItem, refetchHealth, queryClient])
+    }, [completeOnboarding, refetchHealth, queryClient])
+
+    // Sidebar callback - DEVE estar antes de qualquer early return
+    const handleCloseMobileMenu = useCallback(() => setIsMobileMenuOpen(false), [])
 
     // Memoize navItems to prevent recreation on every render
     // T069: Include dynamic unread badge for inbox
@@ -657,15 +660,12 @@ export function DashboardShell({
     }
 
     // Determina se deve mostrar o modal de onboarding do WhatsApp
-    // Mostra quando: infra OK + (WhatsApp não conectado OU onboarding não completado)
+    // Mostra quando: infra OK + (WhatsApp não conectado OU onboarding não completado OU webhook não configurado)
     const showWhatsAppOnboarding = !needsSetup &&
-        (!isWhatsAppConnected || shouldShowOnboardingModal)
+        (!isWhatsAppConnected || shouldShowOnboardingModal || needsWebhookSetup)
 
     const isBuilderRoute = pathname?.startsWith('/builder') ?? false
     const isInboxRoute = pathname?.startsWith('/inbox') ?? false
-
-    // Sidebar props - memoized callbacks
-    const handleCloseMobileMenu = useCallback(() => setIsMobileMenuOpen(false), [])
 
     // Sidebar component props
     const sidebarProps = {
@@ -824,15 +824,19 @@ export function DashboardShell({
                     <OnboardingModal
                         isConnected={!!isWhatsAppConnected}
                         onComplete={handleOnboardingComplete}
+                        forceStep={needsWebhookSetup ? 'configure-webhook' : undefined}
                     />
                 )}
 
                 {/* Page Content */}
                 <PageContentShell>
                     {/* Onboarding Checklist - aparece apenas na home do dashboard */}
-                    {pathname === '/' && shouldShowChecklist && !onboardingProgress.isChecklistMinimized && (
+                    {pathname === '/' && shouldShowChecklist && !onboardingProgress.isChecklistMinimized && healthStatus && (
                         <div className="mb-6">
-                            <OnboardingChecklist onNavigate={(path) => router.push(path)} />
+                            <OnboardingChecklist
+                                healthStatus={healthStatus}
+                                onNavigate={(path) => router.push(path)}
+                            />
                         </div>
                     )}
                     {children}

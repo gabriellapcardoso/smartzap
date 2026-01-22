@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { humanizePrecheckReason } from '@/lib/precheck-humanizer';
+import { formatPhoneNumberDisplay } from '@/lib/phone-formatter';
 import type { QuickEditFocus } from '@/hooks/campaigns/useCampaignWizardUI';
 import type { PrecheckResultItem, BatchFixCandidate } from './types';
 
@@ -74,7 +75,7 @@ export function SkippedContactsTable({
                 <tr key={r.phone + '_' + idx}>
                   <td className="py-2 pr-3 text-[var(--ds-text-secondary)]">{r.name}</td>
                   <td className="py-2 pr-3 font-mono text-[11px] text-[var(--ds-text-muted)]">
-                    {r.normalizedPhone || r.phone}
+                    {formatPhoneNumberDisplay(r.normalizedPhone || r.phone, 'e164')}
                   </td>
                   <td className="py-2 pr-3">
                     <div>

@@ -5,6 +5,7 @@ import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ContactStatus } from '@/types';
+import { formatPhoneNumberDisplay } from '@/lib/phone-formatter';
 import { SegmentsSheetProps } from './types';
 
 export function SegmentsSheet({
@@ -403,7 +404,7 @@ export function SegmentsSheet({
                     >
                       <span className="truncate pr-3">{c.name || c.phone}</span>
                       <span className="text-xs text-[var(--ds-text-muted)] shrink-0 font-mono">
-                        {c.phone}
+                        {formatPhoneNumberDisplay(c.phone, 'e164')}
                       </span>
                     </button>
                   ))}

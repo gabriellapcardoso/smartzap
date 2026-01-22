@@ -29,13 +29,10 @@ export function SuccessCheckmark({
 }: SuccessCheckmarkProps) {
   useEffect(() => {
     if (onComplete) {
-      console.log(`[SuccessCheckmark] Agendando callback em ${delay}ms...`);
       const timer = setTimeout(() => {
-        console.log('[SuccessCheckmark] Executando onComplete callback');
         onComplete();
       }, delay);
       return () => {
-        console.log('[SuccessCheckmark] Limpando timer (componente desmontado?)');
         clearTimeout(timer);
       };
     }

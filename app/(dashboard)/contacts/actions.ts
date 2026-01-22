@@ -33,8 +33,10 @@ export async function getContactsInitialData(): Promise<ContactsInitialData> {
       .order('created_at', { ascending: false })
       .range(0, PAGE_SIZE - 1),
 
-    // Stats agregados
-    supabase.rpc('get_contact_stats'),
+    // Stats agregados via query direta (conta todos os contatos por status)
+    supabase
+      .from('contacts')
+      .select('status'),
 
     // Tags únicas
     supabase
@@ -75,17 +77,32 @@ export async function getContactsInitialData(): Promise<ContactsInitialData> {
     }
   })
 
-  // Stats com fallback
-  const stats = statsResult.data || { total: 0, active: 0, opt_out: 0, suppressed: 0 }
+  // Calcular stats a partir dos dados retornados (array de { status })
+  const allContactStatuses = statsResult.data || []
+  const computedStats = {
+    total: allContactStatuses.length,
+    active: 0,
+    optOut: 0,
+    suppressed: 0
+  }
+  allContactStatuses.forEach((row: { status: string | null }) => {
+    if (row.status === 'OPT_IN' || row.status === 'Opt-in') {
+      computedStats.active++
+    } else if (row.status === 'OPT_OUT' || row.status === 'Opt-out') {
+      computedStats.optOut++
+    } else if (row.status === 'SUPPRESSED') {
+      computedStats.suppressed++
+    }
+  })
 
   return {
     contacts,
     total: contactsResult.count || 0,
     stats: {
-      total: stats.total || contacts.length,
-      active: stats.active || 0,
-      optOut: stats.opt_out || 0,
-      suppressed: stats.suppressed || 0
+      total: computedStats.total,
+      active: computedStats.active,
+      optOut: computedStats.optOut,
+      suppressed: computedStats.suppressed
     },
     tags: Array.from(allTags).sort(),
     customFields: (customFieldsResult.data || []) as CustomFieldDefinition[]

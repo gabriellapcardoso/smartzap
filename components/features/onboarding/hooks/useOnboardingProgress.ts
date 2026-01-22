@@ -7,16 +7,18 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 // ============================================================================
 
 export type OnboardingStep =
-  | 'welcome'           // Escolha do caminho
-  | 'requirements'      // Passo 1 - requisitos
-  | 'create-app'        // Passo 2 - criar app Meta
-  | 'add-whatsapp'      // Passo 3 - adicionar WhatsApp
-  | 'credentials'       // Passo 4 - copiar credenciais
-  | 'test-connection'   // Passo 5 - testar
-  | 'configure-webhook' // Passo 6 - configurar webhook
-  | 'create-permanent-token' // Passo 7 - token permanente (opcional)
-  | 'direct-credentials' // Caminho B - input direto
-  | 'complete';         // Concluído
+  | 'welcome'             // Escolha do caminho
+  | 'requirements'        // Passo 1 - requisitos
+  | 'create-app'          // Passo 2 - criar app Meta
+  | 'add-whatsapp'        // Passo 3 - adicionar WhatsApp
+  | 'credentials'         // Passo 4 - copiar credenciais
+  | 'test-connection'     // Passo 5 - testar
+  | 'configure-webhook'   // Passo 6 - configurar webhook
+  | 'sync-templates'      // Passo 7 - sincronizar templates
+  | 'send-first-message'  // Passo 8 - enviar mensagem de teste
+  | 'create-permanent-token' // Passo 9 - token permanente (opcional)
+  | 'direct-credentials'  // Caminho B - input direto
+  | 'complete';           // Concluído
 
 export type OnboardingPath = 'guided' | 'direct' | null;
 
@@ -26,17 +28,12 @@ export interface OnboardingProgress {
   path: OnboardingPath;
   completedSteps: OnboardingStep[];
 
-  // Checklist pós-setup
-  checklistItems: {
-    credentials: boolean;      // Credenciais conectadas
-    testMessage: boolean;      // Mensagem de teste enviada
-    webhook: boolean;          // Webhook configurado
-    permanentToken: boolean;   // Token permanente criado
-  };
-
-  // UI state
+  // UI state do checklist
   isChecklistMinimized: boolean;
   isChecklistDismissed: boolean;
+
+  // Confirmações manuais (não verificáveis via API)
+  permanentTokenConfirmed: boolean;
 
   // Timestamps
   startedAt: string | null;
@@ -49,14 +46,9 @@ const DEFAULT_PROGRESS: OnboardingProgress = {
   currentStep: 'welcome',
   path: null,
   completedSteps: [],
-  checklistItems: {
-    credentials: false,
-    testMessage: false,
-    webhook: false,
-    permanentToken: false,
-  },
   isChecklistMinimized: false,
   isChecklistDismissed: false,
+  permanentTokenConfirmed: false,
   startedAt: null,
   completedAt: null,
 };
@@ -75,7 +67,9 @@ export function useOnboardingProgress() {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored) as OnboardingProgress;
-        setProgress(parsed);
+        // Migração: remove campos antigos se existirem
+        const { checklistItems, ...cleanProgress } = parsed as OnboardingProgress & { checklistItems?: unknown };
+        setProgress(cleanProgress as OnboardingProgress);
       }
     } catch (error) {
       console.error('Failed to load onboarding progress:', error);
@@ -132,6 +126,8 @@ export function useOnboardingProgress() {
         'credentials',
         'test-connection',
         'configure-webhook',
+        'sync-templates',
+        'send-first-message',
         'create-permanent-token',
         'complete',
       ];
@@ -173,6 +169,8 @@ export function useOnboardingProgress() {
         'credentials',
         'test-connection',
         'configure-webhook',
+        'sync-templates',
+        'send-first-message',
         'create-permanent-token',
       ];
 
@@ -192,29 +190,12 @@ export function useOnboardingProgress() {
       ...prev,
       currentStep: 'complete',
       completedAt: new Date().toISOString(),
-      checklistItems: {
-        ...prev.checklistItems,
-        credentials: true,
-      },
     }));
   }, []);
 
   // ============================================================================
-  // Checklist Actions
+  // Checklist UI Actions
   // ============================================================================
-
-  const updateChecklistItem = useCallback((
-    item: keyof OnboardingProgress['checklistItems'],
-    value: boolean
-  ) => {
-    setProgress(prev => ({
-      ...prev,
-      checklistItems: {
-        ...prev.checklistItems,
-        [item]: value,
-      },
-    }));
-  }, []);
 
   const minimizeChecklist = useCallback((minimized: boolean) => {
     setProgress(prev => ({
@@ -227,6 +208,13 @@ export function useOnboardingProgress() {
     setProgress(prev => ({
       ...prev,
       isChecklistDismissed: true,
+    }));
+  }, []);
+
+  const confirmPermanentToken = useCallback(() => {
+    setProgress(prev => ({
+      ...prev,
+      permanentTokenConfirmed: true,
     }));
   }, []);
 
@@ -243,31 +231,18 @@ export function useOnboardingProgress() {
     return progress.currentStep === 'complete' || progress.completedAt !== null;
   }, [progress.currentStep, progress.completedAt]);
 
-  const checklistProgress = useMemo(() => {
-    const items = progress.checklistItems;
-    const total = Object.keys(items).length;
-    const completed = Object.values(items).filter(Boolean).length;
-    return {
-      completed,
-      total,
-      percentage: Math.round((completed / total) * 100),
-    };
-  }, [progress.checklistItems]);
-
   const shouldShowOnboardingModal = useMemo(() => {
     // Mostra modal se não completou onboarding
     return !isOnboardingComplete && isLoaded;
   }, [isOnboardingComplete, isLoaded]);
 
   const shouldShowChecklist = useMemo(() => {
-    // Mostra checklist se completou onboarding mas não terminou tudo
-    // e não foi dismissado
-    return (
-      isOnboardingComplete &&
-      !progress.isChecklistDismissed &&
-      checklistProgress.percentage < 100
-    );
-  }, [isOnboardingComplete, progress.isChecklistDismissed, checklistProgress.percentage]);
+    // Mostra checklist se:
+    // 1. Onboarding wizard foi completado
+    // 2. Usuário não dismissou o checklist
+    // O componente OnboardingChecklist decide internamente se esconde quando 100% completo
+    return isOnboardingComplete && !progress.isChecklistDismissed;
+  }, [isOnboardingComplete, progress.isChecklistDismissed]);
 
   const currentStepNumber = useMemo(() => {
     const guidedSteps: OnboardingStep[] = [
@@ -277,13 +252,23 @@ export function useOnboardingProgress() {
       'credentials',
       'test-connection',
       'configure-webhook',
+      'sync-templates',
+      'send-first-message',
       'create-permanent-token',
     ];
     const index = guidedSteps.indexOf(progress.currentStep);
     return index >= 0 ? index + 1 : 0;
   }, [progress.currentStep]);
 
-  const totalSteps = 7;
+  const totalSteps = 9;
+
+  // Progresso do checklist (usado pelo ChecklistMiniBadge)
+  const checklistProgress = useMemo(() => {
+    const total = totalSteps;
+    const completed = progress.completedSteps.length;
+    const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+    return { total, completed, percentage };
+  }, [progress.completedSteps.length, totalSteps]);
 
   return {
     // State
@@ -292,11 +277,11 @@ export function useOnboardingProgress() {
 
     // Computed
     isOnboardingComplete,
-    checklistProgress,
     shouldShowOnboardingModal,
     shouldShowChecklist,
     currentStepNumber,
     totalSteps,
+    checklistProgress,
 
     // Actions
     startOnboarding,
@@ -306,10 +291,10 @@ export function useOnboardingProgress() {
     previousStep,
     completeOnboarding,
 
-    // Checklist
-    updateChecklistItem,
+    // Checklist UI
     minimizeChecklist,
     dismissChecklist,
+    confirmPermanentToken,
 
     // Reset
     resetOnboarding,

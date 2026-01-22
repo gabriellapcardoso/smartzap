@@ -180,6 +180,12 @@ export function validateAnyPhoneNumber(
  *
  * O formato exigido pela API do WhatsApp Cloud é `+XXXXXXXXXXX` (sem espaços).
  *
+ * Estratégia de normalização:
+ * 1. Se começa com '+', respeita como está e usa libphonenumber para parsear
+ * 2. Se começa com '00' (prefixo internacional), converte para '+' e tenta parsear
+ * 3. Se tem 12-15 dígitos (parece internacional), tenta detectar automaticamente
+ * 4. Caso contrário, assume Brasil (defaultCountry)
+ *
  * @param phone Número a normalizar.
  * @param defaultCountry País padrão quando não estiver explícito no número.
  * @returns Número normalizado em E.164 (ex.: `+5521999999999`).
@@ -188,33 +194,84 @@ export function normalizePhoneNumber(
   phone: string,
   defaultCountry: CountryCode = 'BR'
 ): string {
-  try {
-    const parsed = parsePhoneNumber(phone, defaultCountry);
+  // Limpa caracteres não numéricos (preserva +)
+  let cleaned = phone.replace(/[^\d+]/g, '');
 
-    if (parsed) {
-      // Return E.164 format (international format without spaces)
-      return parsed.number;
-    }
+  if (!cleaned) return '';
 
-    // Fallback: try to clean and add + if missing
-    let cleaned = phone.replace(/[^\d+]/g, '');
-    if (!cleaned.startsWith('+')) {
-      cleaned = '+' + cleaned;
-    }
-    return cleaned;
-  } catch {
-    // Fallback for invalid numbers
-    let cleaned = phone.replace(/[^\d+]/g, '');
-    if (!cleaned.startsWith('+')) {
-      // Assume Brazilian if no country code
-      if (cleaned.length === 11) {
-        cleaned = '+55' + cleaned;
-      } else {
-        cleaned = '+' + cleaned;
+  // 1. Se começa com '+', respeita como está
+  if (cleaned.startsWith('+')) {
+    try {
+      const parsed = parsePhoneNumber(cleaned);
+      if (parsed && parsed.isValid()) {
+        return parsed.number;
       }
+    } catch {
+      // Se falhar, retorna como está (melhor que perder dados)
     }
     return cleaned;
   }
+
+  // 2. Se começa com '00' (prefixo de discagem internacional)
+  //    Tenta parsear como internacional imediatamente
+  if (cleaned.startsWith('00') && cleaned.length >= 12) {
+    const withoutPrefix = cleaned.slice(2);
+    const asInternational = '+' + withoutPrefix;
+    try {
+      const parsed = parsePhoneNumber(asInternational);
+      if (parsed && parsed.isPossible()) {
+        return parsed.number;
+      }
+    } catch {
+      // Se falhar, continua com o número sem o prefixo 00
+    }
+    // Atualiza cleaned para próximas verificações
+    cleaned = withoutPrefix;
+  }
+
+  // 3. Se tem 12-15 dígitos, pode ser internacional sem '+'
+  //    Números BR com DDI: 55 + DDD(2) + número(8-9) = 12-13 dígitos
+  if (cleaned.length >= 12 && cleaned.length <= 15) {
+    const asInternational = '+' + cleaned;
+    try {
+      const parsed = parsePhoneNumber(asInternational);
+      // Usa isPossible() ao invés de isValid() para ser mais permissivo
+      // isValid() pode rejeitar números válidos que não estão no metadata
+      if (parsed && parsed.isPossible()) {
+        return parsed.number;
+      }
+    } catch {
+      // Continua para fallback
+    }
+  }
+
+  // 4. Números com 10-11 dígitos: assume Brasil (celular ou fixo)
+  //    Nota: 11 dígitos poderia ser USA, mas como defaultCountry=BR, priorizamos BR
+  if (cleaned.length === 10 || cleaned.length === 11) {
+    try {
+      const parsed = parsePhoneNumber(cleaned, defaultCountry);
+      if (parsed && parsed.isValid()) {
+        return parsed.number;
+      }
+    } catch {
+      // Fallback manual
+    }
+    // Fallback: adiciona +55 diretamente
+    return '+55' + cleaned;
+  }
+
+  // 5. Fallback geral: tenta com país padrão
+  try {
+    const parsed = parsePhoneNumber(cleaned, defaultCountry);
+    if (parsed) {
+      return parsed.number;
+    }
+  } catch {
+    // Último recurso
+  }
+
+  // Número com formato desconhecido - retorna com + para não perder dados
+  return '+' + cleaned;
 }
 
 /**
@@ -245,17 +302,20 @@ export function getCountryCallingCodeFromPhone(
  * Formata um número para exibição (com espaçamento/pontuação amigáveis).
  *
  * @param phone Número em qualquer formato.
- * @param style Estilo de formatação (`international` ou `national`).
+ * @param style Estilo de formatação (`international`, `national` ou `e164`).
  * @returns Número formatado para display.
  */
 export function formatPhoneNumberDisplay(
   phone: string,
-  style: 'international' | 'national' = 'international'
+  style: 'international' | 'national' | 'e164' = 'international'
 ): string {
   try {
     const parsed = parsePhoneNumber(phone);
 
     if (parsed) {
+      if (style === 'e164') {
+        return parsed.number; // +5521999999999
+      }
       return style === 'international'
         ? parsed.formatInternational() // +55 21 99999-9999
         : parsed.formatNational();      // (21) 99999-9999

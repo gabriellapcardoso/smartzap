@@ -68,7 +68,6 @@ export default function TemplateProjectDetailsPage() {
     // DEBUG: Inspect loaded items
     React.useEffect(() => {
         if (project?.items) {
-            console.log('[DEBUG] Loaded Items:', JSON.stringify(project.items.map((i: any) => ({ name: i.name, category: i.category })), null, 2));
         }
     }, [project]);
 

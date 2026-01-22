@@ -281,6 +281,18 @@ export interface HealthStatus {
 }
 
 /**
+ * Webhook health status.
+ */
+export interface WebhookHealth {
+  /** Service status */
+  status: 'ok' | 'error' | 'not_configured';
+  /** ISO timestamp of last event received */
+  lastEventAt?: string | null;
+  /** Status message */
+  message?: string;
+}
+
+/**
  * Health status of individual services.
  */
 export interface HealthServices {
@@ -290,6 +302,8 @@ export interface HealthServices {
   qstash: QStashHealth;
   /** WhatsApp API service health */
   whatsapp: WhatsAppHealth;
+  /** Webhook service health */
+  webhook?: WebhookHealth;
 }
 
 /**

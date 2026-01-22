@@ -72,7 +72,6 @@ export async function GET(request: Request) {
           ? 'header'
           : 'none'
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H1',location:'app/api/flows/endpoint/keys/route.ts:56',message:'endpoint keys status resolved',data:{hasPrivateKey,hasPublicKey,hasEnvEndpointUrl:Boolean(envEndpointUrl),hasStoredEndpointUrl:Boolean(storedEndpointUrl),hasHeaderEndpointUrl:Boolean(headerEndpointUrl),hasEndpointUrl:Boolean(endpointUrl),ignoredStoredDueToLocalhost:storedEndpointUrl ? Boolean(safeStoredEndpointUrl === null && !isLocalhostUrl(headerEndpointUrl)) : false},timestamp:Date.now()})}).catch(()=>{});
     // #endregion agent log
 
     const responseBody = {
@@ -90,7 +89,6 @@ export async function GET(request: Request) {
       },
     }
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H4',location:'app/api/flows/endpoint/keys/route.ts:65',message:'endpoint keys response',data:{configured:responseBody.configured,hasPublicKey:Boolean(responseBody.publicKey),hasEndpointUrl:Boolean(responseBody.endpointUrl)},timestamp:Date.now()})}).catch(()=>{});
     // #endregion agent log
     return NextResponse.json(responseBody, {
       headers: {
@@ -157,7 +155,6 @@ export async function POST(request: Request) {
       await settingsDb.set(ENDPOINT_URL_SETTING, endpointUrl)
     }
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H2',location:'app/api/flows/endpoint/keys/route.ts:123',message:'endpoint keys saved',data:{storedEndpointUrl:Boolean(endpointUrl),storedEndpointUrlPersisted:Boolean(shouldStoreEndpointUrl),skippedLocalhost:Boolean(endpointUrl && isLocalhostUrl(endpointUrl))},timestamp:Date.now()})}).catch(()=>{});
     // #endregion agent log
 
     return NextResponse.json({

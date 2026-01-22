@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getWhatsAppCredentials } from '@/lib/whatsapp-credentials'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import { fetchWithTimeout, safeJson } from '@/lib/server-http'
+import { settingsDb } from '@/lib/supabase-db'
 
 // Build Vercel dashboard URL dynamically from environment
 function getVercelDashboardUrl(): string | null {
@@ -46,6 +47,11 @@ interface HealthCheckResult {
       phoneNumber?: string
       message?: string
     }
+    webhook: {
+      status: 'ok' | 'error' | 'not_configured'
+      lastEventAt?: string | null
+      message?: string
+    }
   }
   vercel?: {
     dashboardUrl: string | null
@@ -64,6 +70,7 @@ export async function GET() {
       database: { status: 'not_configured', provider: 'none' },
       qstash: { status: 'not_configured' },
       whatsapp: { status: 'not_configured' },
+      webhook: { status: 'not_configured' },
     },
     vercel: {
       dashboardUrl,
@@ -166,11 +173,115 @@ export async function GET() {
     result.overall = 'degraded'
   }
 
+  // 4. Check Webhook status (only if database is configured)
+  if (isSupabaseConfigured()) {
+    try {
+      let lastEventAt: string | null = null
+      let hasRecentEvents = false
+      let hasWebhookToken = false
+
+      // Estratégia 1: Verificar eventos recentes em whatsapp_status_events
+      try {
+        const { data: events, error } = await supabase
+          .from('whatsapp_status_events')
+          .select('last_received_at')
+          .order('last_received_at', { ascending: false })
+          .limit(1)
+
+        if (!error && events && events.length > 0) {
+          lastEventAt = events[0].last_received_at
+          if (lastEventAt) {
+            const eventDate = new Date(lastEventAt)
+            const now = new Date()
+            const hoursSinceLastEvent = (now.getTime() - eventDate.getTime()) / (1000 * 60 * 60)
+            hasRecentEvents = hoursSinceLastEvent < 24
+          }
+        }
+      } catch {
+        // Tabela pode não existir ainda
+      }
+
+      // Estratégia 2: Verificar entregas/leituras em campaign_contacts
+      if (!hasRecentEvents) {
+        try {
+          const { data: deliveries, error } = await supabase
+            .from('campaign_contacts')
+            .select('delivered_at, read_at')
+            .or('delivered_at.not.is.null,read_at.not.is.null')
+            .order('delivered_at', { ascending: false })
+            .limit(1)
+
+          if (!error && deliveries && deliveries.length > 0) {
+            const delivery = deliveries[0]
+            const latestDelivery = delivery.read_at || delivery.delivered_at
+            if (latestDelivery) {
+              if (!lastEventAt || new Date(latestDelivery) > new Date(lastEventAt)) {
+                lastEventAt = latestDelivery
+              }
+              const eventDate = new Date(latestDelivery)
+              const now = new Date()
+              const hoursSinceLastEvent = (now.getTime() - eventDate.getTime()) / (1000 * 60 * 60)
+              hasRecentEvents = hoursSinceLastEvent < 24
+            }
+          }
+        } catch {
+          // ignore
+        }
+      }
+
+      // Estratégia 3: Verificar se existe token de webhook configurado
+      try {
+        const token = await settingsDb.get('webhook_verify_token')
+        hasWebhookToken = Boolean(token)
+      } catch {
+        // ignore
+      }
+
+      // Decidir resultado do webhook
+      if (hasRecentEvents && lastEventAt) {
+        result.services.webhook = {
+          status: 'ok',
+          lastEventAt,
+          message: 'Webhook recebendo eventos normalmente',
+        }
+      } else if (lastEventAt) {
+        // Tem eventos mas não são recentes (ainda consideramos OK, só mais de 24h)
+        result.services.webhook = {
+          status: 'ok',
+          lastEventAt,
+          message: 'Webhook configurado (sem eventos nas últimas 24h)',
+        }
+      } else if (hasWebhookToken) {
+        // Tem token mas nunca recebeu eventos
+        result.services.webhook = {
+          status: 'not_configured',
+          lastEventAt: null,
+          message: 'Token configurado, aguardando primeiro evento',
+        }
+      } else {
+        // Nenhuma indicação de webhook funcionando
+        result.services.webhook = {
+          status: 'not_configured',
+          lastEventAt: null,
+          message: 'Webhook não configurado',
+        }
+      }
+    } catch (error) {
+      result.services.webhook = {
+        status: 'error',
+        message: error instanceof Error ? error.message : 'Erro ao verificar webhook',
+      }
+    }
+  }
+
   // Determine overall status
-  const statuses = Object.values(result.services).map(s => s.status)
-  if (statuses.every(s => s === 'ok')) {
+  // Webhook não é crítico para o overall - só database, qstash, whatsapp
+  const criticalServices = ['database', 'qstash', 'whatsapp'] as const
+  const criticalStatuses = criticalServices.map(s => result.services[s].status)
+
+  if (criticalStatuses.every(s => s === 'ok')) {
     result.overall = 'healthy'
-  } else if (statuses.some(s => s === 'error') || statuses.filter(s => s === 'not_configured').length > 1) {
+  } else if (criticalStatuses.some(s => s === 'error') || criticalStatuses.filter(s => s === 'not_configured').length > 1) {
     result.overall = 'unhealthy'
   } else {
     result.overall = 'degraded'

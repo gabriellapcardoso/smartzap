@@ -21,6 +21,11 @@ export interface HealthStatus {
             phoneNumber?: string
             message?: string
         }
+        webhook?: {
+            status: 'ok' | 'error' | 'not_configured'
+            lastEventAt?: string | null
+            message?: string
+        }
     }
     vercel?: {
         dashboardUrl: string | null

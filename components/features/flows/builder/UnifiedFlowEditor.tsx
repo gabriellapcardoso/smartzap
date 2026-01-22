@@ -270,11 +270,6 @@ export function UnifiedFlowEditor(props: {
 
     if (!changed) return input
     const next = { ...(input as any), screens, routingModel, defaultNextByScreen } as DynamicFlowSpecV1
-    try {
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'paths-ux',hypothesisId:'HUX3',location:'components/features/flows/builder/UnifiedFlowEditor.tsx:applyAutoFinalizeDestinations',message:'auto-finalized path destinations',data:{changed,destIds:destIds.slice(0,10)},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion agent log
-    } catch {}
     return next
   }
 
@@ -336,7 +331,6 @@ export function UnifiedFlowEditor(props: {
   React.useEffect(() => {
     const successScreen = spec.screens.find((s: any) => s.id === 'SUCCESS' || s.id?.includes('SUCCESS') || (s as any).success === true)
     if (successScreen) {
-      fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedFlowEditor:spec-change',message:'E1-success-screen',data:{screenId:successScreen.id,componentTypes:successScreen.components?.map((c:any)=>c?.type),componentTexts:successScreen.components?.map((c:any)=>c?.text?.substring?.(0,50))},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H4'})}).catch(()=>{})
     }
   }, [spec])
   // #endregion
@@ -379,7 +373,6 @@ export function UnifiedFlowEditor(props: {
     try {
       const screens = Array.isArray((generatedJson as any)?.screens) ? (generatedJson as any).screens : []
       const firstScreenId = screens.length ? String(screens[0]?.id || '') : null
-      fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'max-depth',hypothesisId:'L1',location:'components/features/flows/builder/UnifiedFlowEditor.tsx:useEffect:onPreviewChange',message:'about to emit preview',data:{count:previewEmitCountRef.current,dirty,activeScreenId,issuesCount:Array.isArray(issues)?issues.length:null,firstScreenId,hasOnPreviewChange:typeof props.onPreviewChange === 'function'},timestamp:Date.now()})}).catch(()=>{})
     } catch {}
     // #endregion agent log
     onPreviewChange?.({ spec, generatedJson, issues, dirty, activeScreenId })
@@ -425,7 +418,6 @@ export function UnifiedFlowEditor(props: {
         const draftLabel = typeof activeDraft?.action?.label === 'string' ? activeDraft.action.label : ''
         const draftTrimmed = draftLabel.trim()
         // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H10',location:'components/features/flows/builder/UnifiedFlowEditor.tsx:updateSpec',message:'cta label before normalize',data:{activeScreenId,label:draftLabel,trimmed:draftTrimmed,labelLen:draftLabel.length,trimmedLen:draftTrimmed.length,changed:draftLabel!==draftTrimmed},timestamp:Date.now()})}).catch(()=>{});
         // #endregion
       } catch {}
       // Mantém o spec sempre consistente (routing + defaults + branches).
@@ -440,7 +432,6 @@ export function UnifiedFlowEditor(props: {
         const labelStr = typeof actionLabel === 'string' ? actionLabel : ''
         const trimmed = labelStr.trim()
         // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H10',location:'components/features/flows/builder/UnifiedFlowEditor.tsx:updateSpec',message:'cta label after normalize',data:{activeScreenId,label:labelStr,trimmed,labelLen:labelStr.length,trimmedLen:trimmed.length,changed:labelStr!==trimmed},timestamp:Date.now()})}).catch(()=>{});
         // #endregion
       } catch {}
 
@@ -453,7 +444,6 @@ export function UnifiedFlowEditor(props: {
           .filter(Boolean)
           .slice(0, 8)
         // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'paths-ux',hypothesisId:'HUX1',location:'components/features/flows/builder/UnifiedFlowEditor.tsx:updateSpec',message:'pre enforce terminal-with-next',data:{activeScreenId,terminalsWithNextCount:terminalsWithNext.length,terminalsWithNext},timestamp:Date.now()})}).catch(()=>{});
         // #endregion agent log
       } catch {}
 
@@ -484,7 +474,6 @@ export function UnifiedFlowEditor(props: {
           .filter(Boolean)
           .slice(0, 8)
         // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'paths-ux',hypothesisId:'HUX2',location:'components/features/flows/builder/UnifiedFlowEditor.tsx:updateSpec',message:'post enforce terminal-with-next',data:{activeScreenId,terminalsWithNextAfterCount:terminalsWithNextAfter.length,terminalsWithNextAfter},timestamp:Date.now()})}).catch(()=>{});
         // #endregion agent log
       } catch {}
 
@@ -659,7 +648,6 @@ export function UnifiedFlowEditor(props: {
           }
         })
         // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'paths-ux',hypothesisId:'HUX0',location:'components/features/flows/builder/UnifiedFlowEditor.tsx:setBranchesForActive',message:'auto-finalize destinations computed',data:{activeScreenId,destIds:destIds.slice(0,8),destPreview:preview},timestamp:Date.now()})}).catch(()=>{});
         // #endregion agent log
       } catch {}
 
@@ -784,7 +772,6 @@ export function UnifiedFlowEditor(props: {
 
   const updateBookingServices = (services: Array<{ id: string; title: string }>) => {
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H11',location:'components/features/flows/builder/UnifiedFlowEditor.tsx:updateBookingServices',message:'booking services update',data:{count:services.length,sample:services.slice(0,3),hasSpaces:services.some((s)=>/\s/.test(s.id)||/\s/.test(s.title))},timestamp:Date.now()})}).catch(()=>{});
     // #endregion
     updateSpec((prev) => {
       const screens = [...prev.screens]
@@ -885,7 +872,6 @@ export function UnifiedFlowEditor(props: {
       const ds = (next[idx] as any)?.['data-source']
       const dsType = Array.isArray(ds) ? 'array' : typeof ds
       const dsCount = Array.isArray(ds) ? ds.length : null
-      fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'options-edit',hypothesisId:'H7',location:'components/features/flows/builder/UnifiedFlowEditor.tsx:updateBlock',message:'block updated',data:{screenId:activeScreenId,idx,patchKeys:Object.keys(patch||{}),dataSourceType:dsType,dataSourceCount:dsCount,firstTitle:Array.isArray(ds)?String(ds[0]?.title||''):'',firstId:Array.isArray(ds)?String(ds[0]?.id||''):''},timestamp:Date.now()})}).catch(()=>{});
     } catch {}
     // #endregion agent log
     setActiveBlocks(next)
@@ -925,7 +911,6 @@ export function UnifiedFlowEditor(props: {
 
   const setCta = (patch: { type?: DynamicFlowActionType; label?: string; nextScreenId?: string }) => {
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H10',location:'components/features/flows/builder/UnifiedFlowEditor.tsx:setCta',message:'setCta called',data:{label:patch.label ?? null,labelLen:typeof patch.label === 'string' ? patch.label.length : null,type:patch.type ?? null,nextScreenId:patch.nextScreenId ?? null},timestamp:Date.now()})}).catch(()=>{});
     // #endregion
     updateSpec((prev) => {
       const screens = [...prev.screens]
@@ -1131,13 +1116,11 @@ export function UnifiedFlowEditor(props: {
       const hasTrimmedId = nextOptions.some((opt: any) => typeof opt?.id === 'string' && opt.id.trim().length !== opt.id.length)
       const hasTrimmedTitle = nextOptions.some((opt: any) => typeof opt?.title === 'string' && opt.title.trim().length !== opt.title.length)
       // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'options-edit',hypothesisId:'H12',location:'components/features/flows/builder/UnifiedFlowEditor.tsx:updateBoundOptions',message:'apply dynamic options',data:{screenId:activeScreenId,dataSourceKey,rawCount:Array.isArray(nextOptions)?nextOptions.length:null,normalizedCount:normalizedOptions.length,hasResolvedList:!!resolvedList,isBoundList,hasTrimmedId,hasTrimmedTitle,sampleRaw:nextOptions.slice(0,2),sampleNormalized:normalizedOptions.slice(0,2)},timestamp:Date.now()})}).catch(()=>{});
       // #endregion agent log
       updateSpec((prev) => {
         const screens = [...prev.screens]
         const sidx = screens.findIndex((s) => s.id === activeScreenId)
         // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'options-edit',hypothesisId:'H2',location:'components/features/flows/builder/UnifiedFlowEditor.tsx:updateSpec',message:'updateSpec for dynamic options',data:{screenId:activeScreenId,sidx,hasScreen:sidx>=0},timestamp:Date.now()})}).catch(()=>{});
         // #endregion agent log
         if (sidx < 0) return prev
         const current = screens[sidx] as any
@@ -1150,7 +1133,6 @@ export function UnifiedFlowEditor(props: {
             ? { ...prev, screens, services: normalizedOptions }
             : { ...prev, screens }
         // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'options-edit',hypothesisId:'H3',location:'components/features/flows/builder/UnifiedFlowEditor.tsx:updateSpec',message:'dynamic options applied to spec',data:{screenId:activeScreenId,dataSourceKey,exampleCount:Array.isArray((nextData as any)?.[dataSourceKey]?.__example__)?(nextData as any)[dataSourceKey].__example__.length:null,servicesLen:Array.isArray((withServices as any)?.services)?(withServices as any).services.length:null},timestamp:Date.now()})}).catch(()=>{});
         // #endregion agent log
         return withServices
       })
@@ -1163,7 +1145,6 @@ export function UnifiedFlowEditor(props: {
             {showText && (
               <div className="space-y-2">
                 {/* #region agent log */}
-                {(() => { fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedFlowEditor:renderBlockEditor:showText',message:'B1-text-block',data:{type,blockKeys:Object.keys(block||{}),hasEditorLabel:!!block?.__editor_label,editorLabel:block?.__editor_label,rawText:String(block?.text||'').substring(0,50),visible:block?.visible},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H6'})}).catch(()=>{}); return null })()}
                 {/* #endregion */}
                 <label className="block text-xs uppercase tracking-widest text-gray-500">
                   {block?.__editor_label || 'Texto'}
@@ -1217,7 +1198,6 @@ export function UnifiedFlowEditor(props: {
                     className="bg-zinc-950/40 border border-white/10 text-gray-200 hover:text-white hover:bg-white/5"
                     onClick={() => {
                       // #region agent log
-                      fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'options-edit',hypothesisId:'H4',location:'components/features/flows/builder/UnifiedFlowEditor.tsx:onAddOption',message:'add option clicked',data:{screenId:activeScreenId,hasResolvedList:!!resolvedList,baseCount:baseOptions.length,dataSourceKey,isBoundList},timestamp:Date.now()})}).catch(()=>{});
                       // #endregion agent log
                       const next = [...baseOptions]
                       const n = next.length + 1
@@ -1240,7 +1220,6 @@ export function UnifiedFlowEditor(props: {
                         value={String(opt?.id || '')}
                         onChange={(e) => {
                           // #region agent log
-                          fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'options-edit',hypothesisId:'H5',location:'components/features/flows/builder/UnifiedFlowEditor.tsx:onChangeOptionId',message:'option id change',data:{screenId:activeScreenId,hasResolvedList:!!resolvedList,dataSourceKey,oidx,input:e.target.value,prevId:String(opt?.id||''),isBoundList},timestamp:Date.now()})}).catch(()=>{});
                           // #endregion agent log
                           const next = [...baseOptions]
                           next[oidx] = { ...next[oidx], id: e.target.value }
@@ -1257,7 +1236,6 @@ export function UnifiedFlowEditor(props: {
                         value={String(opt?.title || '')}
                         onChange={(e) => {
                           // #region agent log
-                          fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'options-edit',hypothesisId:'H6',location:'components/features/flows/builder/UnifiedFlowEditor.tsx:onChangeOptionTitle',message:'option title change',data:{screenId:activeScreenId,hasResolvedList:!!resolvedList,dataSourceKey,oidx,input:e.target.value,prevTitle:String(opt?.title||''),isBoundList},timestamp:Date.now()})}).catch(()=>{});
                           // #endregion agent log
                           const next = [...baseOptions]
                           next[oidx] = { ...next[oidx], title: e.target.value }
@@ -1451,7 +1429,6 @@ export function UnifiedFlowEditor(props: {
                   value={ctaLabel}
                   onChange={(e) => {
                     // #region agent log
-                    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H10',location:'components/features/flows/builder/UnifiedFlowEditor.tsx:ctaLabelChange',message:'cta label input change',data:{rawValue:e.target.value,rawLen:e.target.value.length},timestamp:Date.now()})}).catch(()=>{});
                     // #endregion
                     setCta({ label: e.target.value })
                   }}
@@ -1474,7 +1451,6 @@ export function UnifiedFlowEditor(props: {
                         {/* #region agent log */}
                         {(() => {
                           const resolved = resolveDataBindingText(x.title || x.id, x)
-                          fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'paths-title',hypothesisId:'H9',location:'components/features/flows/builder/UnifiedFlowEditor.tsx:nextScreenSelect',message:'next screen option label',data:{screenId:x.id,rawTitle:String(x.title||''),resolvedTitle:resolved},timestamp:Date.now()})}).catch(()=>{});
                           return null
                         })()}
                         {/* #endregion agent log */}
@@ -1542,7 +1518,6 @@ export function UnifiedFlowEditor(props: {
                         {/* #region agent log */}
                         {(() => {
                           const resolved = resolveDataBindingText(x.title || x.id, x)
-                          fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'paths-title',hypothesisId:'H10',location:'components/features/flows/builder/UnifiedFlowEditor.tsx:defaultNextSelect',message:'default next option label',data:{screenId:x.id,rawTitle:String(x.title||''),resolvedTitle:resolved},timestamp:Date.now()})}).catch(()=>{});
                           return null
                         })()}
                         {/* #endregion agent log */}

@@ -162,7 +162,6 @@ export function CentralizedRealtimeProvider({
     channel.subscribe((status) => {
       isConnectedRef.current = status === 'SUBSCRIBED'
       if (status === 'SUBSCRIBED') {
-        console.log('[CentralizedRealtime] Connected to tables:', tables.join(', '))
       } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
         console.warn('[CentralizedRealtime] Channel status:', status)
       }

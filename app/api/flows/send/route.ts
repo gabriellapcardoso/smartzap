@@ -19,7 +19,6 @@ export async function POST(request: Request) {
     const requestedAction =
       body?.action === 'data_exchange' ? 'data_exchange' : body?.action === 'navigate' ? 'navigate' : null
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H1',location:'app/api/flows/send/route.ts:18',message:'flow send request received',data:{hasTo:Boolean(toRaw.trim()),flowIdLength:flowId.length,flowTokenLength:flowToken.length,action:body?.action ?? 'navigate',flowMessageVersion:body?.flowMessageVersion ?? '3',hasActionPayload:typeof body?.actionPayload === 'object' && body.actionPayload !== null},timestamp:Date.now()})}).catch(()=>{});
     // #endregion agent log
 
     const to = normalizePhoneNumber(toRaw)
@@ -95,10 +94,8 @@ export async function POST(request: Request) {
     }
 
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H6',location:'app/api/flows/send/route.ts:44',message:'flow action resolved',data:{requestedAction:requestedAction ?? 'none',resolvedAction,isDynamicFlow,hasActionPayload:Boolean(resolvedActionPayload),firstScreenId:flowFirstScreenId ?? null},timestamp:Date.now()})}).catch(()=>{});
     // #endregion
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H7',location:'app/api/flows/send/route.ts:52',message:'flow action payload shape',data:{action:resolvedAction,hasPayload:Boolean(resolvedActionPayload),payloadScreen:(resolvedActionPayload as any)?.screen ?? null,payloadDataKeys:Object.keys((resolvedActionPayload as any)?.data || {})},timestamp:Date.now()})}).catch(()=>{});
     // #endregion
 
     const payload = buildFlowMessage({
@@ -113,7 +110,6 @@ export async function POST(request: Request) {
       flowMessageVersion: body?.flowMessageVersion ? String(body.flowMessageVersion) : '3',
     })
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H2',location:'app/api/flows/send/route.ts:48',message:'flow payload built',data:{flowIdPresent:Boolean(flowId),flowTokenPresent:Boolean(flowToken),flowAction:payload.interactive.action.parameters.flow_action,hasActionPayload:Boolean(payload.interactive.action.parameters.flow_action_payload),hasFooter:Boolean(payload.interactive.footer),flowMessageVersion:payload.interactive.action.parameters.flow_message_version},timestamp:Date.now()})}).catch(()=>{});
     // #endregion agent log
 
     const response = await fetchWithTimeout(
@@ -132,7 +128,6 @@ export async function POST(request: Request) {
     const data = await safeJson<any>(response)
     if (!response.ok) {
       // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H8',location:'app/api/flows/send/route.ts:70',message:'flow send error details',data:{status:response.status,errorCode:(data as any)?.error?.code ?? null,errorSubcode:(data as any)?.error?.error_subcode ?? null,errorType:(data as any)?.error?.type ?? null,errorMessage:(data as any)?.error?.message ?? null,errorDetails:(data as any)?.error?.error_data?.details ?? null},timestamp:Date.now()})}).catch(()=>{});
       // #endregion
     }
     try {
@@ -151,16 +146,13 @@ export async function POST(request: Request) {
             { onConflict: 'message_id' },
           )
           // #region agent log
-          fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H13',location:'app/api/flows/send/route.ts:afterGraph',message:'flow_submissions seeded',data:{ok:!error,hasMessageId:!!msgId,flowIdLength:flowId.length,flowTokenLength:flowToken.length,errorMessage:error?.message ?? null,errorCode:(error as any)?.code ?? null},timestamp:Date.now()})}).catch(()=>{});
           // #endregion
         } catch {}
       }
       // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'flow-send',hypothesisId:'S1',location:'app/api/flows/send/route.ts:afterGraph',message:'meta message id received',data:{ok:response.ok,status:response.status,hasMessageId:!!msgId,messageIdSuffix:msgId?msgId.slice(-6):null},timestamp:Date.now()})}).catch(()=>{});
       // #endregion agent log
     } catch {}
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H3',location:'app/api/flows/send/route.ts:69',message:'flow send response',data:{ok:response.ok,status:response.status,hasError:!response.ok,metaErrorCode:((data as any)?.error?.code ?? null),metaErrorSubcode:((data as any)?.error?.error_subcode ?? null)},timestamp:Date.now()})}).catch(()=>{});
     // #endregion agent log
 
     if (!response.ok) {

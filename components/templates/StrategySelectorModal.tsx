@@ -69,7 +69,6 @@ export function StrategySelectorModal({ isOpen, onSelect, onClose }: StrategySel
                         <div
                             key={strategy.id}
                             onClick={() => {
-                                console.log('[StrategySelectorModal] Clicked:', strategy.id);
                                 onSelect(strategy.id);
                             }}
                             className={`

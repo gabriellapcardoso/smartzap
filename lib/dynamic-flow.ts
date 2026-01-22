@@ -333,26 +333,22 @@ function dedupeSuccessTextBlocks(
   data: Record<string, unknown> | undefined,
 ): DynamicFlowComponent[] {
   // #region agent log
-  fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dynamic-flow.ts:dedupeSuccessTextBlocks',message:'D1-entry',data:{componentTypes:components.map((c:any)=>c?.type),dataKeys:data?Object.keys(data):null},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
   // #endregion
   const headingIdx = components.findIndex((c: any) => String(c?.type || '') === 'TextHeading')
   const bodyIdx = components.findIndex((c: any) => String(c?.type || '') === 'TextBody')
   if (headingIdx < 0 || bodyIdx < 0) {
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dynamic-flow.ts:dedupeSuccessTextBlocks',message:'D2-no-both',data:{headingIdx,bodyIdx},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
     // #endregion
     return components
   }
   const heading = resolveDataBindingTextForCompare((components[headingIdx] as any)?.text, data)
   const body = resolveDataBindingTextForCompare((components[bodyIdx] as any)?.text, data)
   // #region agent log
-  fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dynamic-flow.ts:dedupeSuccessTextBlocks',message:'D3-compare',data:{heading,body,headingNorm:normalizeTextForCompare(heading),bodyNorm:normalizeTextForCompare(body)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
   // #endregion
   if (!heading || !body) return components
   const same = normalizeTextForCompare(heading) === normalizeTextForCompare(body)
   if (!same) return components
   // #region agent log
-  fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dynamic-flow.ts:dedupeSuccessTextBlocks',message:'D4-removed-heading',data:{same,resultTypes:components.filter((_,idx)=>idx!==headingIdx).map((c:any)=>c?.type)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
   // #endregion
   return components.filter((_, idx) => idx !== headingIdx)
 }
@@ -485,12 +481,10 @@ export function normalizeDynamicFlowSpec(input?: Partial<DynamicFlowSpecV1>, fal
       const data = isPlainObject((screen as any).data) ? ((screen as any).data as Record<string, unknown>) : undefined
       let components = normalizeComponents((screen as any).components)
       // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dynamic-flow.ts:normalizeDynamicFlowSpec',message:'N1-screen',data:{screenId:id,isSuccess:(screen as any).success===true,componentsBefore:components.map((c:any)=>c?.type)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
       // #endregion
       if ((screen as any).success === true) {
         components = dedupeSuccessTextBlocks(components, data)
         // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dynamic-flow.ts:normalizeDynamicFlowSpec',message:'N2-after-dedupe',data:{screenId:id,componentsAfter:components.map((c:any)=>c?.type)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
         // #endregion
       }
       const action = normalizeAction((screen as any).action)
@@ -649,7 +643,6 @@ function extractFooterAction(components: DynamicFlowComponent[]): DynamicFlowAct
     const rawLabel = String((footer as any).label)
     const trimmed = rawLabel.trim()
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H10',location:'lib/dynamic-flow.ts:extractFooterAction',message:'footer label normalized',data:{rawLabel,trimmed,rawLen:rawLabel.length,trimmedLen:trimmed.length,changed:rawLabel!==trimmed},timestamp:Date.now()})}).catch(()=>{});
     // #endregion
   }
   return {
@@ -1101,7 +1094,6 @@ export function generateBookingDynamicFlowJson(configInput?: Partial<BookingFlow
               },
             })
             // #region agent log
-            fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dynamic-flow.ts:generateBookingDynamicFlowJson:SUCCESS',message:'G1-success-children',data:{childTypes:content.map((c:any)=>c?.type),childTexts:content.filter((c:any)=>c?.text).map((c:any)=>String(c?.text).substring(0,50))},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
             // #endregion
             return content
           })(),

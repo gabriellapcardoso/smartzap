@@ -7,6 +7,7 @@ import { Page, PageHeader, PageTitle } from '@/components/ui/page';
 import { Container } from '@/components/ui/container';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { MessageStatus } from '@/types';
+import { formatPhoneNumberDisplay } from '@/lib/phone-formatter';
 import { MessageStatusBadge } from './MessageStatusBadge';
 import { PreparingCampaignViewProps } from './types';
 
@@ -97,7 +98,7 @@ export const PreparingCampaignView: React.FC<PreparingCampaignViewProps> = ({
                 <div key={`${c.phone}_${idx}`} className="py-3 flex items-center justify-between gap-4">
                   <div className="min-w-0">
                     <div className="text-sm text-white truncate">{c.name || 'Contato'}</div>
-                    <div className="text-xs text-gray-400 truncate">{c.phone}</div>
+                    <div className="text-xs text-gray-400 truncate">{formatPhoneNumberDisplay(c.phone, 'e164')}</div>
                   </div>
                   <MessageStatusBadge status={MessageStatus.PENDING} />
                 </div>

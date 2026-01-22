@@ -18,8 +18,11 @@ import { AddWhatsAppStep } from './steps/AddWhatsAppStep';
 import { CredentialsStep } from './steps/CredentialsStep';
 import { TestConnectionStep } from './steps/TestConnectionStep';
 import { ConfigureWebhookStep } from './steps/ConfigureWebhookStep';
+import { SyncTemplatesStep } from './steps/SyncTemplatesStep';
+import { SendFirstMessageStep } from './steps/SendFirstMessageStep';
 import { CreatePermanentTokenStep } from './steps/CreatePermanentTokenStep';
 import { DirectCredentialsStep } from './steps/DirectCredentialsStep';
+import { OnboardingCompleteStep } from './steps/OnboardingCompleteStep';
 
 interface OnboardingModalProps {
   isConnected: boolean;
@@ -28,9 +31,11 @@ interface OnboardingModalProps {
     businessAccountId: string;
     accessToken: string;
   }) => Promise<void>;
+  /** Força exibição do modal em um step específico (ex: 'configure-webhook') */
+  forceStep?: OnboardingStep;
 }
 
-export function OnboardingModal({ isConnected, onComplete }: OnboardingModalProps) {
+export function OnboardingModal({ isConnected, onComplete, forceStep }: OnboardingModalProps) {
   const {
     progress,
     isLoaded,
@@ -41,11 +46,46 @@ export function OnboardingModal({ isConnected, onComplete }: OnboardingModalProp
     nextStep,
     previousStep,
     completeOnboarding,
-    updateChecklistItem,
+    completeStep,
+    goToStep,
   } = useOnboardingProgress();
 
-  // Não mostra se já conectado ou se onboarding já foi completado
-  const shouldShow = shouldShowOnboardingModal && !isConnected && isLoaded;
+  // Se forceStep foi passado e é diferente do current, navega para ele
+  // Mas NÃO reseta se o usuário foi intencionalmente para 'complete' (fechar modal)
+  // CRÍTICO: Esperar localStorage carregar antes de forçar step (evita sobrescrever estado salvo)
+  React.useEffect(() => {
+    if (!isLoaded) return;
+
+    if (forceStep && progress.currentStep !== forceStep && progress.currentStep !== 'complete') {
+      goToStep(forceStep);
+    }
+  }, [isLoaded, forceStep, progress.currentStep, goToStep]);
+
+  // O step atual é o forceStep (se fornecido) ou o do localStorage
+  const currentStep = forceStep || progress.currentStep;
+
+  // Steps que podem aparecer mesmo após conectado (fluxo pós-credenciais)
+  const postConnectionSteps: OnboardingStep[] = [
+    'configure-webhook',
+    'sync-templates',
+    'send-first-message',
+    'create-permanent-token',
+    'complete',
+  ];
+  const isPostConnectionStep = postConnectionSteps.includes(currentStep);
+
+  // Onboarding foi finalizado (usuário clicou em "Começar a usar")
+  const isFullyComplete = progress.completedAt !== null;
+
+  // Mostrar modal se:
+  // 1. Fluxo inicial: não completou E não está conectado
+  // 2. Steps pós-conexão: mesmo após "completar" o wizard, permitir reabrir esses steps
+  //    (ex: usuário clicou "Configurar webhook" no checklist)
+  // IMPORTANTE: usa progress.currentStep para verificar se deve fechar (não currentStep que pode vir do forceStep)
+  const shouldShow = isLoaded && (
+    (!isFullyComplete && shouldShowOnboardingModal && !isConnected) || // Fluxo inicial
+    (isPostConnectionStep && progress.currentStep !== 'complete') // Pós-conexão (fecha quando progress.currentStep === 'complete')
+  );
 
   // Estado temporário para credenciais durante o wizard
   const [credentials, setCredentials] = React.useState({
@@ -60,7 +100,7 @@ export function OnboardingModal({ isConnected, onComplete }: OnboardingModalProp
   };
 
   const renderStep = () => {
-    switch (progress.currentStep) {
+    switch (currentStep) {
       case 'welcome':
         return (
           <WelcomeStep
@@ -128,11 +168,35 @@ export function OnboardingModal({ isConnected, onComplete }: OnboardingModalProp
       case 'configure-webhook':
         return (
           <ConfigureWebhookStep
+            onNext={() => {
+              // Sempre fecha o modal após configurar webhook
+              // Os próximos steps são opcionais e podem ser feitos pelo checklist
+              completeStep('configure-webhook');
+              goToStep('complete');
+            }}
+            onBack={() => goToStep('complete')}
+            stepNumber={6}
+            totalSteps={totalSteps}
+          />
+        );
+
+      case 'sync-templates':
+        return (
+          <SyncTemplatesStep
             onNext={nextStep}
             onBack={previousStep}
             stepNumber={currentStepNumber}
             totalSteps={totalSteps}
-            onWebhookValidated={() => updateChecklistItem('webhook', true)}
+          />
+        );
+
+      case 'send-first-message':
+        return (
+          <SendFirstMessageStep
+            onNext={nextStep}
+            onBack={previousStep}
+            stepNumber={currentStepNumber}
+            totalSteps={totalSteps}
           />
         );
 
@@ -143,10 +207,8 @@ export function OnboardingModal({ isConnected, onComplete }: OnboardingModalProp
             onTokenUpdate={async (newToken) => {
               // Atualiza o token nas credenciais locais
               setCredentials(prev => ({ ...prev, accessToken: newToken }));
-              // Salva no backend
+              // Salva no backend (health check será atualizado automaticamente)
               await onComplete({ ...credentials, accessToken: newToken });
-              // Marca no checklist
-              updateChecklistItem('permanentToken', true);
             }}
             onNext={completeOnboarding}
             onBack={previousStep}
@@ -166,6 +228,13 @@ export function OnboardingModal({ isConnected, onComplete }: OnboardingModalProp
           />
         );
 
+      case 'complete':
+        return (
+          <OnboardingCompleteStep
+            onComplete={completeOnboarding}
+          />
+        );
+
       default:
         return null;
     }
@@ -182,7 +251,7 @@ export function OnboardingModal({ isConnected, onComplete }: OnboardingModalProp
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
-        {progress.currentStep === 'welcome' ? (
+        {currentStep === 'welcome' ? (
           <>
             <DialogHeader className="text-center pb-2">
               <div className="flex justify-center mb-4">

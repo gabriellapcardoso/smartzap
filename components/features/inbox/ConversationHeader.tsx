@@ -66,6 +66,7 @@ import type {
   ConversationPriority,
 } from '@/types'
 import { ContactMemoriesSheet } from './ContactMemoriesSheet'
+import { formatPhoneNumberDisplay } from '@/lib/phone-formatter'
 
 export interface ConversationHeaderProps {
   conversation: InboxConversation
@@ -224,7 +225,7 @@ export function ConversationHeader({
               </Tooltip>
             )}
           </div>
-          <span className="text-[10px] text-[var(--ds-text-muted)]">{phone}</span>
+          <span className="text-[10px] text-[var(--ds-text-muted)]">{formatPhoneNumberDisplay(phone, 'e164')}</span>
         </div>
       </div>
 

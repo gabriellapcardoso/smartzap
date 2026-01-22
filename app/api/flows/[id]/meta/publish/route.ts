@@ -67,7 +67,6 @@ async function getActiveNgrokUrl(): Promise<string | null> {
       t.config?.addr?.includes(':3000') || t.config?.addr?.includes('localhost')
     ) || data?.tunnels?.[0]
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H1',location:'app/api/flows/[id]/meta/publish/route.ts:68',message:'ngrok tunnel lookup',data:{hasTunnels:Array.isArray(data?.tunnels) && data.tunnels.length>0,publicUrl:tunnel?.public_url ?? null},timestamp:Date.now()})}).catch(()=>{});
     // #endregion
     return tunnel?.public_url || null
   } catch {
@@ -103,7 +102,6 @@ async function getFlowEndpointUrl(): Promise<string | null> {
   const storedEndpointUrl = await settingsDb.get(ENDPOINT_URL_SETTING)
   const resolved = envEndpointUrl || storedEndpointUrl || null
   // #region agent log
-  fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H2',location:'app/api/flows/[id]/meta/publish/route.ts:103',message:'endpoint url resolved',data:{resolved,hasNgrok:Boolean(ngrokUrl),hasEnv:Boolean(envEndpointUrl),hasStored:Boolean(storedEndpointUrl)},timestamp:Date.now()})}).catch(()=>{});
   // #endregion
   console.log('[publish] 📍 Endpoint URL resolvida:', resolved, '(ngrok:', ngrokUrl, ', env:', envEndpointUrl, ', stored:', storedEndpointUrl, ')')
   return resolved
@@ -427,7 +425,6 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     try {
       const formsAfter = countFormWrappers(flowJsonForMeta)
       // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'meta-publish',hypothesisId:'H10',location:'app/api/flows/[id]/meta/publish/route.ts:flattenFormWrappers',message:'flattened Form wrappers for Meta publish',data:{flowId:id,formsBefore,formsAfter},timestamp:Date.now()})}).catch(()=>{});
       // #endregion agent log
     } catch {}
 
@@ -441,7 +438,6 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       const summary = summarizeFlowJson(flowJsonForMeta)
       const hasInputComponents = summary.inputComponentTypes.length > 0
       // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'meta-publish',hypothesisId:'H9',location:'app/api/flows/[id]/meta/publish/route.ts:stripEditorMetadata',message:'prepared flowJsonForMeta',data:{flowId:id,hadFlowJson:!!flowJsonObj,hadFlowJsonForMeta:!!flowJsonForMetaObj,approxBytesRemoved:removed,navigateWithPayload:nav.navigateWithPayload,totalNavigate:nav.totalNavigate,disallowedKeys:disallowed.count,disallowedSample:disallowed.samplePaths,hasInputComponents,summary},timestamp:Date.now()})}).catch(()=>{});
       // #endregion agent log
     } catch {}
 
@@ -452,7 +448,6 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       const hasRoutingModel = !!(flowJsonObj as any)?.routing_model
       const screenIds = screens.map((s: any) => String(s?.id || '')).filter(Boolean).slice(0, 6)
       // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'meta-publish',hypothesisId:'H1',location:'app/api/flows/[id]/meta/publish/route.ts:extractFlowJson',message:'flowJson summary',data:{flowId:id,version:(flowJsonObj as any)?.version ?? null,dataApiVersion:(flowJsonObj as any)?.data_api_version ?? null,hasRoutingModel,screenCount:screens.length,screenIds},timestamp:Date.now()})}).catch(()=>{});
       // #endregion agent log
     } catch {}
 
@@ -479,7 +474,6 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     let localValidation = validateMetaFlowJson(flowJsonForMeta)
     try {
       // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'meta-publish',hypothesisId:'H2',location:'app/api/flows/[id]/meta/publish/route.ts:validateMetaFlowJson',message:'local validation result',data:{flowId:id,isValid:!!localValidation.isValid,errorsCount:Array.isArray(localValidation.errors)?localValidation.errors.length:null,warningsCount:Array.isArray(localValidation.warnings)?localValidation.warnings.length:null,errorsPreview:Array.isArray(localValidation.errors)?localValidation.errors.slice(0,3):null},timestamp:Date.now()})}).catch(()=>{});
       // #endregion agent log
     } catch {}
     if (!localValidation.isValid) {
@@ -552,7 +546,6 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
         }
         endpointUri = url
         // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H3',location:'app/api/flows/[id]/meta/publish/route.ts:548',message:'endpoint uri selected',data:{flowId:id,endpointUri},timestamp:Date.now()})}).catch(()=>{});
         // #endregion
       }
 
@@ -654,7 +647,6 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
             })(),
           }
           // #region agent log
-          fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'meta-publish',hypothesisId:'H3',location:'app/api/flows/[id]/meta/publish/route.ts:metaCreateFlow',message:'creating flow on Meta',data:{flowId:id,publish:!!input.publish,dynamic,hasRoutingModel,dataApiVersion:(flowJsonObj as any)?.data_api_version ?? null,screenIds,jsonSample},timestamp:Date.now()})}).catch(()=>{});
           // #endregion agent log
         } catch {}
         created = await metaCreateFlow({
@@ -698,7 +690,6 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
         const ve = validationErrors as any
         const veCount = Array.isArray(ve) ? ve.length : ve && typeof ve === 'object' && Array.isArray(ve.errors) ? ve.errors.length : null
         // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'meta-publish',hypothesisId:'H5',location:'app/api/flows/[id]/meta/publish/route.ts:metaCreateFlow',message:'created flow result',data:{flowId:id,metaFlowId,metaStatusFromCreate:(created as any)?.status ?? null,validationErrorsCount:veCount},timestamp:Date.now()})}).catch(()=>{});
         // #endregion agent log
       } catch {}
 
@@ -820,19 +811,16 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
             const ve = (details as any)?.validation_errors ?? (details as any)?.validationErrors ?? null
             const vePreview = Array.isArray(ve) ? ve.slice(0, 6) : ve && typeof ve === 'object' ? ve : null
             // #region agent log
-            fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'meta-publish',hypothesisId:'H6',location:'app/api/flows/[id]/meta/publish/route.ts:catch',message:'fetched created flow details after publish fail',data:{createdFlowId:createdFlowIdFromMsg,status:(details as any)?.status ?? null,hasValidationErrors:Array.isArray(ve)?ve.length>0:!!ve,validationErrorsPreview:vePreview},timestamp:Date.now()})}).catch(()=>{});
             // #endregion agent log
             debugInfo.createdFlowIdFromPublishFail = createdFlowIdFromMsg
             debugInfo.createdFlowDetailsStatus = (details as any)?.status ?? null
             debugInfo.createdFlowValidationErrors = vePreview
           } catch (e) {
             // #region agent log
-            fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'meta-publish',hypothesisId:'H6',location:'app/api/flows/[id]/meta/publish/route.ts:catch',message:'failed to fetch created flow details after publish fail',data:{createdFlowId:createdFlowIdFromMsg,error:e instanceof Error?e.message:String(e)},timestamp:Date.now()})}).catch(()=>{});
             // #endregion agent log
           }
         }
         // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'meta-publish',hypothesisId:'H4',location:'app/api/flows/[id]/meta/publish/route.ts:catch',message:'MetaGraphApiError',data:{status:error.status ?? null,code,subcode,errorUserTitle,errorUserMsg,validationErrorsPreview:preview},timestamp:Date.now()})}).catch(()=>{});
         // #endregion agent log
       } catch {}
     }

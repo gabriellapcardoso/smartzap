@@ -25,7 +25,6 @@ export async function GET() {
   const publicKey = await settingsDb.get(PUBLIC_KEY_SETTING)
 
   // #region agent log
-  fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'endpoint-health',hypothesisId:'H5',location:'app/api/flows/endpoint/test/route.ts:23',message:'endpoint test start',data:{hasPublicKey:Boolean(publicKey),endpointUrl},timestamp:Date.now()})}).catch(()=>{});
   // #endregion agent log
 
   if (!endpointUrl) {
@@ -53,7 +52,6 @@ export async function GET() {
   const initialVector = iv.toString('base64')
 
   // #region agent log
-  fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'endpoint-health',hypothesisId:'H6',location:'app/api/flows/endpoint/test/route.ts:50',message:'encrypted ping payload ready',data:{encryptedFlowDataLength:encryptedFlowData.length,encryptedAesKeyLength:encryptedAesKey.length,initialVectorLength:initialVector.length},timestamp:Date.now()})}).catch(()=>{});
   // #endregion agent log
 
   const res = await fetch(endpointUrl, {
@@ -81,12 +79,10 @@ export async function GET() {
     decryptedOk = true
   } catch (error) {
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'endpoint-health',hypothesisId:'H9',location:'app/api/flows/endpoint/test/route.ts:74',message:'endpoint response decrypt failed',data:{errorName:error instanceof Error ? error.name : 'unknown',errorMessage:error instanceof Error ? error.message : 'unknown'},timestamp:Date.now()})}).catch(()=>{});
     // #endregion agent log
   }
 
   // #region agent log
-  fetch('http://127.0.0.1:7243/ingest/1294d6ce-76f2-430d-96ab-3ae4d7527327',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'endpoint-health',hypothesisId:'H7',location:'app/api/flows/endpoint/test/route.ts:82',message:'endpoint test response',data:{status:res.status,ok:res.ok,bodyLength:text.length,decryptedOk},timestamp:Date.now()})}).catch(()=>{});
   // #endregion agent log
 
   return NextResponse.json({

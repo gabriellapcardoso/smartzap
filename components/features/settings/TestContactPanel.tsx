@@ -89,7 +89,7 @@ export function TestContactPanel({
             <div>
               <p className="font-medium text-[var(--ds-text-primary)]">{testContact.name || 'Contato de Teste'}</p>
               <p className="text-sm text-[var(--ds-status-warning-text)] font-mono">
-                {formatPhoneNumberDisplay(testContact.phone, 'international')}
+                {formatPhoneNumberDisplay(testContact.phone, 'e164')}
               </p>
             </div>
           </div>

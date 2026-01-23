@@ -11,12 +11,21 @@ import {
   useState,
 } from "react";
 import type {
+  OverlayActionsContextValue,
   OverlayComponentProps,
   OverlayContextValue,
   OverlayOptions,
   OverlayStackItem,
+  OverlayStateContextValue,
 } from "./types";
 
+// Contexto separado para ações (estáveis, não causam re-render)
+const OverlayActionsContext = createContext<OverlayActionsContextValue | null>(null);
+
+// Contexto separado para estado (muda quando stack atualiza)
+const OverlayStateContext = createContext<OverlayStateContextValue | null>(null);
+
+// Contexto legado para compatibilidade (combina actions + state)
 const OverlayContext = createContext<OverlayContextValue | null>(null);
 
 // Separate context for frozen stack (used during exit animations)
@@ -36,6 +45,10 @@ type OverlayProviderProps = {
 /**
  * Provider component that manages the overlay stack state.
  * Wrap your app with this to enable the overlay system.
+ *
+ * Performance: Uses split contexts to avoid re-renders.
+ * - Components that only need actions (open, push, etc.) won't re-render when stack changes
+ * - Components that need state (stack, hasOverlays) will re-render as expected
  */
 export function OverlayProvider({ children }: OverlayProviderProps) {
   const [stack, setStack] = useState<OverlayStackItem[]>([]);
@@ -150,33 +163,57 @@ export function OverlayProvider({ children }: OverlayProviderProps) {
     });
   }, []);
 
-  const value = useMemo<OverlayContextValue>(
+  // Actions value - estável, não muda entre renders
+  const actionsValue = useMemo<OverlayActionsContextValue>(
     () => ({
-      stack,
       open,
       push,
       pop,
       replace,
       closeAll,
       close,
+    }),
+    [open, push, pop, replace, closeAll, close]
+  );
+
+  // State value - muda quando stack atualiza
+  const stateValue = useMemo<OverlayStateContextValue>(
+    () => ({
+      stack,
       hasOverlays: stack.length > 0,
       depth: stack.length,
     }),
-    [stack, open, push, pop, replace, closeAll, close]
+    [stack]
+  );
+
+  // Combined value para compatibilidade com useOverlay() existente
+  const combinedValue = useMemo<OverlayContextValue>(
+    () => ({
+      ...actionsValue,
+      ...stateValue,
+    }),
+    [actionsValue, stateValue]
   );
 
   return (
-    <OverlayContext.Provider value={value}>
-      <FrozenStackContext.Provider value={frozenStackRef.current}>
-        {children}
-      </FrozenStackContext.Provider>
-    </OverlayContext.Provider>
+    <OverlayActionsContext.Provider value={actionsValue}>
+      <OverlayStateContext.Provider value={stateValue}>
+        <OverlayContext.Provider value={combinedValue}>
+          <FrozenStackContext.Provider value={frozenStackRef.current}>
+            {children}
+          </FrozenStackContext.Provider>
+        </OverlayContext.Provider>
+      </OverlayStateContext.Provider>
+    </OverlayActionsContext.Provider>
   );
 }
 
 /**
- * Hook to access the overlay context.
+ * Hook to access the overlay context (combined actions + state).
  * Must be used within an OverlayProvider.
+ *
+ * @deprecated Prefer useOverlayActions() for actions or useOverlayState() for state
+ * to avoid unnecessary re-renders.
  */
 export function useOverlay(): OverlayContextValue {
   const context = useContext(OverlayContext);
@@ -187,12 +224,38 @@ export function useOverlay(): OverlayContextValue {
 }
 
 /**
+ * Hook to access only overlay actions (open, push, pop, etc.).
+ * This hook won't cause re-renders when the stack changes.
+ * Use this when you only need to open/close overlays.
+ */
+export function useOverlayActions(): OverlayActionsContextValue {
+  const context = useContext(OverlayActionsContext);
+  if (!context) {
+    throw new Error("useOverlayActions must be used within an OverlayProvider");
+  }
+  return context;
+}
+
+/**
+ * Hook to access only overlay state (stack, hasOverlays, depth).
+ * This hook will re-render when the stack changes.
+ * Use this when you need to react to overlay changes.
+ */
+export function useOverlayState(): OverlayStateContextValue {
+  const context = useContext(OverlayStateContext);
+  if (!context) {
+    throw new Error("useOverlayState must be used within an OverlayProvider");
+  }
+  return context;
+}
+
+/**
  * Hook to get the current overlay's position in the stack.
  * Uses frozen stack during exit animations to prevent UI shifts.
  * Returns { index, isFirst, isLast, depth, showBackButton }
  */
 export function useOverlayPosition(overlayId: string) {
-  const { stack } = useOverlay();
+  const { stack } = useOverlayState();
   const frozenStack = useContext(FrozenStackContext);
 
   // Use frozen stack when real stack is empty (during exit animation)
@@ -208,5 +271,5 @@ export function useOverlayPosition(overlayId: string) {
   };
 }
 
-// Export context for advanced use cases
-export { OverlayContext };
+// Export contexts for advanced use cases
+export { OverlayContext, OverlayActionsContext, OverlayStateContext };

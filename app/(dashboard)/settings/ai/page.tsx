@@ -32,7 +32,7 @@ import {
   type AiPromptsConfig,
   type AiRoutesConfig,
 } from '@/lib/ai/ai-center-defaults'
-import { settingsService, type OCRConfig, type OCRProviderType } from '@/services'
+import { settingsService, type OCRConfig, type OCRProviderType } from '@/services/settingsService'
 import { toast } from 'sonner'
 
 type PromptItem = {

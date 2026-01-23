@@ -4,10 +4,18 @@ import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { submissionsService, SubmissionsListParams, FlowSubmission } from '@/services/submissionsService'
 
+export interface SubmissionsInitialData {
+  submissions: FlowSubmission[]
+  total: number
+  page: number
+  limit: number
+}
+
 export interface UseSubmissionsParams {
   campaignId?: string
   flowId?: string
   initialLimit?: number
+  initialData?: SubmissionsInitialData
 }
 
 export function useSubmissionsController(params: UseSubmissionsParams = {}) {
@@ -26,9 +34,15 @@ export function useSubmissionsController(params: UseSubmissionsParams = {}) {
     [limit, page, search, params.campaignId, params.flowId]
   )
 
+  // Use initialData if provided (from server-side fetch)
+  const queryInitialData = params.initialData && page === 0 && !search.trim()
+    ? { data: params.initialData.submissions, total: params.initialData.total }
+    : undefined
+
   const query = useQuery({
     queryKey: ['submissions', queryParams],
     queryFn: () => submissionsService.list(queryParams),
+    initialData: queryInitialData,
     staleTime: 30_000, // 30 segundos
   })
 

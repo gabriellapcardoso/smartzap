@@ -66,7 +66,7 @@ export function useConversations(params: UseConversationsParams = {}) {
     queryKey,
     queryFn: () => inboxService.listConversations(queryParams),
     initialData: queryInitialData,
-    staleTime: CACHE.campaigns, // Reuse campaign cache timing
+    staleTime: CACHE.inbox, // 30s - user-facing list with realtime updates
     refetchOnWindowFocus: false,
     // Real-time configuration
     table: 'inbox_conversations',

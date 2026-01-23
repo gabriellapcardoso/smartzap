@@ -6,7 +6,7 @@ import { AlertTriangle, Loader2, RefreshCw, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 import type { Contact, CustomFieldDefinition } from '@/types';
-import { contactService } from '@/services';
+import { contactService } from '@/services/contactService';
 import { customFieldService } from '@/services/customFieldService';
 import type { ContactFixFocus, ContactFixTarget } from '@/lib/precheck-humanizer';
 

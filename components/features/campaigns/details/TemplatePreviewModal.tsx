@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { FileText, X, Loader2 } from 'lucide-react';
 import { Template } from '@/types';
 import { TemplatePreviewRenderer } from '@/components/features/templates/TemplatePreviewRenderer';
-import { templateService } from '@/services';
+import { templateService } from '@/services/templateService';
 import { TemplatePreviewModalProps } from './types';
 
 export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({

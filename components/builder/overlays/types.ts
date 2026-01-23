@@ -72,11 +72,10 @@ export type OpenOverlayParams<P = Record<string, unknown>> = {
 };
 
 /**
- * The overlay context value exposed by useOverlay()
+ * Actions context - funções estáveis que não mudam
+ * Separado para evitar re-renders quando o stack muda
  */
-export type OverlayContextValue = {
-  /** Current stack of overlays */
-  stack: OverlayStackItem[];
+export type OverlayActionsContextValue = {
   /** Open a new overlay, replacing any existing stack */
   open: <P>(
     component: ComponentType<OverlayComponentProps<P>>,
@@ -101,11 +100,25 @@ export type OverlayContextValue = {
   closeAll: () => void;
   /** Close a specific overlay by ID */
   close: (id: string) => void;
+};
+
+/**
+ * State context - valores que mudam quando o stack atualiza
+ */
+export type OverlayStateContextValue = {
+  /** Current stack of overlays */
+  stack: OverlayStackItem[];
   /** Check if there are overlays in the stack */
   hasOverlays: boolean;
   /** Get the depth of the current overlay (0 = first, 1+ = pushed) */
   depth: number;
 };
+
+/**
+ * The overlay context value exposed by useOverlay()
+ * Combinação dos dois contextos para compatibilidade
+ */
+export type OverlayContextValue = OverlayActionsContextValue & OverlayStateContextValue;
 
 /**
  * Props for the base Overlay component

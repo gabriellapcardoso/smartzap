@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import { flowsService, type FlowRow } from '@/services/flowsService'
-import { settingsService } from '@/services'
+import { settingsService } from '@/services/settingsService'
 
 export function FlowTestPanel({
   flows,

@@ -1,9 +1,11 @@
 import React, { useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 
 // UI Components
 import { CustomFieldsSheet } from '../contacts/CustomFieldsSheet';
 import { Container } from '@/components/ui/container';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // Wizard Components
 import {
@@ -14,9 +16,48 @@ import {
   WizardNavigation,
   WizardPreviewPanel,
 } from './wizard/components';
-import { StepTemplateConfig } from './wizard/steps/StepTemplateConfig';
-import { StepAudienceSelection } from './wizard/steps/StepAudienceSelection';
-import { StepReviewLaunch } from './wizard/steps/StepReviewLaunch';
+
+// Lazy-loaded wizard steps para reduzir bundle inicial
+// Cada step só é carregado quando o usuário navega para ele
+const StepTemplateConfig = dynamic(
+  () => import('./wizard/steps/StepTemplateConfig').then(m => ({ default: m.StepTemplateConfig })),
+  {
+    loading: () => <StepSkeleton />,
+    ssr: false,
+  }
+);
+
+const StepAudienceSelection = dynamic(
+  () => import('./wizard/steps/StepAudienceSelection').then(m => ({ default: m.StepAudienceSelection })),
+  {
+    loading: () => <StepSkeleton />,
+    ssr: false,
+  }
+);
+
+const StepReviewLaunch = dynamic(
+  () => import('./wizard/steps/StepReviewLaunch').then(m => ({ default: m.StepReviewLaunch })),
+  {
+    loading: () => <StepSkeleton />,
+    ssr: false,
+  }
+);
+
+// Skeleton para loading state dos steps
+function StepSkeleton() {
+  return (
+    <div className="p-6 space-y-4">
+      <Skeleton className="h-8 w-1/3" />
+      <Skeleton className="h-4 w-2/3" />
+      <div className="grid grid-cols-2 gap-4 pt-4">
+        <Skeleton className="h-32" />
+        <Skeleton className="h-32" />
+        <Skeleton className="h-32" />
+        <Skeleton className="h-32" />
+      </div>
+    </div>
+  );
+}
 
 // Hooks
 import { useCampaignWizardUI } from '@/hooks/campaigns/useCampaignWizardUI';

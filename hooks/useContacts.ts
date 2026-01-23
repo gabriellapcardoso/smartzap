@@ -384,7 +384,7 @@ export const useContactsController = (initialData?: ContactsInitialData) => {
       tags: contact.tags.split(',').map(t => t.trim()).filter(t => t),
       custom_fields: contact.custom_fields
     });
-  }, [addMutation]);
+  }, [addMutation.mutate]);
 
   const handleEditContact = useCallback((contact: Contact) => {
     setEditingContact(contact);
@@ -405,7 +405,7 @@ export const useContactsController = (initialData?: ContactsInitialData) => {
         custom_fields: sanitizeCustomFieldsForUpdate(data.custom_fields)
       }
     });
-  }, [editingContact, updateMutation]);
+  }, [editingContact, updateMutation.mutate]);
 
   const handleDeleteClick = useCallback((id: string) => {
     setDeleteTarget({ type: 'single', id });
@@ -426,7 +426,7 @@ export const useContactsController = (initialData?: ContactsInitialData) => {
     } else if (deleteTarget.type === 'bulk') {
       deleteManyMutation.mutate(Array.from(selectedIds));
     }
-  }, [deleteTarget, deleteMutation, deleteManyMutation, selectedIds]);
+  }, [deleteTarget, deleteMutation.mutate, deleteManyMutation.mutate, selectedIds]);
 
   const handleCancelDelete = useCallback(() => {
     setIsDeleteModalOpen(false);

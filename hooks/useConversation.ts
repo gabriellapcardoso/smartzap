@@ -42,7 +42,7 @@ export function useConversation(conversationId: string | null) {
       return inboxService.getConversation(conversationId)
     },
     enabled: !!conversationId,
-    staleTime: CACHE.campaigns,
+    staleTime: CACHE.inbox,
     // Stop retrying if conversation not found (404)
     retry: (failureCount, error) => {
       if (error instanceof Error && error.message.includes('404')) return false
@@ -185,7 +185,7 @@ export function useMessages(conversationId: string | null) {
       return oldestMessage?.created_at
     },
     initialPageParam: undefined as string | undefined,
-    staleTime: CACHE.campaigns,
+    staleTime: CACHE.inbox,
     refetchOnWindowFocus: false,
   })
 
@@ -362,16 +362,18 @@ export function useMessages(conversationId: string | null) {
   })
 
   // Load more (older messages)
+  // React Query garante que fetchNextPage é estável
   const loadMore = useCallback(() => {
     if (messagesQuery.hasNextPage && !messagesQuery.isFetchingNextPage) {
       messagesQuery.fetchNextPage()
     }
-  }, [messagesQuery])
+  }, [messagesQuery.hasNextPage, messagesQuery.isFetchingNextPage, messagesQuery.fetchNextPage])
 
   // Refetch to get new messages
+  // React Query garante que refetch é estável
   const refresh = useCallback(() => {
     messagesQuery.refetch()
-  }, [messagesQuery])
+  }, [messagesQuery.refetch])
 
   return {
     messages,

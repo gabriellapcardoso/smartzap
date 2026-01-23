@@ -148,29 +148,37 @@ export const ContactListView: React.FC<ContactListViewProps> = ({
     }
   }, [customFields]);
 
-  // Custom field handlers
-  const handleCustomFieldCreated = (field: CustomFieldDefinition) => {
+  // Custom field handlers - memoized to prevent child re-renders
+  const handleCustomFieldCreated = useCallback((field: CustomFieldDefinition) => {
     setLocalCustomFields((prev) => {
       if (prev.some((f) => f.id === field.id || f.key === field.key)) return prev;
       return [...prev, field];
     });
     onRefreshCustomFields?.();
-  };
+  }, [onRefreshCustomFields]);
 
-  const handleCustomFieldDeleted = (id: string) => {
+  const handleCustomFieldDeleted = useCallback((id: string) => {
     setLocalCustomFields((prev) => prev.filter((f) => f.id !== id));
     onRefreshCustomFields?.();
-  };
+  }, [onRefreshCustomFields]);
 
   // Computed values
   const showSuppressionDetails = statusFilter === 'SUPPRESSED';
   const hasActiveFilters = statusFilter !== 'ALL' || tagFilter !== 'ALL' || !!searchTerm;
 
-  const handleClearFilters = () => {
+  const handleClearFilters = useCallback(() => {
     onSearchChange('');
     onStatusFilterChange('ALL');
     onTagFilterChange('ALL');
-  };
+  }, [onSearchChange, onStatusFilterChange, onTagFilterChange]);
+
+  // Memoized toggle handler to prevent ContactFilters re-render
+  const handleToggleFilters = useCallback(() => setShowFilters((prev) => !prev), []);
+
+  // Memoized modal close handlers to prevent child re-renders
+  const handleCloseAddModal = useCallback(() => setIsAddModalOpen(false), [setIsAddModalOpen]);
+  const handleCloseEditModal = useCallback(() => setIsEditModalOpen(false), [setIsEditModalOpen]);
+  const handleCloseImportModal = useCallback(() => setIsImportModalOpen(false), [setIsImportModalOpen]);
 
   // Export state and handler
   const [isExporting, setIsExporting] = useState(false);
@@ -317,7 +325,7 @@ export const ContactListView: React.FC<ContactListViewProps> = ({
           onTagFilterChange={onTagFilterChange}
           tags={tags}
           showFilters={showFilters}
-          onToggleFilters={() => setShowFilters(!showFilters)}
+          onToggleFilters={handleToggleFilters}
         />
 
         {/* Results Info */}
@@ -363,7 +371,7 @@ export const ContactListView: React.FC<ContactListViewProps> = ({
       {/* Modals */}
       <ContactAddModal
         isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
+        onClose={handleCloseAddModal}
         onSubmit={onAddContact}
         customFields={localCustomFields}
       />
@@ -371,7 +379,7 @@ export const ContactListView: React.FC<ContactListViewProps> = ({
       <ContactEditModal
         isOpen={isEditModalOpen}
         contact={editingContact}
-        onClose={() => setIsEditModalOpen(false)}
+        onClose={handleCloseEditModal}
         onSubmit={onUpdateContact}
         customFields={localCustomFields}
       />
@@ -389,7 +397,7 @@ export const ContactListView: React.FC<ContactListViewProps> = ({
         isOpen={isImportModalOpen}
         isImporting={isImporting}
         customFields={localCustomFields}
-        onClose={() => setIsImportModalOpen(false)}
+        onClose={handleCloseImportModal}
         onImport={onImport}
         onCustomFieldCreated={handleCustomFieldCreated}
         onCustomFieldDeleted={handleCustomFieldDeleted}

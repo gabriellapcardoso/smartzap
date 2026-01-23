@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { cn } from '@/lib/utils'
 import { useCampaignFolders } from '@/hooks/useCampaignFolders'
 import { FolderIcon, FolderOpenIcon, ChevronDownIcon, XIcon, CheckIcon, SettingsIcon } from 'lucide-react'
@@ -40,25 +40,23 @@ export function CampaignFolderFilter({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const handleSelect = (folderId: string | null) => {
+  const handleSelect = useCallback((folderId: string | null) => {
     onChange(folderId)
     setIsOpen(false)
-  }
+  }, [onChange])
 
-  const clearFilter = (e: React.MouseEvent) => {
+  const clearFilter = useCallback((e: React.MouseEvent) => {
     e.stopPropagation()
     onChange(null)
-  }
+  }, [onChange])
 
-  // Label para o botão
-  const getSelectedLabel = () => {
+  // Label para o botão - memoizado para evitar recálculos
+  const selectedLabel = useMemo(() => {
     if (selectedFolderId === null) return null
     if (selectedFolderId === 'none') return 'Sem pasta'
     const folder = folders.find(f => f.id === selectedFolderId)
     return folder?.name || 'Pasta'
-  }
-
-  const selectedLabel = getSelectedLabel()
+  }, [selectedFolderId, folders])
   const hasFilter = selectedFolderId !== null
   const selectedFolder = selectedFolderId && selectedFolderId !== 'none'
     ? folders.find(f => f.id === selectedFolderId)

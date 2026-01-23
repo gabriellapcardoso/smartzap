@@ -22,12 +22,12 @@ export interface UseQuickRepliesOptions {
 export function useQuickReplies(options: UseQuickRepliesOptions = {}) {
   const queryClient = useQueryClient()
 
-  // List query
+  // List query - quick replies rarely change, use longer staleTime
   const quickRepliesQuery = useQuery({
     queryKey: QUICK_REPLIES_KEY,
     queryFn: inboxService.listQuickReplies,
     initialData: options.initialData,
-    staleTime: CACHE.campaigns,
+    staleTime: CACHE.quickReplies,
   })
 
   // Create mutation

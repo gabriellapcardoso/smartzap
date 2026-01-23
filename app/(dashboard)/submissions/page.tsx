@@ -1,35 +1,23 @@
-'use client'
+import { SubmissionsClientWrapper } from './SubmissionsClientWrapper'
+import { getSubmissionsInitialData } from './actions'
 
-import { useSearchParams } from 'next/navigation'
-import { useSubmissionsController } from '@/hooks/useSubmissions'
-import { SubmissionsView } from '@/components/features/submissions/SubmissionsView'
+export const revalidate = 30 // ISR: 30 segundos
 
-export default function SubmissionsPage() {
-  const searchParams = useSearchParams()
-  const campaignId = searchParams.get('campaignId') || undefined
-  const flowId = searchParams.get('flowId') || undefined
+interface PageProps {
+  searchParams: Promise<{ campaignId?: string; flowId?: string }>
+}
 
-  const controller = useSubmissionsController({
-    campaignId,
-    flowId,
-  })
+export default async function SubmissionsPage({ searchParams }: PageProps) {
+  const params = await searchParams
+  const campaignId = params.campaignId
+  const flowId = params.flowId
 
-  // Ajusta título/descrição baseado nos filtros
-  const title = campaignId
-    ? 'Submissões da Campanha'
-    : flowId
-      ? 'Submissões do Flow'
-      : 'Todas as Submissões'
-
-  const description = campaignId || flowId
-    ? 'Respostas filtradas por campanha ou flow'
-    : 'Todas as respostas dos formulários MiniApp'
+  // Fetch inicial no servidor
+  const initialData = await getSubmissionsInitialData({ campaignId, flowId })
 
   return (
-    <SubmissionsView
-      controller={controller}
-      title={title}
-      description={description}
+    <SubmissionsClientWrapper
+      initialData={initialData}
       campaignId={campaignId}
       flowId={flowId}
     />

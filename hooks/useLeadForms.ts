@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { CreateLeadFormDTO, LeadForm, UpdateLeadFormDTO } from '@/types'
-import { leadFormService } from '@/services'
+import { leadFormService } from '@/services/leadFormService'
 import type { FormsInitialData } from '@/app/(dashboard)/forms/actions'
 
 const fetchTags = async (): Promise<string[]> => {

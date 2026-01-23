@@ -21,12 +21,12 @@ export interface UseLabelsOptions {
 export function useLabels(options: UseLabelsOptions = {}) {
   const queryClient = useQueryClient()
 
-  // List query
+  // List query - labels rarely change, use longer staleTime
   const labelsQuery = useQuery({
     queryKey: LABELS_KEY,
     queryFn: inboxService.listLabels,
     initialData: options.initialData,
-    staleTime: CACHE.campaigns,
+    staleTime: CACHE.labels,
   })
 
   // Create mutation

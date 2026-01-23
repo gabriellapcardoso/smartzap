@@ -28,7 +28,7 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible'
 import { flowsService, type FlowRow } from '@/services/flowsService'
-import { settingsService } from '@/services'
+import { settingsService } from '@/services/settingsService'
 import { cn } from '@/lib/utils'
 
 export function SendFlowDialog(props: {

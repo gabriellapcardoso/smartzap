@@ -54,6 +54,14 @@ export const CACHE = {
   stats: 60 * 1000,
   /** Stale time for custom fields (10 min - rarely change) */
   customFields: 10 * 60 * 1000,
+  /** Stale time for inbox labels (5 min - rarely change) */
+  labels: 5 * 60 * 1000,
+  /** Stale time for quick replies (5 min - rarely change) */
+  quickReplies: 5 * 60 * 1000,
+  /** Stale time for inbox conversations (30s - user-facing list) */
+  inbox: 30 * 1000,
+  /** Stale time for settings (1 minute) */
+  settings: 60 * 1000,
 } as const
 
 // ============================================================================

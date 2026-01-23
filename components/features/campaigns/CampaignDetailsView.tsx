@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { CampaignStatus } from '@/types';
 import { Page } from '@/components/ui/page';
 import { ContactQuickEditModal } from '@/components/features/contacts/ContactQuickEditModal';
@@ -17,7 +18,6 @@ import {
   CampaignFlowPanel,
   MessageLogTable,
   PreparingCampaignView,
-  TemplatePreviewModal,
   CampaignDetailsViewProps,
   getCampaignStatusClass,
   formatScheduledTime,
@@ -25,6 +25,12 @@ import {
   computePerfSourceLabel,
   computeLimiterInfo,
 } from './details';
+
+// Lazy-load TemplatePreviewModal (raramente usado)
+const TemplatePreviewModal = dynamic(
+  () => import('./details/TemplatePreviewModal').then((m) => ({ default: m.TemplatePreviewModal })),
+  { loading: () => null }
+);
 
 export const CampaignDetailsView: React.FC<CampaignDetailsViewProps> = ({
   campaign,

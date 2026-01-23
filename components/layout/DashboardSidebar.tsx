@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { PrefetchLink } from '@/components/ui/PrefetchLink'
 import { cn } from '@/lib/utils'
+import { useUnreadCount } from '@/hooks/useUnreadCount'
 
 // =============================================================================
 // TYPES
@@ -38,6 +39,47 @@ export interface DashboardSidebarProps {
   onLogout: () => void
   onPrefetchRoute: (path: string) => void
 }
+
+// =============================================================================
+// INBOX BADGE (Isolado para evitar re-render do sidebar inteiro)
+// =============================================================================
+
+/**
+ * Badge de contagem não lida do Inbox.
+ * Consome useUnreadCount diretamente para evitar que mudanças na contagem
+ * causem re-render de todo o sidebar.
+ */
+const InboxUnreadBadge = memo(function InboxUnreadBadge({
+  variant = 'compact',
+}: {
+  variant?: 'compact' | 'expanded'
+}) {
+  const { count } = useUnreadCount()
+
+  if (!count || count === 0) return null
+
+  const displayCount = count > 99 ? '99+' : String(count)
+
+  if (variant === 'compact') {
+    return (
+      <span
+        className="absolute -right-1 -top-1 rounded-full bg-emerald-500/90 px-0.5 py-[1px] text-[7px] font-semibold uppercase tracking-wider text-black"
+        aria-label={`${count} mensagens não lidas`}
+      >
+        {displayCount}
+      </span>
+    )
+  }
+
+  return (
+    <span
+      className="rounded-full bg-emerald-500/20 px-1.5 py-[1px] text-[8px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-200 border border-emerald-500/30"
+      aria-label={`${count} mensagens não lidas`}
+    >
+      {displayCount}
+    </span>
+  )
+})
 
 // =============================================================================
 // COMPACT SIDEBAR (Icon-only)
@@ -93,17 +135,22 @@ const CompactSidebar = memo(function CompactSidebar({
                 : 'hover:border-[var(--ds-border-default)] hover:bg-[var(--ds-bg-hover)] hover:text-[var(--ds-text-primary)] focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ds-bg-base)]'
             } ${isActive ? 'bg-[var(--ds-bg-hover)] text-[var(--ds-text-primary)]' : ''}`
 
+            // Inbox usa badge dinâmico, outros usam badge estático
+            const badge = item.path === '/inbox' ? (
+              <InboxUnreadBadge variant="compact" />
+            ) : item.badge ? (
+              <span
+                className="absolute -right-1 -top-1 rounded-full bg-emerald-500/90 px-0.5 py-[1px] text-[7px] font-semibold uppercase tracking-wider text-black"
+                aria-label={item.badge}
+              >
+                {item.badge}
+              </span>
+            ) : null
+
             const content = (
               <>
                 <item.icon size={16} aria-hidden="true" />
-                {item.badge && (
-                  <span
-                    className="absolute -right-1 -top-1 rounded-full bg-emerald-500/90 px-0.5 py-[1px] text-[7px] font-semibold uppercase tracking-wider text-black"
-                    aria-label={item.badge}
-                  >
-                    {item.badge}
-                  </span>
-                )}
+                {badge}
               </>
             )
 
@@ -245,19 +292,24 @@ const ExpandedSidebar = memo(function ExpandedSidebar({
                     : 'text-[var(--ds-text-secondary)] hover:bg-[var(--ds-bg-hover)] hover:text-[var(--ds-text-primary)] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500'
               }`
 
+              // Inbox usa badge dinâmico, outros usam badge estático
+              const badge = item.path === '/inbox' ? (
+                <InboxUnreadBadge variant="expanded" />
+              ) : item.badge ? (
+                <span
+                  className="rounded-full bg-emerald-500/20 px-1.5 py-[1px] text-[8px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-200 border border-emerald-500/30"
+                  aria-label={item.badge}
+                >
+                  {item.badge}
+                </span>
+              ) : null
+
               const content = (
                 <>
                   <item.icon size={20} aria-hidden="true" />
                   <span className="flex items-center gap-2">
                     {item.label}
-                    {item.badge && (
-                      <span
-                        className="rounded-full bg-emerald-500/20 px-1.5 py-[1px] text-[8px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-200 border border-emerald-500/30"
-                        aria-label={item.badge}
-                      >
-                        {item.badge}
-                      </span>
-                    )}
+                    {badge}
                   </span>
                 </>
               )

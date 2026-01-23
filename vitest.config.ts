@@ -10,6 +10,7 @@ export default defineConfig({
             '**/dist/**',
             '**/.next/**',
             '**/e2e/**',
+            '**/tests/e2e/**', // Testes E2E do Playwright
             // Pastas com repositórios/clones usados para referência (não fazem parte do produto)
             '**/tmp/gh/**',
             // Testes/artefatos gerados (não são fonte de verdade do produto)

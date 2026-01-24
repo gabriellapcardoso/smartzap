@@ -22,7 +22,7 @@
 import { z } from 'zod';
 import { runSchemaMigration, checkSchemaApplied } from '@/lib/installer/migrations';
 import { bootstrapInstance } from '@/lib/installer/bootstrap';
-import { triggerProjectRedeploy, upsertProjectEnvs, waitForVercelDeploymentReady } from '@/lib/installer/vercel';
+import { triggerProjectRedeploy, upsertProjectEnvs, waitForVercelDeploymentReady, disableDeploymentProtection } from '@/lib/installer/vercel';
 import {
   resolveSupabaseApiKeys,
   resolveSupabaseDbUrl,
@@ -492,6 +492,22 @@ export async function POST(req: Request) {
       ];
 
       await upsertProjectEnvs(vercel.token, vercelProject.projectId, envVars, vercelProject.teamId);
+
+      // Desabilita Deployment Protection para permitir acesso de serviços M2M (QStash)
+      // Isso é necessário para que workflows e webhooks funcionem corretamente
+      const protectionResult = await disableDeploymentProtection(
+        vercel.token,
+        vercelProject.projectId,
+        vercelProject.teamId
+      );
+      if (!protectionResult.ok) {
+        console.warn('[provision] ⚠️ Não foi possível desabilitar Deployment Protection:', protectionResult.error);
+        // Não falha a instalação - apenas loga o warning
+        // O usuário pode desabilitar manualmente se necessário
+      } else {
+        console.log('[provision] ✅ Deployment Protection desabilitado com sucesso');
+      }
+
       stepIndex++;
 
       // Step 9: Run migrations

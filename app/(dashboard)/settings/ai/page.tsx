@@ -23,6 +23,7 @@ import { HeliconePanel } from '@/components/features/settings/HeliconePanel'
 import { Mem0Panel } from '@/components/features/settings/Mem0Panel'
 import { Page, PageActions, PageDescription, PageHeader, PageTitle } from '@/components/ui/page'
 import { AI_PROVIDERS, type AIProvider } from '@/lib/ai/providers'
+import { useDevMode } from '@/components/providers/DevModeProvider'
 import { DEFAULT_MODEL_ID } from '@/lib/ai/model'
 import {
   DEFAULT_AI_FALLBACK,
@@ -568,6 +569,8 @@ function PromptCard({
 }
 
 export default function AICenterPage() {
+  const { isDevMode } = useDevMode()
+
   const [providerStatuses, setProviderStatuses] = useState<AIConfigResponse['providers']>({
     google: EMPTY_PROVIDER_STATUS,
     openai: EMPTY_PROVIDER_STATUS,
@@ -598,10 +601,14 @@ export default function AICenterPage() {
   // Collapsible sections
   const [isStrategiesOpen, setIsStrategiesOpen] = useState(false)
 
-  const orderedProviders = useMemo(
-    () => normalizeProviderOrder(fallback.order),
-    [fallback.order]
-  )
+  const orderedProviders = useMemo(() => {
+    const allProviders = normalizeProviderOrder(fallback.order)
+    // Só mostra OpenAI e Anthropic no modo desenvolvedor
+    if (!isDevMode) {
+      return allProviders.filter(p => p === 'google')
+    }
+    return allProviders
+  }, [fallback.order, isDevMode])
   const configuredProvidersCount = useMemo(() => {
     return Object.values(providerStatuses).filter(s => s.isConfigured).length
   }, [providerStatuses])
@@ -1062,18 +1069,22 @@ export default function AICenterPage() {
 
           {/* Nota de ajuda unificada */}
           <div className="mt-4 flex items-center gap-3 rounded-lg border border-[var(--ds-border-subtle)] bg-[var(--ds-bg-tertiary)] px-4 py-2.5 text-xs">
-            <span className="text-[var(--ds-text-secondary)]">Obter chaves:</span>
+            <span className="text-[var(--ds-text-secondary)]">Obter chave:</span>
             <a href={API_KEY_URLS.google.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 hover:underline">
               Google <ExternalLink className="size-3" />
             </a>
-            <span className="text-[var(--ds-text-muted)]">•</span>
-            <a href={API_KEY_URLS.openai.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 hover:underline">
-              OpenAI <ExternalLink className="size-3" />
-            </a>
-            <span className="text-[var(--ds-text-muted)]">•</span>
-            <a href={API_KEY_URLS.anthropic.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 hover:underline">
-              Anthropic <ExternalLink className="size-3" />
-            </a>
+            {isDevMode && (
+              <>
+                <span className="text-[var(--ds-text-muted)]">•</span>
+                <a href={API_KEY_URLS.openai.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 hover:underline">
+                  OpenAI <ExternalLink className="size-3" />
+                </a>
+                <span className="text-[var(--ds-text-muted)]">•</span>
+                <a href={API_KEY_URLS.anthropic.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 hover:underline">
+                  Anthropic <ExternalLink className="size-3" />
+                </a>
+              </>
+            )}
           </div>
         </section>
 

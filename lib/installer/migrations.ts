@@ -30,12 +30,14 @@ async function sleep(ms: number) {
 
 function isRetryableConnectError(err: unknown): boolean {
   const msg = err instanceof Error ? err.message : String(err);
+  const lower = msg.toLowerCase();
   return (
-    msg.includes('ENOTFOUND') ||
-    msg.includes('EAI_AGAIN') ||
-    msg.includes('ECONNREFUSED') ||
-    msg.includes('ETIMEDOUT') ||
-    msg.includes('timeout')
+    lower.includes('tenant or user not found') ||
+    lower.includes('enotfound') ||
+    lower.includes('eai_again') ||
+    lower.includes('econnrefused') ||
+    lower.includes('etimedout') ||
+    lower.includes('timeout')
   );
 }
 

@@ -333,6 +333,8 @@ export async function processChatAgent(
     if (memoryContext.memoryCount > 0) {
       console.log(`[chat-agent] Found ${memoryContext.memoryCount} memories`)
     }
+  } else {
+    console.log(`[chat-agent] Mem0 disabled (configure mem0_enabled e mem0_api_key nas settings)`)
   }
 
   // Get model configuration - supports Google, OpenAI, Anthropic

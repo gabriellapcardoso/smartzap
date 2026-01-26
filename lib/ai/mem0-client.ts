@@ -105,8 +105,11 @@ async function getMem0Credentials(): Promise<Mem0Credentials> {
       settingsDb.get('mem0_api_key'),
     ])
 
-    const enabled = enabledRaw === 'true'
+    // Aceita tanto 'true' (string) quanto true (boolean)
+    const enabled = enabledRaw === 'true' || enabledRaw === true
     const apiKey = apiKeyFromDb || process.env.MEM0_API_KEY || null
+
+    console.log(`[mem0] Credentials loaded: enabled=${enabled} (raw: ${enabledRaw}, type: ${typeof enabledRaw}), hasApiKey=${!!apiKey}`)
 
     credentialsCache = { apiKey, enabled }
     cacheTimestamp = now

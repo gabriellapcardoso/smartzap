@@ -196,6 +196,7 @@ export default function CampaignsNewRealPage() {
   const [isLaunching, setIsLaunching] = useState(false)
   const [launchError, setLaunchError] = useState<string | null>(null)
   const [isPrecheckLoading, setIsPrecheckLoading] = useState(false)
+  const [skipIgnored, setSkipIgnored] = useState(false)
   const [precheckError, setPrecheckError] = useState<string | null>(null)
   const [precheckTotals, setPrecheckTotals] = useState<{ valid: number; skipped: number } | null>(null)
   const [precheckResult, setPrecheckResult] = useState<CampaignPrecheckResult | null>(null)
@@ -714,6 +715,7 @@ export default function CampaignsNewRealPage() {
       setPrecheckError((error as Error)?.message || 'Falha ao validar destinatários.')
       setPrecheckTotals(null)
       setPrecheckResult(null)
+      setSkipIgnored(false)
       return null
     } finally {
       setIsPrecheckLoading(false)
@@ -764,7 +766,7 @@ export default function CampaignsNewRealPage() {
           return
         }
 
-        if (hasMissingRequired && (precheck?.totals?.skipped ?? 0) > 0) {
+        if (hasMissingRequired && (precheck?.totals?.skipped ?? 0) > 0 && !skipIgnored) {
           setLaunchError('Existem contatos ignorados por falta de dados obrigatórios. Corrija os ignorados e valide novamente antes de lançar.')
           return
         }
@@ -1363,7 +1365,7 @@ export default function CampaignsNewRealPage() {
     !precheckError &&
     !isPrecheckLoading &&
     (precheckTotals?.valid ?? 0) > 0 &&
-    !precheckNeedsFix
+    (!precheckNeedsFix || skipIgnored)
   const isScheduleComplete =
     scheduleMode !== 'agendar' || (scheduleDate.trim().length > 0 && scheduleTime.trim().length > 0)
   const canContinue =
@@ -1372,7 +1374,7 @@ export default function CampaignsNewRealPage() {
   const scheduleSummaryLabel =
     step >= 4
       ? scheduleLabel
-      : precheckNeedsFix
+      : precheckNeedsFix && !skipIgnored
         ? 'Bloqueado (validação pendente)'
         : 'A definir'
   const combineModeLabel = combineMode === 'or' ? 'Mais alcance' : 'Mais preciso'
@@ -2693,10 +2695,23 @@ export default function CampaignsNewRealPage() {
                         ))}
 
                         {fixCandidates.length > 3 && (
-                          <p className="pt-1 text-xs text-[var(--ds-text-muted)]">Role para ver todos ou use “Corrigir em lote”.</p>
+                          <p className="pt-1 text-xs text-[var(--ds-text-muted)]">Role para ver todos ou use "Corrigir em lote".</p>
                         )}
                       </div>
                     )}
+
+                    {/* Checkbox para prosseguir apenas com válidos */}
+                    <label className="mt-4 flex cursor-pointer items-center gap-3 rounded-lg border border-[var(--ds-border-default)] bg-[var(--ds-bg-surface)] p-3 transition-colors hover:bg-[var(--ds-bg-hover)]">
+                      <input
+                        type="checkbox"
+                        checked={skipIgnored}
+                        onChange={(e) => setSkipIgnored(e.target.checked)}
+                        className="h-4 w-4 rounded border-zinc-600 bg-zinc-800 text-primary-500 focus:ring-primary-500 focus:ring-offset-0"
+                      />
+                      <span className="text-sm text-[var(--ds-text-secondary)]">
+                        Prosseguir apenas com os <strong className="text-[var(--ds-text-primary)]">{precheckTotals?.valid ?? 0}</strong> contatos válidos
+                      </span>
+                    </label>
                   </div>
                 )}
               </div>
@@ -2890,7 +2905,7 @@ export default function CampaignsNewRealPage() {
                 )}
                 {step === 2 && !isAudienceComplete && 'Selecione um público válido'}
                 {step === 3 && isPrecheckLoading && 'Validando destinatários...'}
-                {step === 3 && !isPrecheckLoading && precheckNeedsFix && 'Corrija os ignorados da validação para continuar'}
+                {step === 3 && !isPrecheckLoading && precheckNeedsFix && !skipIgnored && 'Corrija os ignorados ou marque para prosseguir apenas com válidos'}
                 {step === 3 && !isPrecheckLoading && precheckTotals && (precheckTotals.valid ?? 0) === 0 && 'Nenhum destinatário válido — corrija os ignorados'}
                 {step === 4 && !isScheduleComplete && 'Defina data e horário do agendamento'}
                 {canContinue && footerSummary}

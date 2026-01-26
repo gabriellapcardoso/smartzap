@@ -296,7 +296,7 @@ export async function generateText(options: GenerateTextOptions): Promise<Genera
     console.log(`[AI Service] Generating with ${providerId}/${modelId}${gatewayEnabled ? ' (via Gateway)' : ''}`);
 
     // Constrói opções base
-    const baseOptions: Parameters<typeof vercelGenerateText>[0] = {
+    const baseOptions: Omit<Parameters<typeof vercelGenerateText>[0], 'prompt' | 'messages'> = {
         model,
         system: options.system,
         temperature: options.temperature ?? 0.7,
@@ -406,7 +406,7 @@ export async function streamText(options: StreamTextOptions): Promise<GenerateTe
     console.log(`[AI Service] Streaming with ${providerId}/${modelId}${gatewayEnabled ? ' (via Gateway)' : ''}`);
 
     // Build call options based on prompt vs messages
-    const baseOptions: Parameters<typeof vercelStreamText>[0] = {
+    const baseOptions: Omit<Parameters<typeof vercelStreamText>[0], 'prompt' | 'messages'> = {
         model,
         system: options.system,
         temperature: options.temperature ?? 0.7,

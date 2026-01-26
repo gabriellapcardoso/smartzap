@@ -14,7 +14,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { inboxDb } from '@/lib/inbox/inbox-db'
 import { processChatAgent, type ContactContext } from '@/lib/ai/agents/chat-agent'
-import { sendWhatsAppMessage } from '@/lib/whatsapp-send'
+import { sendWhatsAppMessage, sendTypingIndicator } from '@/lib/whatsapp-send'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import type { AIAgent } from '@/types'
 
@@ -139,6 +139,16 @@ export async function POST(req: NextRequest) {
     // 9. Envia resposta via WhatsApp (com split por parágrafos)
     console.log(`📤 [AI-RESPOND] Sending WhatsApp message to ${conversation.phone}...`)
 
+    // Busca o whatsapp_message_id da última mensagem inbound para o typing indicator
+    const lastInboundMessage = messages.find(m => m.direction === 'inbound' && m.whatsapp_message_id)
+    const typingMessageId = lastInboundMessage?.whatsapp_message_id
+
+    if (typingMessageId) {
+      console.log(`⌨️ [AI-RESPOND] Will use typing indicator with message_id: ${typingMessageId}`)
+    } else {
+      console.log(`⚠️ [AI-RESPOND] No inbound message_id found, typing indicator disabled`)
+    }
+
     // Split por \n\n (igual Evolution API) - cada parágrafo vira uma mensagem
     const messageParts = splitMessageByParagraphs(result.response.message)
     console.log(`📤 [AI-RESPOND] Message split into ${messageParts.length} parts`)
@@ -147,6 +157,17 @@ export async function POST(req: NextRequest) {
 
     for (let i = 0; i < messageParts.length; i++) {
       const part = messageParts[i]
+
+      // Envia typing indicator antes de cada parte (se tiver message_id)
+      if (typingMessageId) {
+        await sendTypingIndicator({ messageId: typingMessageId })
+        console.log(`⌨️ [AI-RESPOND] Typing indicator sent for part ${i + 1}`)
+      }
+
+      // Delay proporcional ao tamanho da mensagem (simula digitação)
+      // 10ms por caractere, mínimo 800ms, máximo 2s
+      const typingDelay = Math.min(Math.max(part.length * 10, 800), 2000)
+      await new Promise(r => setTimeout(r, typingDelay))
 
       const sendResult = await sendWhatsAppMessage({
         to: conversation.phone,
@@ -171,12 +192,6 @@ export async function POST(req: NextRequest) {
         })
 
         console.log(`✅ [AI-RESPOND] Part ${i + 1}/${messageParts.length} sent: ${sendResult.messageId}`)
-
-        // Delay entre mensagens (simula digitação humana)
-        if (i < messageParts.length - 1) {
-          const delay = Math.min(Math.max(part.length * 10, 800), 2000) // 10ms/char, min 800ms, max 2s
-          await new Promise(r => setTimeout(r, delay))
-        }
       } else {
         console.error(`❌ [AI-RESPOND] Failed to send part ${i + 1}:`, sendResult.error)
       }

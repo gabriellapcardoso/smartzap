@@ -585,7 +585,11 @@ async function recordFailedAttempt(): Promise<void> {
 }
 
 async function clearFailedAttempts(): Promise<void> {
-  await deleteSetting('login_attempts')
+  try {
+    await deleteSetting('login_attempts')
+  } catch (error) {
+    console.warn('[auth] Falha ao limpar login_attempts (best-effort):', error)
+  }
 }
 
 // ============================================================================

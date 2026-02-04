@@ -869,6 +869,34 @@ export default function AICenterPage() {
         </div>
       )}
 
+      {/* Loading skeleton - evita flash de estado incorreto */}
+      {isLoading && (
+        <div className="space-y-6 animate-pulse">
+          <div className="rounded-2xl border border-[var(--ds-border-default)] bg-[var(--ds-bg-elevated)] p-4">
+            <div className="flex items-center gap-3">
+              <div className="size-10 rounded-xl bg-[var(--ds-bg-hover)]" />
+              <div className="space-y-2 flex-1">
+                <div className="h-4 w-32 rounded bg-[var(--ds-bg-hover)]" />
+                <div className="h-3 w-48 rounded bg-[var(--ds-bg-hover)]" />
+              </div>
+            </div>
+          </div>
+          <div className="glass-panel rounded-2xl p-6">
+            <div className="space-y-4">
+              <div className="h-5 w-40 rounded bg-[var(--ds-bg-hover)]" />
+              <div className="h-3 w-64 rounded bg-[var(--ds-bg-hover)]" />
+              <div className="space-y-2 mt-4">
+                <div className="h-16 rounded-xl bg-[var(--ds-bg-hover)]" />
+                <div className="h-16 rounded-xl bg-[var(--ds-bg-hover)]" />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Conteúdo principal - só mostra após carregar */}
+      {!isLoading && (
+        <>
       {/* Quick link to AI Agents */}
       <div className="mb-6">
         <a
@@ -1451,6 +1479,8 @@ export default function AICenterPage() {
           </div>
         </section>
       </div>
+        </>
+      )}
     </Page>
   )
 }

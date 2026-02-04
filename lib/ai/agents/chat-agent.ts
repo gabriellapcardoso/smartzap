@@ -543,8 +543,11 @@ export async function processChatAgent(
     }
 
     // Reaction tool - allows the agent to react to user messages with emojis
-    // Only available if we have the user's message ID
-    if (lastUserMessage?.whatsapp_message_id) {
+    // Only available if: 1) we have the user's message ID, 2) agent allows reactions
+    const allowReactions = agent.allow_reactions !== false // default true
+    const allowQuotes = agent.allow_quotes !== false // default true
+
+    if (lastUserMessage?.whatsapp_message_id && allowReactions) {
       const { sendReaction } = await import('@/lib/whatsapp-send')
 
       const reactToMessageTool = tool({
@@ -573,8 +576,14 @@ export async function processChatAgent(
 
       tools.reactToMessage = reactToMessageTool
       console.log(`[chat-agent] 😀 Reaction tool added to tools list`)
+    } else if (!allowReactions) {
+      console.log(`[chat-agent] 😀 Reaction tool disabled by agent settings`)
+    } else {
+      console.log(`[chat-agent] ⚠️ Reaction tool not available: no whatsapp_message_id on last user message`)
+    }
 
-      // Quote Message tool - allows the agent to quote/reply to the user's message
+    // Quote Message tool - allows the agent to quote/reply to the user's message
+    if (lastUserMessage?.whatsapp_message_id && allowQuotes) {
       const quoteMessageTool = tool({
         description: 'Faz a resposta aparecer como citação da mensagem do usuário (reply). Use para destacar que está respondendo diretamente a algo específico que o usuário disse.',
         inputSchema: z.object({
@@ -589,8 +598,8 @@ export async function processChatAgent(
 
       tools.quoteMessage = quoteMessageTool
       console.log(`[chat-agent] 💬 Quote tool added to tools list`)
-    } else {
-      console.log(`[chat-agent] ⚠️ Reaction tool not available: no whatsapp_message_id on last user message`)
+    } else if (!allowQuotes) {
+      console.log(`[chat-agent] 💬 Quote tool disabled by agent settings`)
     }
 
     // Determina se precisa de multi-step (mais de uma tool além de respond)

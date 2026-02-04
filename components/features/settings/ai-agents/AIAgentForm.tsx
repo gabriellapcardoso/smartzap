@@ -85,6 +85,8 @@ export function AIAgentForm({
   const [handoffEnabled, setHandoffEnabled] = useState(true)
   const [handoffInstructions, setHandoffInstructions] = useState('')
   const [bookingToolEnabled, setBookingToolEnabled] = useState(false)
+  const [allowReactions, setAllowReactions] = useState(true)
+  const [allowQuotes, setAllowQuotes] = useState(true)
 
   // RAG: Embedding config
   const [embeddingProvider, setEmbeddingProvider] = useState<EmbeddingProvider>(DEFAULT_EMBEDDING_CONFIG.provider)
@@ -219,6 +221,8 @@ export function AIAgentForm({
       setHandoffEnabled(agent.handoff_enabled ?? true)
       setHandoffInstructions(agent.handoff_instructions || DEFAULT_HANDOFF_INSTRUCTIONS)
       setBookingToolEnabled(agent.booking_tool_enabled ?? false)
+      setAllowReactions(agent.allow_reactions ?? true)
+      setAllowQuotes(agent.allow_quotes ?? true)
       // RAG config
       setEmbeddingProvider(agent.embedding_provider || DEFAULT_EMBEDDING_CONFIG.provider)
       setEmbeddingModel(agent.embedding_model || DEFAULT_EMBEDDING_CONFIG.model)
@@ -243,6 +247,8 @@ export function AIAgentForm({
       setHandoffEnabled(true)
       setHandoffInstructions(DEFAULT_HANDOFF_INSTRUCTIONS)
       setBookingToolEnabled(false)
+      setAllowReactions(true)
+      setAllowQuotes(true)
       // RAG config defaults
       setEmbeddingProvider(DEFAULT_EMBEDDING_CONFIG.provider)
       setEmbeddingModel(DEFAULT_EMBEDDING_CONFIG.model)
@@ -272,6 +278,8 @@ export function AIAgentForm({
       handoff_enabled: handoffEnabled,
       handoff_instructions: handoffEnabled ? handoffInstructions : null,
       booking_tool_enabled: bookingToolEnabled,
+      allow_reactions: allowReactions,
+      allow_quotes: allowQuotes,
       // RAG config
       embedding_provider: embeddingProvider,
       embedding_model: embeddingModel,
@@ -881,6 +889,42 @@ export function AIAgentForm({
                   checked={bookingToolEnabled}
                   onCheckedChange={setBookingToolEnabled}
                   disabled={!bookingPrereqs.ready || bookingPrereqsLoading}
+                />
+              </div>
+
+              <div className="flex items-center justify-between border-t border-[var(--ds-border-default)] pt-3">
+                <div>
+                  <Label htmlFor="allowReactions" className="text-sm">
+                    Reações (Emoji)
+                  </Label>
+                  <p className="text-xs text-[var(--ds-text-muted)]">
+                    {allowReactions
+                      ? 'Agente pode reagir com emoji às mensagens'
+                      : 'Agente não envia reações'}
+                  </p>
+                </div>
+                <Switch
+                  id="allowReactions"
+                  checked={allowReactions}
+                  onCheckedChange={setAllowReactions}
+                />
+              </div>
+
+              <div className="flex items-center justify-between border-t border-[var(--ds-border-default)] pt-3">
+                <div>
+                  <Label htmlFor="allowQuotes" className="text-sm">
+                    Citação (Quote)
+                  </Label>
+                  <p className="text-xs text-[var(--ds-text-muted)]">
+                    {allowQuotes
+                      ? 'Agente pode citar mensagens do usuário nas respostas'
+                      : 'Agente não cita mensagens'}
+                  </p>
+                </div>
+                <Switch
+                  id="allowQuotes"
+                  checked={allowQuotes}
+                  onCheckedChange={setAllowQuotes}
                 />
               </div>
             </div>

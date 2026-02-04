@@ -45,6 +45,9 @@ const createAgentSchema = z.object({
   handoff_instructions: z.string().nullable().optional(),
   // Booking tool config
   booking_tool_enabled: z.boolean().default(false),
+  // Tool permissions
+  allow_reactions: z.boolean().default(true),
+  allow_quotes: z.boolean().default(true),
 })
 
 /**
@@ -145,6 +148,9 @@ export async function POST(request: NextRequest) {
         handoff_instructions: data.handoff_instructions || null,
         // Booking tool config
         booking_tool_enabled: data.booking_tool_enabled,
+        // Tool permissions
+        allow_reactions: data.allow_reactions,
+        allow_quotes: data.allow_quotes,
       })
       .select()
       .single()

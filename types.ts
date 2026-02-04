@@ -613,6 +613,9 @@ export interface AIAgent {
   handoff_instructions: string | null;
   // Booking tool config
   booking_tool_enabled: boolean;
+  // Tool permissions
+  allow_reactions: boolean;
+  allow_quotes: boolean;
   created_at: string;
   updated_at: string;
 }

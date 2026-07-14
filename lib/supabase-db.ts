@@ -1021,6 +1021,27 @@ export const contactDb = {
         return ids.length
     },
 
+    // Usado pela rota bulk-tags pra detectar, ANTES do update, quantos
+    // contatos ainda não tinham uma tag específica — sinalização de
+    // "Qualificado em lote não sincroniza com o Gerador de Propostas ainda"
+    // (Fase 7+8), sem precisar de N chamadas a getById.
+    getTagsByIds: async (ids: string[]): Promise<Record<string, string[]>> => {
+        if (ids.length === 0) return {}
+
+        const { data, error } = await supabase
+            .from('contacts')
+            .select('id, tags')
+            .in('id', ids)
+
+        if (error) throw error
+
+        const mapa: Record<string, string[]> = {}
+        for (const row of data || []) {
+            mapa[row.id] = Array.isArray(row.tags) ? row.tags : []
+        }
+        return mapa
+    },
+
     bulkUpdateTags: async (
         ids: string[],
         tagsToAdd: string[],

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { contactDb } from '@/lib/supabase-db'
 import { requireSessionOrApiKey } from '@/lib/request-auth'
+import { getSupabaseAdmin } from '@/lib/supabase'
+import { detectaTransicaoQualificado, enviarWebhookLeadQualificado } from '@/lib/webhook-lead-qualificado'
 import {
   CreateContactSchema,
   DeleteContactsSchema,
@@ -98,7 +100,24 @@ export async function POST(request: Request) {
       email: validation.data.email ?? undefined,
     }
 
+    // Tags de antes precisam ser lidas ANTES do add() — `contactDb.add` faz
+    // upsert por telefone (atualiza se já existir), então "criar" um contato
+    // com a tag "Qualificado" pode ser uma transição real (contato já
+    // existia sem a tag) ou uma criação de fato (contato novo, tagsAntes
+    // vazio). Nos dois casos precisa dessa checagem — sem ela, cadastrar um
+    // lead já qualificado nunca sincronizava com o Gerador de Propostas.
+    const contatoAntes = await contactDb.getByPhone(contactData.phone)
+
     const contact = await contactDb.add(contactData)
+
+    if (detectaTransicaoQualificado(contatoAntes?.tags, contact.tags)) {
+      const admin = getSupabaseAdmin()
+      if (admin) {
+        // Síncrono, 1 tentativa, timeout curto (5s) — mesmo padrão do PATCH.
+        await enviarWebhookLeadQualificado(admin, contact)
+      }
+    }
+
     return NextResponse.json(contact, { status: 201 })
   } catch (error: any) {
     console.error('Failed to add contact:', error)

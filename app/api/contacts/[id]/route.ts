@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { contactDb } from '@/lib/supabase-db'
 import { requireSessionOrApiKey } from '@/lib/request-auth'
+import { getSupabaseAdmin } from '@/lib/supabase'
+import { detectaTransicaoQualificado, enviarWebhookLeadQualificado } from '@/lib/webhook-lead-qualificado'
 
 interface Params {
   params: Promise<{ id: string }>
@@ -52,6 +54,12 @@ export async function PATCH(request: Request, { params }: Params) {
 
     const { id } = await params
     const body = await request.json()
+
+    // Tags de antes precisam ser lidas ANTES do update pra detectar transição
+    // real pra "Qualificado" — só dispara webhook quando o contato não tinha
+    // a tag e passou a ter, não em toda edição.
+    const contatoAntes = body.tags !== undefined ? await contactDb.getById(id) : undefined
+
     const contact = await contactDb.update(id, body)
 
     if (!contact) {
@@ -59,6 +67,16 @@ export async function PATCH(request: Request, { params }: Params) {
         { error: 'Contato não encontrado' },
         { status: 404 }
       )
+    }
+
+    if (contatoAntes && detectaTransicaoQualificado(contatoAntes.tags, contact.tags)) {
+      const admin = getSupabaseAdmin()
+      if (admin) {
+        // Síncrono, 1 tentativa, timeout curto (5s) — não bloqueia a resposta
+        // do PATCH por múltiplos segundos em caso de falha/timeout do destino;
+        // falha é logada e reenviável pela UI, não retentada aqui.
+        await enviarWebhookLeadQualificado(admin, contact)
+      }
     }
 
     return NextResponse.json(contact)

@@ -749,6 +749,74 @@ describe('useSettingsController', () => {
       expect(mockSave).toHaveBeenCalled()
     })
 
+    it('deve inscrever o app nos webhooks da Meta automaticamente após salvar', async () => {
+      mockFetchPhoneDetails.mockResolvedValue({
+        display_phone_number: '+55 11 99999-9999',
+        quality_rating: 'GREEN',
+        verified_name: 'SmartZap',
+      })
+      mockSave.mockResolvedValue({
+        phoneNumberId: '123456789',
+        isConnected: true,
+      })
+
+      const fetchMock = createFetchMock()
+      globalThis.fetch = fetchMock
+
+      const { result } = renderHookWithProviders(() => useSettingsController())
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      await act(async () => {
+        await result.current.onSave()
+      })
+
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/meta/webhooks/subscription',
+        expect.objectContaining({ method: 'POST' })
+      )
+    })
+
+    it('não deve deixar a conexão falhar se a inscrição automática no webhook falhar', async () => {
+      mockFetchPhoneDetails.mockResolvedValue({
+        display_phone_number: '+55 11 99999-9999',
+        quality_rating: 'GREEN',
+        verified_name: 'SmartZap',
+      })
+      mockSave.mockResolvedValue({
+        phoneNumberId: '123456789',
+        isConnected: true,
+      })
+
+      globalThis.fetch = createFetchMock({
+        subscriptionPost: undefined,
+      }) as typeof fetch
+      const originalMockFetch = globalThis.fetch
+      globalThis.fetch = vi.fn().mockImplementation((url: string | URL | Request, init?: RequestInit) => {
+        const urlStr = typeof url === 'string' ? url : url instanceof URL ? url.toString() : url.url
+        if (urlStr === '/api/meta/webhooks/subscription' && init?.method === 'POST') {
+          return Promise.resolve({ ok: false, json: () => Promise.resolve({ error: 'Falha na Meta' }) })
+        }
+        return originalMockFetch(url, init)
+      })
+
+      const { result } = renderHookWithProviders(() => useSettingsController())
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      await expect(
+        act(async () => {
+          await result.current.onSave()
+        })
+      ).resolves.not.toThrow()
+
+      expect(mockSave).toHaveBeenCalled()
+    })
+
     it('deve exibir toast de erro ao falhar fetchPhoneDetails', async () => {
       mockFetchPhoneDetails.mockRejectedValue(new Error('Invalid credentials'))
       const { toast } = await import('sonner')

@@ -549,6 +549,17 @@ export const useSettingsController = () => {
 
       // 5. Atualiza estado local para refletir conexão
       setFormSettings(finalSettings);
+
+      // 6. Inscreve o app automaticamente nos webhooks da Meta (subscribed_apps).
+      // Sem isso, credenciais válidas não bastam: nenhuma mensagem recebida chega
+      // ao SmartZap até alguém encontrar e clicar no botão manual em Ajustes.
+      // Best-effort: falha aqui não desfaz a conexão recém-salva — o
+      // WebhookAlertBanner cobre o caso de a inscrição não se completar.
+      try {
+        await subscribeWebhookMessagesMutation.mutateAsync(undefined);
+      } catch {
+        // Erro já reportado via toast dentro da própria mutation.
+      }
     } catch (error) {
       toast.error('Erro ao conectar com a Meta API. Verifique as credenciais.');
       console.error(error);

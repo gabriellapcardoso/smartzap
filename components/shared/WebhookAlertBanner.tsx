@@ -76,8 +76,15 @@ export function WebhookAlertBanner() {
 
   // Diagnóstico específico do problema
   const getDiagnosis = (): { title: string; description: string } | null => {
-    if (!webhookSubscription?.ok) {
-      return null; // Erro na API, não mostra banner
+    // A checagem em si falhou (token expirado, erro de rede, instabilidade da Meta).
+    // Isso é justamente o cenário mais grave — não pode ficar invisível.
+    if (!webhookSubscription || !webhookSubscription.ok) {
+      return {
+        title: 'Não foi possível verificar o status do webhook.',
+        description:
+          webhookSubscription?.error ||
+          'A checagem falhou. Pode ser token de acesso expirado ou instabilidade da Meta — confira em Ajustes.',
+      };
     }
 
     const active = findActiveUrl(webhookSubscription.hierarchy, webhookSubscription.smartzapWebhookUrl);

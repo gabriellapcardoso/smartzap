@@ -188,7 +188,7 @@ export function OnboardingChecklist({
       {/* Progress bar */}
       <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
         <div
-          className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+          className="h-full bg-lime-500 rounded-full transition-all duration-500"
           style={{ width: `${checklistProgress.percentage}%` }}
         />
       </div>
@@ -205,7 +205,7 @@ export function OnboardingChecklist({
           >
             <div className="flex items-center gap-3">
               {item.isComplete ? (
-                <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                <CheckCircle2 className="w-5 h-5 text-lime-500 flex-shrink-0" />
               ) : (
                 <Circle className="w-5 h-5 text-zinc-600 flex-shrink-0" />
               )}
@@ -228,7 +228,7 @@ export function OnboardingChecklist({
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10"
+                className="text-lime-400 hover:text-lime-300 hover:bg-lime-500/10"
                 onClick={() => {
                   // Webhook abre o wizard no step de configuração
                   if (item.id === 'webhook') {
@@ -334,7 +334,7 @@ export function OnboardingChecklist({
                 id="confirm-token"
                 checked={tokenConfirmChecked}
                 onCheckedChange={(checked) => setTokenConfirmChecked(checked === true)}
-                className="mt-0.5 border-emerald-500 data-[state=checked]:bg-emerald-500"
+                className="mt-0.5 border-lime-500 data-[state=checked]:bg-lime-500"
               />
               <label
                 htmlFor="confirm-token"

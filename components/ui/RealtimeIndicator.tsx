@@ -71,8 +71,8 @@ export function RealtimeIndicator({
         ? {
             icon: Wifi,
             label: 'Ao vivo',
-            colorClass: 'text-emerald-400',
-            dotClass: 'bg-emerald-400',
+            colorClass: 'text-lime-400',
+            dotClass: 'bg-lime-400',
         }
         : {
             icon: WifiOff,

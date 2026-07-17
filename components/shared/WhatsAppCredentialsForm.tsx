@@ -536,12 +536,12 @@ export function WhatsAppCredentialsForm({
 
       {/* Sucesso de conexão */}
       {isConnectionValid && !showValidationStatus && (
-        <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+        <div className="p-3 rounded-lg bg-lime-500/10 border border-lime-500/20">
           <div className="flex items-start gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5" />
+            <CheckCircle2 className="w-4 h-4 text-lime-500 mt-0.5" />
             <div className="text-sm">
-              <p className="text-emerald-200 font-medium">Conexão válida</p>
-              <p className="text-emerald-200/70">
+              <p className="text-lime-200 font-medium">Conexão válida</p>
+              <p className="text-lime-200/70">
                 {connectionInfo.displayPhoneNumber}
                 {connectionInfo.verifiedName && ` • ${connectionInfo.verifiedName}`}
               </p>

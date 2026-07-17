@@ -21,7 +21,7 @@ function NodeShell(props: NodeShellProps) {
   const tone = props.tone || 'default'
   const ring =
     tone === 'success'
-      ? 'ring-emerald-500/25 border-emerald-500/30'
+      ? 'ring-lime-500/25 border-lime-500/30'
       : tone === 'danger'
         ? 'ring-red-500/25 border-red-500/30'
         : 'ring-white/10 border-white/10'

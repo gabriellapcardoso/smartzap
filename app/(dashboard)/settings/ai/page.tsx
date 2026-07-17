@@ -183,11 +183,11 @@ function StrategyCard({
       glow: 'shadow-amber-500/5',
     },
     emerald: {
-      border: 'border-emerald-500/30',
-      bg: 'bg-emerald-500/5',
-      icon: 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10',
-      badge: 'border-emerald-500/40 bg-emerald-500/15 text-emerald-300',
-      glow: 'shadow-emerald-500/5',
+      border: 'border-lime-500/30',
+      bg: 'bg-lime-500/5',
+      icon: 'text-lime-400 border-lime-500/30 bg-lime-500/10',
+      badge: 'border-lime-500/40 bg-lime-500/15 text-lime-300',
+      glow: 'shadow-lime-500/5',
     },
     violet: {
       border: 'border-violet-500/30',
@@ -210,7 +210,7 @@ function StrategyCard({
           strategy.tone === 'amber'
             ? 'from-transparent via-amber-400/50 to-transparent'
             : strategy.tone === 'emerald'
-              ? 'from-transparent via-emerald-400/50 to-transparent'
+              ? 'from-transparent via-lime-400/50 to-transparent'
               : 'from-transparent via-violet-400/50 to-transparent'
         }`}
       />
@@ -274,7 +274,7 @@ function StrategyCard({
               className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--ds-border-default)] bg-[var(--ds-bg-surface)] px-2.5 py-1 text-xs text-[var(--ds-text-secondary)]"
             >
               <span className={`size-1.5 rounded-full ${
-                strategy.tone === 'amber' ? 'bg-amber-400' : strategy.tone === 'emerald' ? 'bg-emerald-400' : 'bg-violet-400'
+                strategy.tone === 'amber' ? 'bg-amber-400' : strategy.tone === 'emerald' ? 'bg-lime-400' : 'bg-violet-400'
               }`} />
               {feature}
             </span>
@@ -297,7 +297,7 @@ function StrategyCard({
                 strategy.tone === 'amber'
                   ? 'border-amber-500/20 focus:border-amber-500/40 focus:ring-amber-500/10'
                   : strategy.tone === 'emerald'
-                    ? 'border-emerald-500/20 focus:border-emerald-500/40 focus:ring-emerald-500/10'
+                    ? 'border-lime-500/20 focus:border-lime-500/40 focus:ring-lime-500/10'
                     : 'border-violet-500/20 focus:border-violet-500/40 focus:ring-violet-500/10'
               }`}
               rows={12}
@@ -373,12 +373,12 @@ function MockSwitch({
       disabled={disabled}
       onClick={() => onToggle?.(!on)}
       className={`relative inline-flex h-6 w-11 items-center rounded-full border transition ${
-        on ? 'border-emerald-500/40 bg-emerald-500/20' : 'border-[var(--ds-border-default)] bg-[var(--ds-bg-hover)]'
+        on ? 'border-lime-500/40 bg-lime-500/20' : 'border-[var(--ds-border-default)] bg-[var(--ds-bg-hover)]'
       } ${disabled ? 'cursor-not-allowed opacity-60' : ''}`}
     >
       <span
         className={`inline-block size-4 rounded-full transition ${
-          on ? 'translate-x-6 bg-emerald-300' : 'translate-x-1 bg-[var(--ds-text-muted)]'
+          on ? 'translate-x-6 bg-lime-300' : 'translate-x-1 bg-[var(--ds-text-muted)]'
         }`}
       />
     </button>
@@ -447,7 +447,7 @@ function PromptCard({
         <>
           <div className="mt-4">
             <textarea
-              className="min-h-[160px] w-full rounded-xl border border-[var(--ds-border-default)] bg-[var(--ds-bg-surface)] px-4 py-3 text-sm text-[var(--ds-text-primary)] outline-none transition focus:border-emerald-500/40 focus:ring-2 focus:ring-emerald-500/10"
+              className="min-h-[160px] w-full rounded-xl border border-[var(--ds-border-default)] bg-[var(--ds-bg-surface)] px-4 py-3 text-sm text-[var(--ds-text-primary)] outline-none transition focus:border-lime-500/40 focus:ring-2 focus:ring-lime-500/10"
               rows={item.rows ?? 6}
               value={value}
               onChange={(event) => onChange(event.target.value)}
@@ -569,10 +569,10 @@ export default function AICenterPage() {
       <div className="mb-6">
         <a
           href="/settings/ai/agents"
-          className="group flex items-center justify-between rounded-2xl border border-[var(--ds-border-default)] bg-[var(--ds-bg-elevated)] p-4 transition hover:border-emerald-500/30 hover:bg-emerald-500/5"
+          className="group flex items-center justify-between rounded-2xl border border-[var(--ds-border-default)] bg-[var(--ds-bg-elevated)] p-4 transition hover:border-lime-500/30 hover:bg-lime-500/5"
         >
           <div className="flex items-center gap-3">
-            <div className="rounded-xl border border-[var(--ds-border-default)] bg-[var(--ds-bg-hover)] p-2 text-emerald-300">
+            <div className="rounded-xl border border-[var(--ds-border-default)] bg-[var(--ds-bg-hover)] p-2 text-lime-300">
               <Bot className="size-5" />
             </div>
             <div>
@@ -580,7 +580,7 @@ export default function AICenterPage() {
               <div className="text-xs text-[var(--ds-text-secondary)]">Configure os agentes IA para o Inbox</div>
             </div>
           </div>
-          <ChevronDown className="size-4 -rotate-90 text-[var(--ds-text-muted)] transition group-hover:text-emerald-300" />
+          <ChevronDown className="size-4 -rotate-90 text-[var(--ds-text-muted)] transition group-hover:text-lime-300" />
         </a>
       </div>
 
@@ -606,7 +606,7 @@ export default function AICenterPage() {
                   onClick={() => { handleProviderSelect(p); void fetchModels(p) }}
                   className={`flex-1 rounded-xl border px-4 py-3 text-sm font-medium transition ${
                     provider === p
-                      ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
+                      ? 'border-lime-500/40 bg-lime-500/10 text-lime-300'
                       : 'border-[var(--ds-border-default)] bg-[var(--ds-bg-elevated)] text-[var(--ds-text-secondary)] hover:bg-[var(--ds-bg-hover)]'
                   }`}
                 >
@@ -629,7 +629,7 @@ export default function AICenterPage() {
                     value={model}
                     onChange={(e) => handleModelChange(e.target.value)}
                     onFocus={() => { if (models.length === 0) void fetchModels(provider) }}
-                    className="w-full rounded-lg border border-[var(--ds-border-default)] bg-[var(--ds-bg-surface)] px-3 py-2 text-sm text-[var(--ds-text-primary)] outline-none transition focus:border-emerald-500/40"
+                    className="w-full rounded-lg border border-[var(--ds-border-default)] bg-[var(--ds-bg-surface)] px-3 py-2 text-sm text-[var(--ds-text-primary)] outline-none transition focus:border-lime-500/40"
                   >
                     {models.length > 0 ? (
                       models.map((m) => (
@@ -650,7 +650,7 @@ export default function AICenterPage() {
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-sm font-semibold text-[var(--ds-text-primary)]">
-                <FileImage className="size-4 text-emerald-300" />
+                <FileImage className="size-4 text-lime-300" />
                 OCR (Extração de Documentos)
               </div>
               <p className="text-sm text-[var(--ds-text-secondary)]">
@@ -664,7 +664,7 @@ export default function AICenterPage() {
             <div
               className={`rounded-xl border p-4 transition ${
                 ocrConfig.provider === 'gemini'
-                  ? 'border-emerald-500/30 bg-emerald-500/5'
+                  ? 'border-lime-500/30 bg-lime-500/5'
                   : 'border-[var(--ds-border-default)] bg-[var(--ds-bg-elevated)]'
               }`}
             >
@@ -681,7 +681,7 @@ export default function AICenterPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 text-xs font-medium text-emerald-300">
+                  <span className="rounded-full bg-lime-500/20 px-2.5 py-1 text-xs font-medium text-lime-300">
                     Em uso
                   </span>
                 </div>
@@ -696,7 +696,7 @@ export default function AICenterPage() {
                       value={ocrConfig.geminiModel}
                       onChange={(e) => handleOcrGeminiModelChange(e.target.value)}
                       disabled={isSavingOcr}
-                      className="w-full rounded-lg border border-[var(--ds-border-default)] bg-[var(--ds-bg-surface)] px-3 py-2 text-sm text-[var(--ds-text-primary)] outline-none transition focus:border-emerald-500/40 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="w-full rounded-lg border border-[var(--ds-border-default)] bg-[var(--ds-bg-surface)] px-3 py-2 text-sm text-[var(--ds-text-primary)] outline-none transition focus:border-lime-500/40 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {OCR_GEMINI_MODELS.map((m) => (
                         <option key={m.id} value={m.id}>
@@ -711,7 +711,7 @@ export default function AICenterPage() {
 
             {/* Info note */}
             <div className="flex items-start gap-2 rounded-lg border border-[var(--ds-border-subtle)] bg-[var(--ds-bg-tertiary)] p-3 text-xs text-[var(--ds-text-secondary)]">
-              <Info className="mt-0.5 size-4 shrink-0 text-emerald-400" />
+              <Info className="mt-0.5 size-4 shrink-0 text-lime-400" />
               <span>
                 O OCR converte PDFs e imagens em texto antes de indexar na base de conhecimento
                 dos agentes. Usa a mesma chave Google configurada acima.
@@ -745,7 +745,7 @@ export default function AICenterPage() {
             >
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <div className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500/20 via-emerald-500/20 to-violet-500/20">
+                  <div className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500/20 via-lime-500/20 to-violet-500/20">
                     <Target className="size-4 text-[var(--ds-text-primary)]" />
                   </div>
                   <h3 className="text-lg font-semibold text-[var(--ds-text-primary)]">
@@ -761,7 +761,7 @@ export default function AICenterPage() {
                   <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-300">
                     MARKETING
                   </span>
-                  <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-300">
+                  <span className="rounded-full border border-lime-500/30 bg-lime-500/10 px-2 py-0.5 text-[10px] font-medium text-lime-300">
                     UTILITY
                   </span>
                   <span className="rounded-full border border-violet-500/30 bg-violet-500/10 px-2 py-0.5 text-[10px] font-medium text-violet-300">
@@ -834,12 +834,12 @@ export default function AICenterPage() {
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-sm font-semibold text-[var(--ds-text-primary)]">
-                <Wand2 className="size-4 text-emerald-300" />
+                <Wand2 className="size-4 text-lime-300" />
                 Prompts do sistema
               </div>
               <p className="text-sm text-[var(--ds-text-secondary)]">Edite os prompts sem sair daqui.</p>
             </div>
-            <div className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs text-emerald-300">
+            <div className="rounded-full border border-lime-500/30 bg-lime-500/10 px-3 py-1 text-xs text-lime-300">
               {PROMPTS.length} prompts configuráveis
             </div>
           </div>

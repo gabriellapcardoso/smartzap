@@ -48,14 +48,14 @@ export function StrategySelectorModal({ isOpen, onSelect, onClose }: StrategySel
             subtitle: 'Recomendado',
             icon: Wrench,
             // Verde esmeralda forte
-            cardStyle: 'bg-gradient-to-b from-emerald-900/40 to-emerald-950/60 border-emerald-500/40 hover:border-emerald-400/60',
-            iconStyle: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
-            checkStyle: 'text-emerald-400',
+            cardStyle: 'bg-gradient-to-b from-lime-900/40 to-lime-950/60 border-lime-500/40 hover:border-lime-400/60',
+            iconStyle: 'bg-lime-500/20 text-lime-400 border-lime-500/30',
+            checkStyle: 'text-lime-400',
             description: 'Foco em avisos e notificações. Linguagem formal, seca e direta.',
             features: ['Categoria: UTILITY', 'Avisos Transacionais', 'Sem bloqueios'],
             warning: 'Proibido termos de venda.',
-            warningStyle: 'text-emerald-300',
-            badge: { icon: Star, text: 'Padrão', style: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' }
+            warningStyle: 'text-lime-300',
+            badge: { icon: Star, text: 'Padrão', style: 'bg-lime-500/20 text-lime-400 border-lime-500/40' }
         },
         {
             id: 'bypass' as const,

@@ -313,7 +313,7 @@ export function MessageInput({
                     )}
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-lime-500/20 text-lime-400 font-mono">
                         /{qr.shortcut}
                       </span>
                       <span className="text-sm font-medium text-[var(--ds-text-primary)] truncate">

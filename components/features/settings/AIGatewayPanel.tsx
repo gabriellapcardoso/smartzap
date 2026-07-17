@@ -55,12 +55,12 @@ const PROVIDERS: { id: AiProvider; label: string; icon: string; color: string; p
 
 const COLOR_MAP: Record<string, string> = {
   blue: 'border-blue-500/40 bg-blue-500/10 text-blue-300',
-  emerald: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300',
+  emerald: 'border-lime-500/40 bg-lime-500/10 text-lime-300',
 };
 
 const ACTIVE_COLOR: Record<string, string> = {
   blue: 'border-blue-500/50 bg-blue-500/20 ring-1 ring-blue-500/30',
-  emerald: 'border-emerald-500/50 bg-emerald-500/20 ring-1 ring-emerald-500/30',
+  emerald: 'border-lime-500/50 bg-lime-500/20 ring-1 ring-lime-500/30',
 };
 
 // =============================================================================
@@ -255,7 +255,7 @@ export function AIGatewayPanel() {
       {/* Header */}
       <div className="space-y-1">
         <div className="flex items-center gap-2 text-sm font-semibold text-[var(--ds-text-primary)]">
-          <Cpu className="size-4 text-emerald-400" />
+          <Cpu className="size-4 text-lime-400" />
           Providers de IA
         </div>
         <p className="text-sm text-[var(--ds-text-secondary)]">
@@ -291,7 +291,7 @@ export function AIGatewayPanel() {
                   <span className="text-base">{icon}</span>
                   <span className="text-sm font-medium text-[var(--ds-text-primary)]">{label}</span>
                   {ps.isConfigured && (
-                    <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-400">
+                    <span className="rounded-full border border-lime-500/30 bg-lime-500/10 px-2 py-0.5 text-[10px] text-lime-400">
                       Configurado
                     </span>
                   )}
@@ -338,7 +338,7 @@ export function AIGatewayPanel() {
                         onChange={(e) => updateProvider(id, { keyDraft: e.target.value })}
                         onKeyDown={(e) => { if (e.key === 'Enter') void handleSaveKey(id); }}
                         placeholder={placeholder}
-                        className="w-full rounded-lg border border-[var(--ds-border-default)] bg-[var(--ds-bg-surface)] px-3 py-1.5 pr-9 text-xs text-[var(--ds-text-primary)] placeholder:text-[var(--ds-text-muted)] focus:outline-none focus:ring-1 focus:ring-emerald-500/40"
+                        className="w-full rounded-lg border border-[var(--ds-border-default)] bg-[var(--ds-bg-surface)] px-3 py-1.5 pr-9 text-xs text-[var(--ds-text-primary)] placeholder:text-[var(--ds-text-muted)] focus:outline-none focus:ring-1 focus:ring-lime-500/40"
                       />
                       <button
                         type="button"
@@ -353,7 +353,7 @@ export function AIGatewayPanel() {
                       type="button"
                       disabled={ps.keyStatus === 'saving' || !ps.keyDraft.trim()}
                       onClick={() => void handleSaveKey(id)}
-                      className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-emerald-500 disabled:opacity-50"
+                      className="flex items-center gap-1.5 rounded-lg bg-lime-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-lime-500 disabled:opacity-50"
                     >
                       {ps.keyStatus === 'saving' ? (
                         <Loader2 size={12} className="animate-spin" />
@@ -492,7 +492,7 @@ function ModelRow({
       onClick={() => onSelect(model.id)}
       className={`flex w-full items-center justify-between rounded-lg px-3 py-2 transition ${
         isSelected
-          ? 'bg-emerald-500/10 text-emerald-300'
+          ? 'bg-lime-500/10 text-lime-300'
           : 'text-[var(--ds-text-primary)] hover:bg-[var(--ds-bg-hover)]'
       } disabled:cursor-not-allowed disabled:opacity-50`}
     >

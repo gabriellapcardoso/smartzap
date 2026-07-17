@@ -91,8 +91,8 @@ export function Stepper({
                 'border',
                 // Estados visuais
                 isActive && [
-                  'bg-emerald-500/10 border-emerald-500/30',
-                  'text-emerald-400',
+                  'bg-lime-500/10 border-lime-500/30',
+                  'text-lime-400',
                 ],
                 isCompleted && [
                   'bg-zinc-800/50 border-white/10',
@@ -114,8 +114,8 @@ export function Stepper({
                 className={cn(
                   'flex items-center justify-center rounded-full font-semibold text-sm',
                   isCompact ? 'w-6 h-6 text-xs' : 'w-8 h-8',
-                  isActive && 'bg-emerald-500 text-white',
-                  isCompleted && 'bg-emerald-500/20 text-emerald-400',
+                  isActive && 'bg-lime-500 text-white',
+                  isCompleted && 'bg-lime-500/20 text-lime-400',
                   !isActive && !isCompleted && 'bg-zinc-800 text-zinc-500'
                 )}
               >
@@ -142,7 +142,7 @@ export function Stepper({
               <div
                 className={cn(
                   'flex-1 h-px max-w-8',
-                  isCompleted ? 'bg-emerald-500/30' : 'bg-white/10'
+                  isCompleted ? 'bg-lime-500/30' : 'bg-white/10'
                 )}
               />
             )}
@@ -191,10 +191,10 @@ export function VerticalStepper({
                 className={cn(
                   'flex items-center justify-center w-8 h-8 rounded-full',
                   'font-semibold text-sm transition-all',
-                  isActive && 'bg-emerald-500 text-white',
-                  isCompleted && 'bg-emerald-500/20 text-emerald-400',
+                  isActive && 'bg-lime-500 text-white',
+                  isCompleted && 'bg-lime-500/20 text-lime-400',
                   !isActive && !isCompleted && 'bg-zinc-800 text-zinc-500',
-                  isClickable && 'cursor-pointer hover:ring-2 hover:ring-emerald-500/30',
+                  isClickable && 'cursor-pointer hover:ring-2 hover:ring-lime-500/30',
                   !isClickable && 'cursor-default'
                 )}
               >
@@ -206,7 +206,7 @@ export function VerticalStepper({
                 <div
                   className={cn(
                     'w-px flex-1 min-h-8 my-1',
-                    isCompleted ? 'bg-emerald-500/30' : 'bg-white/10'
+                    isCompleted ? 'bg-lime-500/30' : 'bg-white/10'
                   )}
                 />
               )}
@@ -226,7 +226,7 @@ export function VerticalStepper({
                 <p
                   className={cn(
                     'font-medium',
-                    isActive && 'text-emerald-400',
+                    isActive && 'text-lime-400',
                     isCompleted && 'text-zinc-300',
                     !isActive && !isCompleted && 'text-zinc-500'
                   )}

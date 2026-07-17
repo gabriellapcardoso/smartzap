@@ -43,7 +43,7 @@ export function SubmissionDetailView({
     ] as const;
 
     const sectionIconTone: Record<(typeof sections)[number]['color'], string> = {
-        emerald: 'text-emerald-300',
+        emerald: 'text-lime-300',
         yellow: 'text-amber-300',
         red: 'text-amber-300',
         zinc: 'text-gray-400',
@@ -67,7 +67,7 @@ export function SubmissionDetailView({
                             <h1 className="text-xl font-bold text-white flex items-center gap-2">
                                 {submission.name}
                                 <span className={`px-2 py-0.5 text-xs rounded-full border ${submission.status === 'processing'
-                                    ? 'bg-emerald-500/10 text-emerald-200 border-emerald-500/20'
+                                    ? 'bg-lime-500/10 text-lime-200 border-lime-500/20'
                                     : 'bg-zinc-950/40 text-gray-400 border-white/10'
                                     }`}>
                                     {submission.status === 'processing' ? 'Processando' : 'Concluído'}
@@ -156,7 +156,7 @@ export function SubmissionDetailView({
                                                 key={template.id}
                                                 onClick={() => setSelectedTemplate(template)}
                                                 className={`p-3 rounded-lg border transition-all cursor-pointer ${selectedTemplate?.id === template.id
-                                                    ? 'bg-emerald-500/10 border-emerald-500/30 ring-1 ring-emerald-500/40'
+                                                    ? 'bg-lime-500/10 border-lime-500/30 ring-1 ring-lime-500/40'
                                                     : 'bg-zinc-950/40 border-white/10 hover:border-white/20 hover:bg-white/5'
                                                     }`}
                                             >
@@ -215,7 +215,7 @@ export function SubmissionDetailView({
                             <div className="space-y-2 text-xs text-zinc-400">
                                 <div className="flex justify-between">
                                     <span>Categoria:</span>
-                                    <span className={selectedTemplate.category === 'UTILITY' ? 'text-emerald-300' : 'text-amber-300'}>
+                                    <span className={selectedTemplate.category === 'UTILITY' ? 'text-lime-300' : 'text-amber-300'}>
                                         {selectedTemplate.category}
                                     </span>
                                 </div>
@@ -258,7 +258,7 @@ function StatCard({ label, count, total, color, icon: Icon }: StatCardProps) {
     const percent = Math.round((count / total) * 100) || 0;
 
     const colors: Record<StatCardProps['color'], string> = {
-        emerald: 'text-emerald-300 bg-emerald-500/10 border-emerald-500/20',
+        emerald: 'text-lime-300 bg-lime-500/10 border-lime-500/20',
         yellow: 'text-amber-300 bg-amber-500/10 border-amber-500/20',
         red: 'text-amber-200 bg-amber-500/10 border-amber-500/20',
         zinc: 'text-gray-400 bg-zinc-500/10 border-white/10',

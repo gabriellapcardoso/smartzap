@@ -11,8 +11,8 @@ import {
 export const config = {
     matcher: [
         // Match all pages except static files and _next
-        // Includes: .json (manifest.json), .js (sw.js), common images/audio, and Next.js internals
-        '/((?!_next/static|_next/image|favicon.ico|manifest\\.json|sw\\.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|mp3|wav|ogg|m4a|yaml|yml)$).*)',
+        // Includes: .json (manifest.json), .js (sw.js), common images/audio/fonts, and Next.js internals
+        '/((?!_next/static|_next/image|favicon.ico|manifest\\.json|sw\\.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|mp3|wav|ogg|m4a|yaml|yml|woff2?|ttf|otf)$).*)',
     ],
 }
 

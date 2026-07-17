@@ -1,8 +1,60 @@
 /* Design System Fonts - must be first */
-@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
 
 @import "tailwindcss";
+
+/* ========================================
+ * aaagência brand fonts — self-hosted SF Pro Display
+ * ======================================== */
+@font-face {
+  font-family: "SF Pro Display";
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+  src: url("/fonts/SFProDisplay-Light.woff2") format("woff2");
+}
+@font-face {
+  font-family: "SF Pro Display";
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url("/fonts/SFProDisplay-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "SF Pro Display";
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  src: url("/fonts/SFProDisplay-Medium.woff2") format("woff2");
+}
+@font-face {
+  font-family: "SF Pro Display";
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  src: url("/fonts/SFProDisplay-Semibold.woff2") format("woff2");
+}
+@font-face {
+  font-family: "SF Pro Display";
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url("/fonts/SFProDisplay-Bold.woff2") format("woff2");
+}
+@font-face {
+  font-family: "SF Pro Display";
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+  src: url("/fonts/SFProDisplay-Heavy.woff2") format("woff2");
+}
+@font-face {
+  font-family: "SF Pro Display";
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+  src: url("/fonts/SFProDisplay-Black.woff2") format("woff2");
+}
 
 @import "tw-animate-css";
 @import "react-international-phone/style.css";
@@ -15,9 +67,9 @@
      DESIGN SYSTEM TOKENS
      ================================ */
 
-  /* DS - Typography (não muda com tema) */
-  --ds-font-display: "Satoshi", "Inter", system-ui, sans-serif;
-  --ds-font-body: "Inter", system-ui, -apple-system, sans-serif;
+  /* DS - Typography (não muda com tema) — aaagência brand: SF Pro Display carries the whole system */
+  --ds-font-display: "SF Pro Display", system-ui, sans-serif;
+  --ds-font-body: "SF Pro Display", system-ui, -apple-system, sans-serif;
   --ds-font-mono: "JetBrains Mono", "Fira Code", "Consolas", monospace;
 
   /* DS - Text sizes (não muda com tema) */
@@ -30,10 +82,17 @@
   --ds-text-3xl: 1.875rem;
   --ds-text-4xl: 2.25rem;
 
-  /* DS - Brand colors (Emerald - mantendo identidade SmartZap) */
-  --ds-brand-primary: #10b981;
-  --ds-brand-primary-hover: #059669;
-  --ds-brand-primary-muted: rgba(16, 185, 129, 0.1);
+  /* DS - Brand colors (aaagência - roxo primário, verde-limão como acento forte) */
+  --ds-brand-primary: #54007f;
+  --ds-brand-primary-hover: #6a1f96;
+  --ds-brand-primary-muted: rgba(84, 0, 127, 0.1);
+
+  /* DS - Brand accent (aaagência lime — usado em status de sucesso, botões secundários, destaques) */
+  --ds-brand-accent: #bff208;
+  --ds-brand-accent-hover: #a8d900;
+  --ds-brand-accent-muted: rgba(191, 242, 8, 0.12);
+  /* Texto sobre fundo lime deve continuar roxo escuro, nunca branco (regra da marca) */
+  --ds-brand-accent-text-on: #210032;
 
   /* ================================
      LIGHT MODE - Geist Inspired
@@ -52,19 +111,19 @@
   --ds-text-primary: #0a0a0a;
   --ds-text-secondary: #525252;
   --ds-text-muted: #737373;
-  --ds-text-brand: #059669;
+  --ds-text-brand: #6a1f96;
   --ds-text-disabled: #a3a3a3;
 
   /* DS - Border colors (LIGHT MODE - Geist style - visible but elegant) */
   --ds-border-subtle: rgba(0, 0, 0, 0.06);
   --ds-border-default: rgba(0, 0, 0, 0.09);
   --ds-border-strong: rgba(0, 0, 0, 0.14);
-  --ds-border-focus: #10b981;
+  --ds-border-focus: #8330b3;
 
-  /* DS - Status colors (LIGHT MODE - Geist style) */
-  --ds-status-success: #22c55e;
-  --ds-status-success-text: #15803d;
-  --ds-status-success-bg: rgba(34, 197, 94, 0.08);
+  /* DS - Status colors (LIGHT MODE - Geist style; sucesso puxa pro verde-limão da marca) */
+  --ds-status-success: #bff208;
+  --ds-status-success-text: #3f6212;
+  --ds-status-success-bg: rgba(191, 242, 8, 0.14);
   --ds-status-error: #ef4444;
   --ds-status-error-text: #dc2626;
   --ds-status-error-bg: rgba(239, 68, 68, 0.08);
@@ -78,12 +137,12 @@
   /* DS - Campaign status colors (LIGHT MODE - Geist style) */
   --ds-campaign-draft-text: #525252;
   --ds-campaign-draft-bg: rgba(82, 82, 82, 0.08);
-  --ds-campaign-scheduled-text: #7c3aed;
-  --ds-campaign-scheduled-bg: rgba(124, 58, 237, 0.08);
+  --ds-campaign-scheduled-text: #8330b3;
+  --ds-campaign-scheduled-bg: rgba(131, 48, 179, 0.08);
   --ds-campaign-sending-text: #2563eb;
   --ds-campaign-sending-bg: rgba(37, 99, 235, 0.08);
-  --ds-campaign-completed-text: #15803d;
-  --ds-campaign-completed-bg: rgba(21, 128, 61, 0.08);
+  --ds-campaign-completed-text: #3f6212;
+  --ds-campaign-completed-bg: rgba(191, 242, 8, 0.14);
   --ds-campaign-paused-text: #d97706;
   --ds-campaign-paused-bg: rgba(217, 119, 6, 0.08);
   --ds-campaign-failed-text: #dc2626;
@@ -97,9 +156,9 @@
   --ds-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
 
   /* DS - Glow effects (LIGHT MODE - Geist: subtle focus rings) */
-  --ds-glow-brand-sm: 0 0 0 2px rgba(16, 185, 129, 0.15);
-  --ds-glow-brand-md: 0 0 0 3px rgba(16, 185, 129, 0.2);
-  --ds-glow-brand-ring: 0 0 0 2px rgba(16, 185, 129, 0.25);
+  --ds-glow-brand-sm: 0 0 0 2px rgba(131, 48, 179, 0.15);
+  --ds-glow-brand-md: 0 0 0 3px rgba(131, 48, 179, 0.2);
+  --ds-glow-brand-ring: 0 0 0 2px rgba(131, 48, 179, 0.25);
   --ds-glow-error-ring: 0 0 0 2px rgba(239, 68, 68, 0.25);
 
   /* DS - Composite shadows (LIGHT MODE - Geist style) */
@@ -109,7 +168,7 @@
   --ds-shadow-button-hover: 0 0 0 1px rgba(0, 0, 0, 0.08);
   --ds-shadow-button-primary: 0 1px 2px 0 rgba(0, 0, 0, 0.08);
   --ds-shadow-button-primary-hover: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
-  --ds-shadow-input-focus: 0 0 0 2px rgba(16, 185, 129, 0.25);
+  --ds-shadow-input-focus: 0 0 0 2px rgba(131, 48, 179, 0.25);
   --ds-shadow-modal: 0 0 0 1px rgba(0, 0, 0, 0.04), 0 16px 32px -8px rgba(0, 0, 0, 0.12);
   --ds-shadow-dropdown: 0 0 0 1px rgba(0, 0, 0, 0.04), 0 8px 16px -4px rgba(0, 0, 0, 0.1);
 
@@ -146,18 +205,32 @@
   --color-gray-900: #18181b;
   --color-gray-950: #09090b;
 
-  /* Electric Emerald (WhatsApp Tech vibe) */
-  --color-primary-50: #ecfdf5;
-  --color-primary-100: #d1fae5;
-  --color-primary-200: #a7f3d0;
-  --color-primary-300: #6ee7b7;
-  --color-primary-400: #34d399;
-  --color-primary-500: #10b981;
-  --color-primary-600: #059669;
-  --color-primary-700: #047857;
-  --color-primary-800: #065f46;
-  --color-primary-900: #064e3b;
-  --color-primary-950: #022c22;
+  /* aaagência brand purple (Primary) */
+  --color-primary-50: #f8f2fc;
+  --color-primary-100: #efe3f6;
+  --color-primary-200: #ddc2ec;
+  --color-primary-300: #c08fdd;
+  --color-primary-400: #a059cb;
+  --color-primary-500: #8330b3;
+  --color-primary-600: #6a1f96;
+  --color-primary-700: #54007f;
+  --color-primary-800: #460069;
+  --color-primary-900: #350052;
+  --color-primary-950: #210032;
+
+  /* aaagência brand lime (Secondary/Accent — presença forte no SmartZap) */
+  --color-lime-50: #fbfeef;
+  --color-lime-100: #f5fdd9;
+  --color-lime-200: #e8fbb0;
+  --color-lime-300: #d6f570;
+  --color-lime-400: #ccf23a;
+  --color-lime-500: #bff208;
+  --color-lime-600: #9bc606;
+  --color-lime-700: #6f8c00;
+  --color-lime-800: #4d6300;
+  --color-lime-900: #3a4a00;
+  /* Texto sobre fundo lime deve continuar roxo escuro, nunca branco (regra da marca) */
+  --color-on-lime: #210032;
 
   /* ================================
      LANGFLOW COLOR SYSTEM
@@ -263,8 +336,8 @@
 
 /* Tailwind v4 theme customizations */
 @theme {
-  --font-family-sans: var(--font-geist-sans), system-ui, sans-serif;
-  --font-family-mono: var(--font-geist-mono), 'SF Mono', monospace;
+  --font-family-sans: "SF Pro Display", system-ui, sans-serif;
+  --font-family-mono: "JetBrains Mono", 'SF Mono', monospace;
 
   /* Colors */
   --color-primary-50: var(--color-primary-50);
@@ -278,11 +351,23 @@
   --color-primary-800: var(--color-primary-800);
   --color-primary-900: var(--color-primary-900);
   --color-primary-950: var(--color-primary-950);
+
+  --color-lime-50: var(--color-lime-50);
+  --color-lime-100: var(--color-lime-100);
+  --color-lime-200: var(--color-lime-200);
+  --color-lime-300: var(--color-lime-300);
+  --color-lime-400: var(--color-lime-400);
+  --color-lime-500: var(--color-lime-500);
+  --color-lime-600: var(--color-lime-600);
+  --color-lime-700: var(--color-lime-700);
+  --color-lime-800: var(--color-lime-800);
+  --color-lime-900: var(--color-lime-900);
+  --color-on-lime: var(--color-on-lime);
 }
 
 /* Base styles - theme-aware */
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--ds-font-body);
   background-color: var(--ds-bg-base);
   color: var(--ds-text-primary);
 }
@@ -330,7 +415,7 @@ a:focus-visible,
 [role="button"]:focus-visible {
   outline: 2px solid var(--color-primary-400);
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.2);
+  box-shadow: 0 0 0 4px rgba(131, 48, 179, 0.2);
 }
 
 /* Input focus styles removidos - cada componente gerencia seu próprio focus */
@@ -338,7 +423,7 @@ select:focus-visible,
 textarea:focus-visible {
   outline: none;
   border-color: var(--color-primary-500);
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  box-shadow: 0 0 0 3px rgba(131, 48, 179, 0.2);
 }
 
 /* Remove default focus outline when using :focus-visible */
@@ -686,26 +771,26 @@ textarea:focus-visible {
   --ds-text-primary: #f4f4f5;
   --ds-text-secondary: #a1a1aa;
   --ds-text-muted: #71717a;
-  --ds-text-brand: #34d399;
+  --ds-text-brand: #c08fdd;
   --ds-text-disabled: #52525b;
 
   /* DS - Border colors (DARK MODE) */
   --ds-border-subtle: rgba(255, 255, 255, 0.05);
   --ds-border-default: rgba(255, 255, 255, 0.10);
   --ds-border-strong: rgba(255, 255, 255, 0.15);
-  --ds-border-focus: #34d399;
+  --ds-border-focus: #a059cb;
 
-  /* DS - Status colors (DARK MODE - tons -400 para texto) */
-  --ds-status-success-text: #34d399;
+  /* DS - Status colors (DARK MODE - tons -400 para texto; sucesso em verde-limão vívido da marca) */
+  --ds-status-success-text: #bff208;
   --ds-status-error-text: #f87171;
   --ds-status-warning-text: #fbbf24;
   --ds-status-info-text: #60a5fa;
 
   /* DS - Campaign status colors (DARK MODE) */
   --ds-campaign-draft-text: #a1a1aa;
-  --ds-campaign-scheduled-text: #c084fc;
+  --ds-campaign-scheduled-text: #c08fdd;
   --ds-campaign-sending-text: #60a5fa;
-  --ds-campaign-completed-text: #34d399;
+  --ds-campaign-completed-text: #bff208;
   --ds-campaign-paused-text: #fbbf24;
   --ds-campaign-failed-text: #f87171;
 
@@ -717,9 +802,9 @@ textarea:focus-visible {
   --ds-shadow-xl: 0 20px 40px -5px rgba(0, 0, 0, 0.6), 0 8px 16px -6px rgba(0, 0, 0, 0.4);
 
   /* DS - Glow effects (DARK MODE) */
-  --ds-glow-brand-sm: 0 0 10px rgba(16, 185, 129, 0.2);
-  --ds-glow-brand-md: 0 0 20px rgba(16, 185, 129, 0.3);
-  --ds-glow-brand-ring: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  --ds-glow-brand-sm: 0 0 10px rgba(160, 89, 203, 0.2);
+  --ds-glow-brand-md: 0 0 20px rgba(160, 89, 203, 0.3);
+  --ds-glow-brand-ring: 0 0 0 3px rgba(160, 89, 203, 0.2);
   --ds-glow-error-ring: 0 0 0 3px rgba(239, 68, 68, 0.2);
 
   /* DS - Composite shadows (DARK MODE) */
@@ -727,9 +812,9 @@ textarea:focus-visible {
   --ds-shadow-card-hover: 0 4px 8px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
   --ds-shadow-button: 0 1px 2px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
   --ds-shadow-button-hover: 0 2px 4px 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
-  --ds-shadow-button-primary: 0 2px 4px 0 rgba(0, 0, 0, 0.4), 0 0 10px rgba(16, 185, 129, 0.2);
-  --ds-shadow-button-primary-hover: 0 4px 8px -1px rgba(0, 0, 0, 0.4), 0 0 20px rgba(16, 185, 129, 0.3);
-  --ds-shadow-input-focus: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  --ds-shadow-button-primary: 0 2px 4px 0 rgba(0, 0, 0, 0.4), 0 0 10px rgba(160, 89, 203, 0.2);
+  --ds-shadow-button-primary-hover: 0 4px 8px -1px rgba(0, 0, 0, 0.4), 0 0 20px rgba(160, 89, 203, 0.3);
+  --ds-shadow-input-focus: 0 0 0 3px rgba(160, 89, 203, 0.2);
   --ds-shadow-modal: 0 20px 40px -5px rgba(0, 0, 0, 0.6), 0 8px 16px -6px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
   --ds-shadow-dropdown: 0 10px 25px -3px rgba(0, 0, 0, 0.5), 0 4px 10px -4px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
 
@@ -807,7 +892,7 @@ textarea:focus-visible {
    DESIGN SYSTEM TYPOGRAPHY CLASSES
    ================================ */
 
-/* Headings - usando fonte display (Satoshi) */
+/* Headings - usando fonte display (SF Pro Display) */
 .text-heading-1 {
   font-family: var(--ds-font-display);
   font-size: var(--ds-text-4xl);

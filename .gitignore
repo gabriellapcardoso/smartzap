@@ -1,6 +1,9 @@
 # Dependencies
 node_modules
 
+# gstack local artifacts (QA reports, screenshots — not part of the product)
+.gstack/
+
 # Next.js
 .next/
 out/
